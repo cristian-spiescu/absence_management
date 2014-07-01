@@ -1,5 +1,6 @@
 package com.crispico.absence_management;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.crispico.absence_management.dao.EmployeeHibernateDao;
@@ -14,6 +15,12 @@ public class Main {
 		e.setFirstName("John");
 		e.setLastName("Doe");
 		dao.save(e);
+		
+		for (int i = 0; i < 15; i++) {
+			e.setFirstName("firtsName" + i);
+			e.setLastName("lastName" + i);
+			dao.save(e);
+		}
 		
 		List<Employee> employees = dao.getAll();
 		for (Employee employee : employees) {

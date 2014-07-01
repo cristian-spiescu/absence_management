@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
     <wb-module deploy-name="absence_management.web">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/absence_management.core/absence_management.core">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <property name="java-output-path" value="/absence_management.web/build/classes"/>
         <property name="context-root" value="absence_management.web"/>
     </wb-module>
