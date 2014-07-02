@@ -14,6 +14,10 @@
         <many-to-one name="Employee" class="Employee"
             column="employee_id" not-null="true"
             cascade="all" lazy="false" />
+        <many-to-one name="type" class="AbsenceType"
+            column="type_id" not-null="true"
+            cascade="all" lazy="false" />            
+           
 
     </class>
 

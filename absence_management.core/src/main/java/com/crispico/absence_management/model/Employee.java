@@ -6,9 +6,7 @@ import java.util.Set;
 public class Employee {
 
 	private long id;
-
 	private String firstName;
-
 	private String lastName;
 	
 	private Set<Absence> absences = new HashSet<Absence>();

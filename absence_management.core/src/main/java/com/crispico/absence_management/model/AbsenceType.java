@@ -7,18 +7,24 @@ public class AbsenceType {
 	private long id;
 	private String type;
 	
-//	private Set<Absence> absences = new HashSet<Absence>(0);
-//
-//	public Set<Absence> getAbsences() {
-//		return absences;
-//	}
-//
-//	public void setAbsences(Set<Absence> absences) {
-//		this.absences = absences;
-//	}
+	private Set<Absence> absences = new HashSet<Absence>();
+
+	public Set<Absence> getAbsences() {
+		return absences;
+	}
+
+	public void setAbsences(Set<Absence> absences) {
+		this.absences = absences;
+	}
 
 	public long getId() {
 		return id;
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "[type = "+type+" ]";
 	}
 
 	public void setId(long id) {

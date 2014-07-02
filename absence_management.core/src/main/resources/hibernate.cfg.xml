@@ -9,7 +9,7 @@
 
         <mapping resource="Employee.hbm.xml"/>
         <mapping resource="Absence.hbm.xml"/>
-	
+	    <mapping resource="AbsenceType.hbm.xml"/>
     </session-factory>
 
 </hibernate-configuration>

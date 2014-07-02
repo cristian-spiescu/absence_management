@@ -1,48 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:web="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" id="WebApp_ID" version="2.4">
-  <display-name>absence_management.web</display-name>
-  <servlet>
-    <description>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:web="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+	id="WebApp_ID" version="2.4">
+	<display-name>absence_management.web</display-name>
+	<servlet>
+		<description>
 		</description>
-    <display-name>HelloWorldServlet</display-name>
-    <servlet-name>HelloWorldServlet</servlet-name>
-    <servlet-class>com.crispico.absence_management.HelloWorldServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>HelloWorldServlet</servlet-name>
-    <url-pattern>/HelloWorldServlet.html</url-pattern>
-  </servlet-mapping>
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-    <welcome-file>index.htm</welcome-file>
-    <welcome-file>index.jsp</welcome-file>
-    <welcome-file>default.html</welcome-file>
-    <welcome-file>default.htm</welcome-file>
-    <welcome-file>default.jsp</welcome-file>
-  </welcome-file-list>
-  
-  <servlet>
-    <description></description>
-    <display-name>EmployeeTableController</display-name>
-    <servlet-name>EmployeeTableController</servlet-name>
-    <servlet-class>com.crispico.absence_management.controller.EmployeeTableController</servlet-class>
-  </servlet>
+		<display-name>HelloWorldServlet</display-name>
+		<servlet-name>HelloWorldServlet</servlet-name>
+		<servlet-class>com.crispico.absence_management.HelloWorldServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>HelloWorldServlet</servlet-name>
+		<url-pattern>/HelloWorldServlet.html</url-pattern>
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
 
-  <servlet-mapping>
-    <servlet-name>EmployeeTableController</servlet-name>
-    <url-pattern>/showEmployees.do</url-pattern>
-  </servlet-mapping>
+	<servlet>
+		<description></description>
+		<display-name>EmployeeTableController</display-name>
+		<servlet-name>EmployeeTableController</servlet-name>
+		<servlet-class>com.crispico.absence_management.controller.EmployeeTableController</servlet-class>
+	</servlet>
 
-	  <servlet>
-    <description>
+	<servlet-mapping>
+		<servlet-name>EmployeeTableController</servlet-name>
+		<url-pattern>/showEmployees.do</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<description>
 		</description>
-    <display-name>AbsenceTableController</display-name>
-    <servlet-name>AbsenceTableController</servlet-name>
-    <servlet-class>com.crispico.absence_management.controller.AbsenceTableController</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>AbsenceTableController</servlet-name>
-    <url-pattern>/showAbsences.do</url-pattern>
-  </servlet-mapping>
+		<display-name>AbsenceTableController</display-name>
+		<servlet-name>AbsenceTableController</servlet-name>
+		<servlet-class>com.crispico.absence_management.controller.AbsenceTableController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AbsenceTableController</servlet-name>
+		<url-pattern>/showAbsences.do</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<description>
+		</description>
+		<display-name>AbsenceTypeTableController</display-name>
+		<servlet-name>AbsenceTypeTableController</servlet-name>
+		<servlet-class>com.crispico.absence_management.controller.AbsenceTypeTableController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AbsenceTypeTableController</servlet-name>
+		<url-pattern>/showAbsenceTypes.do</url-pattern>
+	</servlet-mapping>
 
 </web-app>

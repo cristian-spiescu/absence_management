@@ -9,7 +9,12 @@
             <generator class="native"/>
         </id>
         <property name="type" type="string"/>
-        
+      <set name="absences" table="absence" inverse="true" lazy="false" fetch="select">
+            <key>
+                <column name="type_id" not-null="true" />
+            </key>
+            <one-to-many class="Absence" />
+     </set>
     </class>
 
 </hibernate-mapping>
