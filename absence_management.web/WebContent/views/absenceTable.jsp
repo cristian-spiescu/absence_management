@@ -1,8 +1,7 @@
 <%@page import="com.crispico.absence_management.model.Employee"%>
 <%@page import="com.crispico.absence_management.model.Absence"%>
 <%@page import="java.util.ArrayList"%>
-<%@page import="java.util.*"%>
-<%@page import="java.text.*"%>
+<%@page import="java.util.List"%>
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
@@ -23,34 +22,23 @@
 		<p>
 		<div class="panel panel-success">
 			<div class="panel-heading">
-				<h3 class="panel-title">Employees</h3>
+				<h3 class="panel-title">Absences</h3>
 			</div>
 			<div class="panel-body">
 				<table class="table table-bordered table-striped">
 					<thead>
-						<th>First Name</th>
-						<th>Last Name</th>
-						<th>Absences</th>
+						<th>Name</th>
+						<th>start date</th>
+						<th>end date</th>
 						<th>Commands</th>
 					</thead>
 					<%
-						for (Employee employee : (List<Employee>) request.getAttribute("list")) {
+						for (Absence absence : (List<Absence>) request.getAttribute("list")) {
 					%>
 					<tr>
-						<td><%=employee.getFirstName()%></td>
-						<td><%=employee.getLastName()%></td>
-						<td>
-						<%	
-						for (Absence ab: employee.getAbsences()) {
-							String sd, ed;
-							DateFormat dateFormatter;
-							dateFormatter = DateFormat.getDateInstance(DateFormat.DEFAULT);
-							sd = dateFormatter.format(ab.getStartDate());
-							ed = dateFormatter.format(ab.getEndDate());
-						%>
-							<%=sd+" "%><span class="glyphicon glyphicon-arrow-right"></span><%=" "+ed %><br/>
-						<% } %>
-						 </td>
+						<td><%=absence.getEmployee().getFirstName()+" "+ absence.getEmployee().getLastName()%></td>
+						<td><%=absence.getStartDate()%></td>
+						<td><%=absence.getEndDate()%></td>
 						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
 							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
 					</tr>
