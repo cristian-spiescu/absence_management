@@ -3,6 +3,7 @@
 	<name>absence_management.core</name>
 	<comment></comment>
 	<projects>
+		<project>absence_management.web</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
