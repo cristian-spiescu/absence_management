@@ -5,32 +5,32 @@ import java.util.List;
 import org.hibernate.Session;
 
 import com.crispico.absence_management.HibernateUtil;
-import com.crispico.absence_management.model.Employee;
+import com.crispico.absence_management.model.AbsenceType;
 
-public class EmployeeHibernateDao {
-
-	public void save(Employee employee) {
+public class AbsenceTypeHibernateDao {
+	public void save(AbsenceType absence) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        session.save(employee);
+        session.save(absence);
         session.getTransaction().commit();
 	}
 	
-	public List<Employee> getAll() {
+	public List<AbsenceType> getAll() {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         @SuppressWarnings("unchecked")
-		List<Employee> result = (List<Employee>) session.createQuery("from Employee").list();
+		List<AbsenceType> result = (List<AbsenceType>) session.createQuery("from AbsenceType").list();
         session.getTransaction().commit();
         
         return result;
 	}
 	
-	public List<Employee> getEmployee(long i) {
+	public List<AbsenceType> getAbsenceType(long i) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        List<Employee> emp = (List<Employee>) session.createQuery("from Employee where id = " + i).list();
-		session.getTransaction().commit();
-		return emp;
+        List<AbsenceType> result = (List<AbsenceType>) session.createQuery("from AbsenceType where absence_type_id = " + i).list();
+        session.getTransaction().commit();
+        
+        return result;
 	}
 }

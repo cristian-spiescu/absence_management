@@ -4,16 +4,12 @@
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.crispico.absence_management.model">
 
-    <class name="Employee" table="EMPLOYEE">
-        <id name="id" column="ID">
+    <class name="AbsenceType" table="ABSENCE_TYPE">
+        <id name="absence_type_id" column="ABSENCE_TYPE_ID">
             <generator class="native"/>
         </id>
-        <property name="firstName"/>
-        <property name="lastName"/>
-        <set name="absences" inverse="true" lazy="false">
-    		<key column="ID" not-null="false"/>
-    		<one-to-many class="Absence"/>
-		</set>
+        <property name="type"/>
+        
     </class>
 
 </hibernate-mapping>
