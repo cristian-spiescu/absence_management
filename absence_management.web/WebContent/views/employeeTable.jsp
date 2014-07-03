@@ -39,9 +39,7 @@
 					<tr>
 						<td><%=employee.getFirstName()%></td>
 						<td><%=employee.getLastName()%></td>
-						<td>
-                            <%=employee.getAllAbsences() %>
-						</td>
+						<td><%=employee.getAllAbsences()%></td>
 						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
 							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
 					</tr>

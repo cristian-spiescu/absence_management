@@ -16,6 +16,14 @@
 <!-- Bootstrap theme -->
 <link href="css/bootstrap-theme.min.css" rel="stylesheet">
 
+<script language="JavaScript">
+<!--
+function function_delete(id){
+    window.location="delete.do?id=" + id;
+}
+//-->
+</script>
+
 </head>
 <body>
 	<div class="container theme-showcase" role="main">
@@ -32,14 +40,16 @@
 						<th>Commands</th>
 					</thead>
 					<%
-						for (Absence absence : (List<Absence>) request
-								.getAttribute("list")) {
+						for (Absence absence : (List<Absence>) request.getAttribute("list")) {
 					%>
 					<tr>
-						<td><b><%=absence.getEmployee() %></b> a lipsit in perioada <%= absence.getStartDate() %> - <%= absence.getEndDate() %></td>
-						<td><%=absence.getAbsenceType() %></td>
+						<td><b><%=absence.getEmployee()%></b> a lipsit in perioada <%=absence.getStartDate()%>
+							- <%=absence.getEndDate()%></td>
+						<td><%=absence.getAbsenceType()%></td>
 						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
+							<!-- redirect to another page which does the deletion -->
+							<button class="btn btn-xs btn-danger" type="button"
+								onclick="function_delete(<%=absence.getID()%>)">Delete</button></td>
 					</tr>
 					<%
 						}
