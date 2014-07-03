@@ -1,4 +1,3 @@
-<%@page import="com.crispico.absence_management.model.Absence"%>
 <%@page import="com.crispico.absence_management.model.Employee"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
@@ -9,7 +8,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Absences</title>
+<title>Delete Employee</title>
 
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -55,36 +54,31 @@
 		<p>
 		<div class="panel panel-success">
 			<div class="panel-heading">
-				<h3 class="panel-title">Absences</h3>
+				<h3 class="panel-title">Delete Employee</h3>
 			</div>
 			<div class="panel-body">
-				<div class="alert alert-<%= (String)request.getAttribute("m_type")%>" role="alert">
-        			<%= (String)request.getAttribute("message") %>
-      			</div>
+				<p>Really delete employee?</p>
 				<table class="table table-bordered table-striped">
 					<thead>
-						<th>Type</th>
-						<th>Employee</th>
-						<th>Start date</th>
-						<th>End date</th>
-						<th>Commands</th>
+						<th>First Name</th>
+						<th>Last Name</th>
+						<th>Absences</th>
+						<th># of absences</th>
 					</thead>
 					<%
-						for (Absence absence : (List<Absence>) request.getAttribute("list")) {
+						List<Employee> employee = (List<Employee>) request.getAttribute("list");
 					%>
 					<tr>
-						<td><%=absence.getType().getType()%></td>
-						<td><%=absence.getEmployee().getFirstName()+ " " + absence.getEmployee().getLastName()%></td>
-						<td><%=absence.getStart()%></td>
-						<td><%=absence.getFinish()%></td>
-						<td><button class="btn btn-xs btn-warning" type="button" onclick="window.location.href='editAbsence.do?myabs=<%= absence.getAbsence_id()%>';">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button" onclick="window.location.href='deleteAbsence.do?myabs=<%= absence.getAbsence_id()%>';">Delete</button></td>
+						<td><%=employee.get(0).getFirstName()%></td>
+						<td><%=employee.get(0).getLastName()%></td>
+						<td><%=employee.get(0).showAbsences()%></td>
+						<td><%=employee.get(0).getAbsences().size()%></td>
 					</tr>
-					<%
-						}
-					%>
+					
 				</table>
-				<button type="button" class="btn btn-success" onclick="window.location.href='addAbsence.do';">Add absence</button>
+				<br />
+        		<button type="button" class="btn btn-success" onclick="window.location.href='showEmployees.do?delemp=<%=employee.get(0).getId()%>';">Delete</button>
+        		<button type="button" class="btn btn-danger" onclick="window.location.href='showEmployees.do';">Cancel</button>
 			</div>
 		</div>
 	</div>

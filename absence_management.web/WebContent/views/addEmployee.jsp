@@ -1,4 +1,7 @@
-<%@page import="com.crispico.absence_management.model.Absence"%>
+<%@page import="org.postgresql.jdbc2.ResultWrapper"%>
+<%@page import="javax.persistence.Convert"%>
+<%@page
+	import="com.crispico.absence_management.dao.EmployeeHibernateDao"%>
 <%@page import="com.crispico.absence_management.model.Employee"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
@@ -9,13 +12,19 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Absences</title>
+<title>Add Employee</title>
 
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <!-- Bootstrap theme -->
 <link href="css/bootstrap-theme.min.css" rel="stylesheet">
 
+<script type="text/javascript">
+	function submitInfo() {
+		document.addEmp.submit();
+	}
+	
+	</script>
 </head>
 <body>
 	<div class="navbar navbar-default">
@@ -55,36 +64,31 @@
 		<p>
 		<div class="panel panel-success">
 			<div class="panel-heading">
-				<h3 class="panel-title">Absences</h3>
+				<h3 class="panel-title">Employee Personal Info</h3>
 			</div>
 			<div class="panel-body">
-				<div class="alert alert-<%= (String)request.getAttribute("m_type")%>" role="alert">
-        			<%= (String)request.getAttribute("message") %>
-      			</div>
-				<table class="table table-bordered table-striped">
-					<thead>
-						<th>Type</th>
-						<th>Employee</th>
-						<th>Start date</th>
-						<th>End date</th>
-						<th>Commands</th>
-					</thead>
-					<%
-						for (Absence absence : (List<Absence>) request.getAttribute("list")) {
-					%>
-					<tr>
-						<td><%=absence.getType().getType()%></td>
-						<td><%=absence.getEmployee().getFirstName()+ " " + absence.getEmployee().getLastName()%></td>
-						<td><%=absence.getStart()%></td>
-						<td><%=absence.getFinish()%></td>
-						<td><button class="btn btn-xs btn-warning" type="button" onclick="window.location.href='editAbsence.do?myabs=<%= absence.getAbsence_id()%>';">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button" onclick="window.location.href='deleteAbsence.do?myabs=<%= absence.getAbsence_id()%>';">Delete</button></td>
-					</tr>
-					<%
-						}
-					%>
-				</table>
-				<button type="button" class="btn btn-success" onclick="window.location.href='addAbsence.do';">Add absence</button>
+				<!-- 
+				<form name="addEmp" action="/showEmployees.do" method="post" >
+    				<input type="text" name="name" >
+    				<input type="text" name="fname" >
+    				<button type="button" class="btn btn-success" onclick="submit();">Add</button>
+				</form>
+				-->
+				<form name="addEmp" action="/absence_management.web/showEmployees.do" method="get">
+					<legend>Use the form below to fill in the requested information.</legend>
+					<fieldset>
+						<p>
+							<label> First Name:</label> <input type="text" name="fname">
+						</p>
+						<p>
+							<label> Last Name:</label> <input type="text" name="name">
+
+						</p>
+
+					</fieldset>
+					<br />
+					<button type="button" class="btn btn-success" onclick="submitInfo();">Add</button>
+				</form>
 			</div>
 		</div>
 	</div>

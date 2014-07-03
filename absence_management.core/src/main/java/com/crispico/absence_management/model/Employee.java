@@ -86,9 +86,12 @@ public class Employee {
 
     public String showAbsences() {
     	String st = "";
-    	for (Absence ab : absences) {
-    		st += ab.getType().getType() + " [ " + ab.getStart() + " - " + ab.getFinish() + " ]<br />";
+    	if (absences.size()>0) {
+    		for (Absence ab : absences) {
+        		st += ab.getType().getType() + " [ " + ab.getStart() + " - " + ab.getFinish() + " ]<br />";
+        	}
     	}
+    	
     	return st;	
     }
     

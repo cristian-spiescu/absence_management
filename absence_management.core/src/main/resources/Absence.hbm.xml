@@ -13,13 +13,11 @@
         <many-to-one name="type" 
              class="AbsenceType"
              column="ABSENCE_TYPE_ID"
-             cascade="all"
              lazy="false">
 		</many-to-one>
         <many-to-one name="employee" 
              class="Employee"
              column="ID"
-             cascade="all"
              lazy="false">
 		</many-to-one>
     </class>
