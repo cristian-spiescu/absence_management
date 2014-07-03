@@ -2,29 +2,28 @@ package com.crispico.absence_management.dao;
 
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
 import com.crispico.absence_management.HibernateUtil;
-import com.crispico.absence_management.model.Employee;
+import com.crispico.absence_management.model.Absence;
 
-public class EmployeeHibernateDao {
+public class AbsenceHibernateDao {
 
-	public void save(Employee employee) {
+	public void save(Absence absence) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
-		session.save(employee);
+		session.save(absence);
 		session.getTransaction().commit();
 	}
 
-	public List<Employee> getAll(/* Session mySession */) {
+	public List<Absence> getAll() {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		session.beginTransaction();
 		@SuppressWarnings("unchecked")
-		List<Employee> result = (List<Employee>) session.createQuery(
-				"from Employee").list();
+		List<Absence> result = (List<Absence>) session.createQuery(
+				"from Absence").list();
 		session.getTransaction().commit();
-
 		return result;
 	}
+
 }

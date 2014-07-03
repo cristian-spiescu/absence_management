@@ -1,19 +1,31 @@
 package com.crispico.absence_management.model;
 
+import java.util.Set;
+
 public class Employee {
 
-	private long id;
+	private long ID;
 
 	private String firstName;
 
 	private String lastName;
 
-	public long getId() {
-		return id;
+	private Set<Absence> absences;
+
+	public Set<Absence> getAbsences() {
+		return absences;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setAbsences(Set<Absence> absences) {
+		this.absences = absences;
+	}
+
+	public long getID() {
+		return ID;
+	}
+
+	public void setID(long ID) {
+		this.ID = ID;
 	}
 
 	public String getFirstName() {
@@ -32,16 +44,31 @@ public class Employee {
 		this.lastName = lastName;
 	}
 
+	// @Override
+	// public String toString() {
+	// return "Employee [id=" + ID + ", firstName=" + firstName + ", lastName="
+	// + lastName + "]";
+	// }
+
+	public String getAllAbsences() {
+        String a = "";
+		for (Absence absence : absences) {
+		    //a += absence.getAbsenceType().getType() + "; ";
+		    a += absence.toString();
+		}
+		return a;
+	}
+
 	@Override
 	public String toString() {
-		return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + "]";
+		return firstName + " " + lastName;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + (int) (ID ^ (ID >>> 32));
 		return result;
 	}
 
@@ -54,7 +81,7 @@ public class Employee {
 		if (getClass() != obj.getClass())
 			return false;
 		Employee other = (Employee) obj;
-		if (id != other.id)
+		if (ID != other.ID)
 			return false;
 		return true;
 	}

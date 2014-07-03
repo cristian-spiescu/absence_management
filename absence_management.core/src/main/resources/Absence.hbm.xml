@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.crispico.absence_management.model">
+
+	<class name="Absence" table="ABSENCE">
+		<id name="ID">
+			<generator class="native" />
+		</id>
+		<property name="startDate" />
+		<property name="endDate" />
+        <!-- cheia externa vreau sa se numeasca employee_id -->
+		<many-to-one name="employee" class="Employee" column="employee_id" lazy="false"
+			not-null="true" cascade="all" />
+		<!-- pt fiecare absenta, vreau sa-i stiu tipul; nu vreau si invers, ca pt fiecare tip sa stiu lista de absente de tipul ala -->
+		<many-to-one name="absenceType" class="AbsenceType" column="type_id" cascade="all"
+			not-null="true" lazy="false"/>
+	</class>
+
+
+</hibernate-mapping>

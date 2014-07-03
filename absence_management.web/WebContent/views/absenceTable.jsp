@@ -22,26 +22,22 @@
 		<p>
 		<div class="panel panel-success">
 			<div class="panel-heading">
-				<h3 class="panel-title">Employees</h3>
+				<h3 class="panel-title">Absences</h3>
 			</div>
 			<div class="panel-body">
 				<table class="table table-bordered table-striped">
 					<thead>
-						<th>First Name</th>
-						<th>Last Name</th>
-						<th>Absentele</th>
+						<th>Absence</th>
+						<th>Absence type</th>
 						<th>Commands</th>
 					</thead>
 					<%
-						for (Employee employee : (List<Employee>) request
+						for (Absence absence : (List<Absence>) request
 								.getAttribute("list")) {
 					%>
 					<tr>
-						<td><%=employee.getFirstName()%></td>
-						<td><%=employee.getLastName()%></td>
-						<td>
-                            <%=employee.getAllAbsences() %>
-						</td>
+						<td><b><%=absence.getEmployee() %></b> a lipsit in perioada <%= absence.getStartDate() %> - <%= absence.getEndDate() %></td>
+						<td><%=absence.getAbsenceType() %></td>
 						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
 							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
 					</tr>
