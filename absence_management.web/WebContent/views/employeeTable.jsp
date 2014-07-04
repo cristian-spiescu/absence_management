@@ -42,7 +42,7 @@
 </script>
 </head>
 <body>
-	<div class="container theme-showcase" role="main">
+	<div class="container theme-showcase my-container" role="main">
 		<%@include file="navbar.jsp" %>
 		<%@include file="editEmployeeModal.jsp" %>
 		<%@include file="addEmployeeModal.jsp" %>
@@ -81,7 +81,7 @@
 						<div class="row">
 							<div class="col-md-3">
 								<form action="deleteEmployee.do" method="POST">
-									<button class="btn btn-xs btn-danger" type="submit">Delete</button>
+									<button class="btn btn-xs btn-danger" type="submit" onclick="return confirm('Are you sure you want to delete this item?');">Delete</button>
 									<input type="hidden" name="employeeId" value="<%=employee.getId()%>">
 								</form>
 							</div>
