@@ -38,18 +38,66 @@
   </servlet>
   <servlet>
     <description></description>
-    <display-name>DeleteController</display-name>
-    <servlet-name>DeleteController</servlet-name>
-    <servlet-class>com.crispico.absence_management.controller.DeleteController</servlet-class>
+    <display-name>DeleteAbsenceController</display-name>
+    <servlet-name>DeleteAbsenceController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.DeleteAbsenceController</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>AbsenceTableController</servlet-name>
     <url-pattern>/showAbsence.do</url-pattern>
   </servlet-mapping>
-
   <servlet-mapping>
-    <servlet-name>DeleteController</servlet-name>
-    <url-pattern>/delete.do</url-pattern>
+    <servlet-name>DeleteAbsenceController</servlet-name>
+    <url-pattern>/deleteAbsence.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>DeleteEmployeeController</display-name>
+    <servlet-name>DeleteEmployeeController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.DeleteEmployeeController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DeleteEmployeeController</servlet-name>
+    <url-pattern>/deleteEmployees.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>ConfirmDeleteEmployeeController</display-name>
+    <servlet-name>ConfirmDeleteEmployeeController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.ConfirmDeleteEmployeeController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ConfirmDeleteEmployeeController</servlet-name>
+    <url-pattern>/confirm_delete_employee.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>AddEmployeeController</display-name>
+    <servlet-name>AddEmployeeController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.AddEmployeeController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AddEmployeeController</servlet-name>
+    <url-pattern>/add_employee.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>EditEmployee</display-name>
+    <servlet-name>EditEmployee</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.EditEmployee</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EditEmployee</servlet-name>
+    <url-pattern>/edit_employee.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>EditEmployeeNow</display-name>
+    <servlet-name>EditEmployeeNow</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.EditEmployeeNow</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EditEmployeeNow</servlet-name>
+    <url-pattern>/EditEmployeeNow</url-pattern>
   </servlet-mapping>
 </web-app>

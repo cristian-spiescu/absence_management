@@ -12,10 +12,11 @@
 		<property name="endDate" />
         <!-- cheia externa vreau sa se numeasca employee_id -->
 		<many-to-one name="employee" class="Employee" column="employee_id" lazy="false"
-			not-null="true" cascade="all" />
+			not-null="true" />
 		<!-- pt fiecare absenta, vreau sa-i stiu tipul; nu vreau si invers, ca pt fiecare tip sa stiu lista de absente de tipul ala -->
-		<many-to-one name="absenceType" class="AbsenceType" column="type_id" cascade="all"
+		<many-to-one name="absenceType" class="AbsenceType" column="type_id" 
 			not-null="true" lazy="false"/>
+			<!-- cascade="all", daca sterg op absenta nu vreau sa ating tebelul de tipuri de absente -->
 	</class>
 
 

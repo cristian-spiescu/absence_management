@@ -19,7 +19,7 @@
 <script language="JavaScript">
 <!--
 function function_delete(id){
-    window.location="delete.do?id=" + id;
+    window.location="deleteAbsence.do?id=" + id;
 }
 //-->
 </script>

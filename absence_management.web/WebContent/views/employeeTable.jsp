@@ -16,6 +16,25 @@
 <!-- Bootstrap theme -->
 <link href="css/bootstrap-theme.min.css" rel="stylesheet">
 
+<script language="JavaScript">
+<!--
+function function_delete(id){
+    window.location="confirm_delete_employee.do?id=" + id;
+}
+
+function function_edit(id){
+    window.location="edit_employee.do?id=" + id;
+}
+
+function adaugaAngajat(){
+   firstname = document.getElementById("firstname").value;
+   lastname = document.getElementById("lastname").value;
+   window.location="add_employee.do?firstname="+firstname+"&lastname="+lastname;
+}
+//-->
+</script>
+
+
 </head>
 <body>
 	<div class="container theme-showcase" role="main">
@@ -40,8 +59,9 @@
 						<td><%=employee.getFirstName()%></td>
 						<td><%=employee.getLastName()%></td>
 						<td><%=employee.getAllAbsences()%></td>
-						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
+						<td><button class="btn btn-xs btn-warning" type="button" onclick="function_edit(<%=employee.getID()%>)">Edit</button>
+							<button class="btn btn-xs btn-danger" type="button"
+								onclick="function_delete(<%=employee.getID()%>)">Delete</button></td>
 					</tr>
 					<%
 						}
@@ -49,6 +69,26 @@
 				</table>
 			</div>
 		</div>
+		</p>
+		<p>
+		<div class="alert alert-success" role="alert">
+			<strong> Adauga angajat </strong><br />
+			<table>
+				<tr>
+					<td>Prenume:</td>
+					<td><input type="text" id="firstname" /></td>
+				</tr>
+				<tr>
+					<td>Nume:</td>
+					<td><input type="text" id="lastname" /></td>
+				</tr>
+				<tr colspan="2">
+					<td><input type="button" value="Adauga" onclick="adaugaAngajat()"></td>
+				</tr>
+			</table>
+		</div>
+		</p>
 	</div>
+
 </body>
 </html>
