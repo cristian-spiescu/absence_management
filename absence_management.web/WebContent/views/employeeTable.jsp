@@ -14,11 +14,37 @@
 
 <%@include file="head.jsp" %>
 
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("[name=openEditEmployeeModal]").click(function(){
+			var employeeId=$(this).next().val();
+			$.ajax({
+	            url: "http://localhost:8080/absence_management.web/employeeEditInfo.do",
+	            type: "GET",
+	            contentType: 'application/json; charset=utf-8',
+	            dataType: "json",
+	           	data:"employeeId="+employeeId,
+	            success: function(data){
+	            	//handleAdmin(data["admin"], data["groupAdmin"]);
+	            	//var obj = jQuery.parseJSON(data);
+					$("#firstName").val(data["firstName"]);
+					$("#lastName").val(data["lastName"]);
+					$("#employeeId").val(employeeId);
+	            },
+	            error:function(msg,er,t){
+					alert(msg+"   "+er+"  "+t);
+	            } 
+	        });
+		});
+		
+	});
+
+</script>
 </head>
 <body>
 	<div class="container theme-showcase" role="main">
 		<%@include file="navbar.jsp" %>
-						
+		<%@include file="editEmployeeModal.jsp" %>
 		<%@include file="addEmployeeModal.jsp" %>
 		<div class="panel panel-success">
 			<div class="panel-heading">
@@ -60,12 +86,12 @@
 								</form>
 							</div>
 							<div class="col-md-3">
-								<form action="employeeEditInfo.do" method="POST">
-									<button class="btn btn-xs btn-warning" type="submit">Edit</button>
+								<!-- <form action="employeeEditInfo.do" method="POST"> -->
+									<button class="btn btn-xs btn-warning" name="openEditEmployeeModal" data-toggle="modal" data-target="#editModal">Edit</button>
 									<input type="hidden" name="employeeId" value="<%=employee.getId()%>">
 									<input type="hidden" name="firstName" value="<%=employee.getFirstName()%>">
 									<input type="hidden" name="lastName" value="<%=employee.getLastName()%>">
-								</form>
+								<!-- </form>-->
 							</div>
 						</div>
 						</td>
