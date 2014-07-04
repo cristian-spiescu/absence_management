@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 close="PopUpManager.removePopUp(this)"
+		 title = "Add absence"
+		 creationComplete="creationCompleteHandler(event)">
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			
+			private var list:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var employee:Employee;
+			[Bindable]
+			public var absence:Absence;	
+			public var employeeform:EmployeeForm;
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				absenceTypeService.getAll();
+			}
+
+			private function getAllTypesResultHandler(event:ResultEvent):void {
+				list = ArrayCollection(event.result);
+				ddl.dataProvider = list;
+			}	
+			
+			private function saveAbsenceClickHandler(event:MouseEvent):void{
+				absence = new Absence();
+				absence.employee = employeeform.employee;
+				absence.absenceType = ddl.selectedItem;
+				absence.startDate = startdate.selectedDate;
+				absence.EndDate = enddate.selectedDate;
+				absenceService.addAbsence(absence);
+				employeeform.employee.absences.addItem(absence);
+				employeeform.list.addItem(absence);
+				PopUpManager.removePopUp(this);
+				
+				
+			}
+			
+			private function addAbsenceResultHandler(event:ResultEvent):void {
+				absence.absenceId = Number(event.result);
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="addAbsence" result ="addAbsenceResultHandler(event)">
+				<mx:arguments>
+					<arg1>
+						{absence}
+					</arg1>
+				</mx:arguments>
+			</mx:method>
+			
+		</mx:RemoteObject>
+
+		<mx:RemoteObject id="absenceTypeService" destination="absenceTypeService" channelSet="{channelSet}">
+			<mx:method name="getAll" result ="getAllTypesResultHandler(event)"/>
+		</mx:RemoteObject>
+			
+
+		
+		
+	</fx:Declarations>
+		
+	<s:VGroup paddingTop="5" paddingLeft="3" paddingRight="3" paddingBottom="5">
+		
+		<s:HGroup>
+			<s:VGroup>
+				<s:Label text="Start date:" paddingTop="5" paddingLeft="60"/>
+				<mx:DateChooser id = "startdate" />
+			</s:VGroup>
+			
+			<s:VGroup>
+				<s:Label text="End date:" paddingTop="5" paddingLeft="60"/>
+				<mx:DateChooser id = "enddate"/>
+			</s:VGroup>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label text="Type:" paddingTop="5" paddingLeft="20" paddingRight="5" />
+			<s:DropDownList id="ddl" labelField="absenceType"/>
+		</s:HGroup>
+		
+		<mx:Button label="Save" click = "saveAbsenceClickHandler(event)" paddingLeft="3"
+				   enabled="{(enddate.selectedDate >= startdate.selectedDate)&amp;&amp;
+				   ddl.selectedItem != null &amp;&amp; enddate.selectedDate != null &amp;&amp;
+				   startdate.selectedDate != null}"/>
+	</s:VGroup>
+</s:TitleWindow>

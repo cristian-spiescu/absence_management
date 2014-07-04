@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
+		 paddingLeft="10" paddingTop="10" paddingRight="10 "
+		 creationComplete="creationCompleteHandler(event)">
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}">
+			<mx:method name="getAll" result ="getAllAbsencesResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			[Bindable]
+			public var list:ArrayCollection = new ArrayCollection();
+			private function creationCompleteHandler(event:FlexEvent):void{
+				absenceService.getAll();
+			}
+
+			private function getAllAbsencesResultHandler(event:ResultEvent):void {
+				list = ArrayCollection(event.result);
+				absencegrid.dataProvider = list;
+			}
+
+		]]>
+	</fx:Script>
+
+
+
+
+
+	<mx:DataGrid paddingLeft="5" id = "absencegrid" width="100%" height="100%">
+		<mx:columns>
+			<mx:DataGridColumn headerText="ID" dataField="absenceId"/>
+			<mx:DataGridColumn headerText="First name" dataField="employee.firstName"/>
+			<mx:DataGridColumn headerText="Last name" dataField="employee.lastName"/>
+			<mx:DataGridColumn headerText="Start date" dataField="startDate"/>
+			<mx:DataGridColumn headerText="End date" dataField="EndDate"/>
+			<mx:DataGridColumn headerText="Type" dataField="absenceType.absenceType"/>
+		</mx:columns>
+	</mx:DataGrid>
+
+</s:VGroup>

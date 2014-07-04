@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" 
+		 close="PopUpManager.removePopUp(this)"
+		 creationComplete="creationCompleteHandler(event)">
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			[Bindable]
+			public var employee:Employee;
+			public var abs:Absence;
+			public var at:AbsenceType;
+			
+			[Bindable]
+			public var list:ArrayCollection = new ArrayCollection();
+			
+			private function creationCompleteHandler(event:FlexEvent):void{
+				absenceService.getAbsences(employee);
+			}
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAbsencesResultHandler(event:ResultEvent):void {
+				list = ArrayCollection(event.result);
+				grid.dataProvider = list;
+				
+			}
+			
+			private function addEmployeeResultHandler(event:ResultEvent):void {
+				Alert.show("Employee added!");
+			}
+			
+			private function saveClickHandler(event:MouseEvent):void {
+				var form:EmployeeForm = new EmployeeForm();
+				form.employee = Employee(grid.selectedItem);
+				employeeService.addEmployee(employee);
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function addAbsenceClickHandler(event:MouseEvent):void {
+				var form:AbsenceForm = new AbsenceForm();
+				form.employee = Employee(grid.selectedItem);
+				form.employeeform = this;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);			
+			}
+			
+			private function deleteAbsenceClickHandler(event:MouseEvent):void {
+				var absence:Absence = Absence(grid.selectedItem);
+				list.removeItemAt(list.getItemIndex(absence));
+				absenceService.deleteAbsence(absence);
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="getAbsences" result="getAbsencesResultHandler(event)">
+				<mx:arguments>
+					<arg1>
+						{employee}
+					</arg1>
+				</mx:arguments>
+			</mx:method>
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
+			<mx:method name="addEmployee" result="addEmployeeResultHandler(event)">
+				<mx:arguments>
+					<arg1>
+						{employee}
+					</arg1>
+				</mx:arguments>
+			</mx:method>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:VGroup>		
+		
+		<s:HGroup>
+			<s:VGroup>
+				<s:HGroup paddingTop="10" paddingLeft="15" paddingRight="15">
+					<s:Label paddingTop="4" text="First name:"/>
+					<s:TextInput  text="@{employee.firstName}" id="fname"/>
+				</s:HGroup>
+				
+				<s:HGroup paddingTop="5" paddingLeft="15" paddingRight="15">
+					<s:Label paddingTop="5" text="Last name:"/>
+					<s:TextInput text="@{employee.lastName}" id = "lname"/>
+				</s:HGroup>
+			</s:VGroup>
+			<s:VGroup paddingLeft="30" paddingTop="5">
+				<s:BitmapImage source="images/img2.jpg" width="100" height="100" 
+							   horizontalAlign="center"/>
+			</s:VGroup>
+			
+		</s:HGroup>
+		
+		
+		
+		<s:HGroup paddingTop="15" paddingRight="15" paddingLeft="50">
+			<s:Button label="Add absence" click = "addAbsenceClickHandler(event)"/>
+			<s:Button label="Delete absence" click = "deleteAbsenceClickHandler(event)" enabled="{grid.selectedItem != null}"/>
+		</s:HGroup>
+		
+		<s:HGroup paddingLeft="3" paddingRight="3" >
+			<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+				<mx:columns>
+					<mx:DataGridColumn dataField="absenceId" headerText="ID"/>					
+					<mx:DataGridColumn dataField="startDate" headerText="Start date"/>
+					<mx:DataGridColumn dataField="EndDate" headerText="End date"/>
+					<mx:DataGridColumn dataField="absenceType.absenceType" headerText="Type"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</s:HGroup>
+		
+		<s:HGroup paddingTop="5" paddingLeft="25" paddingRight="15" paddingBottom="5">
+			<s:Button label="Save" click="saveClickHandler(event)"/>
+		</s:HGroup>
+		
+	</s:VGroup>
+</s:TitleWindow>

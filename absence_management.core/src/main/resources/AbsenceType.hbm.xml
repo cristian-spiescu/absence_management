@@ -9,7 +9,7 @@
 		<id name="absenceTypeId" column="absenceTypeId">
 			<generator class="native" />
 		</id>
-		<property name="absenceType" column = "absenceType" lazy = "false"/>
+		<property name="absenceType" column = "absenceType" lazy = "false" />
 		
 	</class>
 

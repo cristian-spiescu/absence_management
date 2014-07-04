@@ -1,6 +1,5 @@
 package com.crispico.absence_management.model;
 
-import java.util.List;
 import java.util.Set;
 
 public class Employee {
@@ -19,7 +18,7 @@ public class Employee {
 			s += a.getAbsenceId() + ": " + a.getStartDate().toString() 
 					+ " - " + a.getEndDate().toString() 
 					+ " " + a.getAbsenceType().getAbsenceType();
-			s += "\n";
+			s += "\n	";
 		}
 		return s;
 	}

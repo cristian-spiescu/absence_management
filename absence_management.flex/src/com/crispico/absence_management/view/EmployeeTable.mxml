@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 creationComplete="creationCompleteHandler(event)"
+		 paddingLeft="5" paddingRight="5" paddingBottom="5">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+		
+			public var list:ArrayCollection = new ArrayCollection();
+
+			private function creationCompleteHandler(event:FlexEvent):void {
+				employeeService.getAllEmployees();	
+			}
+			
+			private function addClickHandler(event:MouseEvent):void {
+				var employee:Employee = new Employee();
+				var form:AddEmployeeForm = new AddEmployeeForm();
+				form.employee = employee;
+				PopUpManager.addPopUp(form,this,true);
+				PopUpManager.centerPopUp(form);
+				list.addItem(employee);
+				
+			}
+			
+			private function reverseClickHandler(event:MouseEvent):void {
+				var employee:Employee = Employee(grid.selectedItem);
+				var temp:String = employee.firstName;
+				employee.firstName = employee.lastName;
+				employee.lastName = temp;
+			}
+			
+			private function editClickHandler(event:MouseEvent):void {
+				var form:EmployeeForm = new EmployeeForm();
+				form.employee = Employee(grid.selectedItem);
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+			}
+			
+			private function deleteClickHandler(event:MouseEvent):void {
+				var employee:Employee = Employee(grid.selectedItem);
+				list.removeItemAt(list.getItemIndex(employee));
+				employeeService.deleteEmployee(employee);
+			}
+			
+			
+			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAllEmployeesResultHandler(event:ResultEvent):void {
+				list = ArrayCollection(event.result);
+				grid.dataProvider = list;
+			}	
+			
+			private function searchClickHandler(event:MouseEvent):void {
+				var result:ArrayCollection = new ArrayCollection();
+				for each(var e:Employee in list){
+					if(e.lastName.indexOf(searchInputText.text) >= 0)
+						result.addItem(e);
+				}
+				var newTable:SearchTable = new SearchTable();
+				newTable.list = result;
+				newTable.father = this;
+				PopUpManager.addPopUp(newTable,this,true);
+				PopUpManager.centerPopUp(newTable);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
+			
+			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:HGroup paddingLeft="15" paddingBottom="5" paddingTop="5">
+		<s:HGroup paddingTop="40">
+			<s:VGroup>
+				<s:HGroup>
+					<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1" scaleX="1.5" scaleY="1.5"/>
+					<mx:Button label="Reverse First/Last Name" enabled="{grid.selectedItem != null}" 
+							   click="reverseClickHandler(event)" scaleX="1.5" scaleY="1.5"/>
+					<mx:Button label="Edit" click="editClickHandler(event)" 
+							   enabled="{grid.selectedItem != null}" scaleX="1.5" scaleY="1.5"/>
+					<mx:Button label="Delete" click="deleteClickHandler(event)" 
+							   enabled="{grid.selectedItem != null}" scaleX="1.5" scaleY="1.5"/>
+				</s:HGroup>
+				<s:HGroup paddingTop="30">
+					<s:TextInput prompt="Employee name" id = "searchInputText"/>
+					<s:Button label="Seach employee" click="searchClickHandler(event)"/>
+				</s:HGroup>
+			</s:VGroup>
+			
+			
+		</s:HGroup>	
+		<s:HGroup paddingLeft="400">
+			<s:BitmapImage source="images/img3.jpg" width="150" height="150"/>
+		</s:HGroup>	
+		
+	</s:HGroup>
+	
+		<mx:DataGrid id="grid"  allowMultipleSelection="true" height="100%" width="100%">
+			<mx:columns>
+				<mx:DataGridColumn dataField="id" headerText="ID"/>
+				<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
+				<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
+			</mx:columns>
+		</mx:DataGrid>
+	
+</s:VGroup>

@@ -18,6 +18,10 @@ public class Absence {
 		return absenceId;
 	}
 
+	public void setEndDate(Date endDate) {
+		EndDate = endDate;
+	}
+
 	public void setAbsenceId(long absenceId) {
 		this.absenceId = absenceId;
 	}
@@ -34,9 +38,9 @@ public class Absence {
 		return EndDate;
 	}
 
-	public void setEndDate(Date endDate) {
-		EndDate = endDate;
-	}
+	//public void setEndDate(Date endDate) {
+	//	EndDate = endDate;
+	//}
 
 	public Employee getEmployee() {
 		return employee;

@@ -23,8 +23,8 @@ public class Main {
 		AbsenceTypeHibernateDao daoty = new AbsenceTypeHibernateDao();
 		
 		Employee e = new Employee();
-		e.setFirstName("Johnanna");
-		e.setLastName("Doe");
+		e.setFirstName("Andreea");
+		e.setLastName("Doely");
 		dao.save(e);
 		String str = "January 2, 2010";
 		Date date = new Date();
@@ -59,8 +59,9 @@ public class Main {
 		for(Absence absence : daoabs.getAll()){
 			System.out.println(absence);
 		}
-		//long aux = 79;
-		//dao.delete(aux);
+		List<Absence> abs = daoabs.getById(196);
+		System.out.println("Lista de absente" + abs.toString() + abs.size());
+		
 		HibernateUtil.getSessionFactory().close();
 	}
 

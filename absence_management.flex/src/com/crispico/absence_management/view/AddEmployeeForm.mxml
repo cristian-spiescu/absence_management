@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 close="PopUpManager.removePopUp(this)"
+		 title = "Add employee">
+	<fx:Script>
+		<![CDATA[
+			
+			
+			import com.crispico.absence_management.model.Employee;
+
+			import mx.rpc.events.ResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			
+			
+			[Bindable]
+			public var employee:Employee;
+			
+			public function addEmployeeClickHandler(event:MouseEvent):void {
+				employeeService.addEmployee(employee);
+				PopUpManager.removePopUp(this);
+				
+			}
+
+			public function addEmployeeResultHandler(event:ResultEvent):void {
+				Alert.show("Employee added!");
+			}
+
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" >
+			<mx:method name="addEmployee" result="addEmployeeResultHandler(event)">
+				<mx:arguments>
+					<arg1>
+						{employee}
+					</arg1>
+				</mx:arguments>
+			</mx:method>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:HGroup>
+		<s:VGroup paddingBottom="10" paddingTop="10" paddingLeft="5" paddingRight="5">
+			<s:HGroup>
+				<s:Label text="First name:" paddingRight="5" paddingTop="4"/>
+				<s:TextInput text="@{employee.firstName}" id="fname"/>
+			</s:HGroup>
+			<s:HGroup>
+				<s:Label text = "Last name:" paddingRight="5" paddingTop="4"/>	
+				<s:TextInput text="@{employee.lastName}" id = "lname"/>
+			</s:HGroup>
+			
+			<s:HGroup paddingTop="30" paddingLeft="10">
+				<s:Button label="Add" click = "addEmployeeClickHandler(event)" />
+			</s:HGroup>
+			
+		</s:VGroup>
+		
+		<s:BitmapImage source="images/img1.jpg" width="150" height="150" 
+					   horizontalAlign="center"/>
+	</s:HGroup>
+	
+</s:TitleWindow>
