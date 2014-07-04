@@ -3,9 +3,9 @@
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
         <wb-resource deploy-path="/" source-path="/WebContent.flex"/>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/absence_management.core/absence_management.core">
+		<dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/absence_management.core/absence_management.core">
             <dependency-type>uses</dependency-type>
-        </dependent-module>        
+        </dependent-module>     
         <property name="java-output-path" value="/absence_management.web/build/classes"/>
         <property name="context-root" value="absence_management.web"/>
     </wb-module>
