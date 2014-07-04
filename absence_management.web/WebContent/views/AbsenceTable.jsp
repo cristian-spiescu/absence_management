@@ -10,7 +10,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Employees</title>
+<title>Absences</title>
 
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -23,25 +23,22 @@
 		<p>
 		<div class="panel panel-success">
 			<div class="panel-heading">
-				<h3 class="panel-title">Employees</h3>
+				<h3 class="panel-title">Absences</h3>
 			</div>
 			<div class="panel-body">
 				<table class="table table-bordered table-striped">
 					<thead>
-						<th>First Name</th>
-						<th>Last Name</th>
-						<th>Commands</th>
-						<th>Absences</th>
+						<th>Start date</th>
+						<th>End date</th>
+						<th>Type</th>
 					</thead>
 					<%
-						for (Employee employee : (List<Employee>) request.getAttribute("list")) {
+						for (Absence absence : (List<Absence>) request.getAttribute("list")) {
 					%>
 					<tr>
-						<td><%=employee.getFirstName()%></td>
-						<td><%=employee.getLastName()%></td>
-						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
-						<td><%=employee.printAbsences() %></td>
+						<td><%=absence.getStart_date()%></td>
+						<td><%=absence.getEnd_date()%></td>
+						<td><%=absence.getType().getType() %></td>
 					</tr>
 					<%
 						}

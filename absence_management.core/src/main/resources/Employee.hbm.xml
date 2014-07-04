@@ -10,6 +10,14 @@
         </id>
         <property name="firstName"/>
         <property name="lastName"/>
+        
+        <set name="absences" table="ABSENCE" cascade="all"
+                inverse="true" lazy="false" fetch="select">
+            <key>
+                <column name="ID" not-null="true" />
+            </key>
+            <one-to-many class="Absence" />
+        </set>
     </class>
 
 </hibernate-mapping>

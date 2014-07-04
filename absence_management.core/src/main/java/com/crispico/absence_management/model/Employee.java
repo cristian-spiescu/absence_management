@@ -1,5 +1,11 @@
 package com.crispico.absence_management.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import com.crispico.absence_management.dao.EmployeeHibernateDao;
+
 public class Employee {
 
 	private long id;
@@ -8,6 +14,8 @@ public class Employee {
 
 	private String lastName;
 
+	private Set<Absence> absences; 
+	
 	public long getId() {
 		return id;
 	}
@@ -32,6 +40,32 @@ public class Employee {
 		this.lastName = lastName;
 	}
 
+	public void setAbsences(Set<Absence> abs){
+		absences = abs;
+	}
+	
+	public Set<Absence> getAbsences(){
+		return absences;
+	}
+	
+	public String printAbsences(){
+		String rez = new String();
+		for(Absence abs : absences){
+			rez += abs.getStart_date().toString();
+			rez += ":";
+			rez += abs.getEnd_date().toString();
+			rez += " ";
+			rez += abs.getType().getType();
+			rez += ";";
+		}
+		return rez;
+	}
+	
+	public void deleteEmployee(long id){
+		EmployeeHibernateDao dao = new EmployeeHibernateDao();
+		dao.delete(id);
+	}
+	
 	@Override
 	public String toString() {
 		return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + "]";
