@@ -11,15 +11,17 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Employees</title>
 
-<!-- Bootstrap core CSS -->
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap theme -->
-<link href="css/bootstrap-theme.min.css" rel="stylesheet">
+<%@include file="head.jsp" %>
 
+<script>
+	$(document).ready(function(){
+		
+	});
+</script>
 </head>
 <body>
 	<div class="container theme-showcase" role="main">
-		<p>
+		<%@include file="navbar.jsp" %>
 		<div class="panel panel-success">
 			<div class="panel-heading">
 				<h3 class="panel-title">Absences</h3>
@@ -39,8 +41,12 @@
 						<td><%=absence.getEmployee().getFirstName()+" "+ absence.getEmployee().getLastName()%></td>
 						<td><%=absence.getStartDate()%></td>
 						<td><%=absence.getEndDate()%></td>
-						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
+						<td>
+							<form action="deleteAbsence.do" method="POST">
+								<button class="btn btn-xs btn-danger" type="submit">Delete</button>
+								<input type="hidden" name="absenceId" value="<%=absence.getId()%>">
+							</form>
+						</td>
 					</tr>
 					<%
 						}

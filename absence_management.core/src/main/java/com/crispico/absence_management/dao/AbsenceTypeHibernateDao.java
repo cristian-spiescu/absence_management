@@ -9,54 +9,40 @@ import com.crispico.absence_management.model.Absence;
 import com.crispico.absence_management.model.AbsenceType;
 import com.crispico.absence_management.model.Employee;
 
-public class EmployeeHibernateDao {
+public class AbsenceTypeHibernateDao {
 
-	public void save(Employee employee) {
+
+	public void save(AbsenceType absenceType) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        session.save(employee);
+        session.save(absenceType);
         session.getTransaction().commit();
-       // session.close();
+      //  session.close();
 	}
 	
-	public void delete(Employee employee) {
+	public void delete(AbsenceType type) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        session.delete(employee);
+        session.delete(type);
         session.getTransaction().commit();
        // session.close();
+	}
+	public AbsenceType getAbsenceTypeById(Long id) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+		AbsenceType result = (AbsenceType) session.createQuery("from AbsenceType where id="+id).uniqueResult();
+        session.close();
+        
+        return result;
 	}
 	
-	public void update(Employee employee) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        session.update(employee);
-        session.getTransaction().commit();
-       // session.close();
-	}
-
-
-	public List<Employee> getAll() {
-		
+	public List<AbsenceType> getAbsenceTypes() {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         @SuppressWarnings("unchecked")
-		List<Employee> result = (List<Employee>) session.createQuery("from Employee").list();
+		List<AbsenceType> result = (List<AbsenceType>) session.createQuery("from AbsenceType").list();
         session.close();
         
         return result;
 	}
-	public Employee getEmployeeById(Long id) {
-		
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        Employee result = (Employee) session.createQuery("from Employee where id="+id).uniqueResult();
-        session.close();
-        
-        return result;
-	}
-	
-
-	
-
 }

@@ -9,7 +9,7 @@
             <generator class="native"/>
         </id>
         <property name="type" type="string"/>
-      <set name="absences" table="absence" inverse="true" lazy="false" fetch="select">
+      <set name="absences" table="absence" cascade="all" inverse="true" lazy="false" fetch="select">
             <key>
                 <column name="type_id" not-null="true" />
             </key>

@@ -1,7 +1,6 @@
 package com.crispico.absence_management.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,17 +13,17 @@ import com.crispico.absence_management.model.AbsenceType;
 /**
  * Servlet implementation class EmployeeTableController
  */
-public class AbsenceTypeTableController extends HttpServlet {
+public class DeleteAbsenceTypeController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		AbsenceTypeHibernateDao ehd = new AbsenceTypeHibernateDao();
-		List<AbsenceType> list = ehd.getAbsenceTypes();
-		
-		req.setAttribute("list", list);
-		req.getRequestDispatcher("views/absenceTypeTable.jsp").forward(req, resp);
+		AbsenceTypeHibernateDao athd = new AbsenceTypeHibernateDao();
+		long typeId = Integer.parseInt(req.getParameter("typeId"));
+		AbsenceType at = athd.getAbsenceTypeById(typeId);
+		athd.delete(at);
+		resp.sendRedirect("/absence_management.web/showAbsenceTypes.do");
 	}
 
 }

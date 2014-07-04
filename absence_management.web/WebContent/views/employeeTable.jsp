@@ -12,18 +12,18 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Employees</title>
 
-<!-- Bootstrap core CSS -->
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<!-- Bootstrap theme -->
-<link href="css/bootstrap-theme.min.css" rel="stylesheet">
+<%@include file="head.jsp" %>
 
 </head>
 <body>
 	<div class="container theme-showcase" role="main">
-		<p>
+		<%@include file="navbar.jsp" %>
+						
+		<%@include file="addEmployeeModal.jsp" %>
 		<div class="panel panel-success">
 			<div class="panel-heading">
-				<h3 class="panel-title">Employees</h3>
+				<h3 class="panel-title"><span class="glyphicon glyphicon-user"></span> Employees </h3>
+
 			</div>
 			<div class="panel-body">
 				<table class="table table-bordered table-striped">
@@ -51,8 +51,24 @@
 							<%=sd+" "%><span class="glyphicon glyphicon-arrow-right"></span><%=" "+ed %><br/>
 						<% } %>
 						 </td>
-						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
+						<td>
+						<div class="row">
+							<div class="col-md-3">
+								<form action="deleteEmployee.do" method="POST">
+									<button class="btn btn-xs btn-danger" type="submit">Delete</button>
+									<input type="hidden" name="employeeId" value="<%=employee.getId()%>">
+								</form>
+							</div>
+							<div class="col-md-3">
+								<form action="employeeEditInfo.do" method="POST">
+									<button class="btn btn-xs btn-warning" type="submit">Edit</button>
+									<input type="hidden" name="employeeId" value="<%=employee.getId()%>">
+									<input type="hidden" name="firstName" value="<%=employee.getFirstName()%>">
+									<input type="hidden" name="lastName" value="<%=employee.getLastName()%>">
+								</form>
+							</div>
+						</div>
+						</td>
 					</tr>
 					<%
 						}
@@ -60,6 +76,8 @@
 				</table>
 			</div>
 		</div>
+		<button class="btn btn-primary glyphicon glyphicon-plus-sign pull-left" data-toggle="modal" data-target="#addModal"></button>
+		
 	</div>
 </body>
 </html>

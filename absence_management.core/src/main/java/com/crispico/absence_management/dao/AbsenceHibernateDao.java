@@ -9,54 +9,41 @@ import com.crispico.absence_management.model.Absence;
 import com.crispico.absence_management.model.AbsenceType;
 import com.crispico.absence_management.model.Employee;
 
-public class EmployeeHibernateDao {
+public class AbsenceHibernateDao {
 
-	public void save(Employee employee) {
+
+	public void save(Absence absence) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        session.save(employee);
+        session.save(absence);
         session.getTransaction().commit();
-       // session.close();
 	}
+	public void delete(Absence absence) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.delete(absence);
+        session.getTransaction().commit();
+	}
+
 	
-	public void delete(Employee employee) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        session.delete(employee);
-        session.getTransaction().commit();
-       // session.close();
-	}
-	
-	public void update(Employee employee) {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        session.update(employee);
-        session.getTransaction().commit();
-       // session.close();
-	}
-
-
-	public List<Employee> getAll() {
-		
+	public List<Absence> getAbsences() {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         @SuppressWarnings("unchecked")
-		List<Employee> result = (List<Employee>) session.createQuery("from Employee").list();
-        session.close();
-        
-        return result;
-	}
-	public Employee getEmployeeById(Long id) {
-		
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-        session.beginTransaction();
-        Employee result = (Employee) session.createQuery("from Employee where id="+id).uniqueResult();
+		List<Absence> result = (List<Absence>) session.createQuery("from Absence").list();
         session.close();
         
         return result;
 	}
 	
-
+	public Absence getAbsenceById(long id) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+		Absence result = (Absence) session.createQuery("from Absence where id="+id).uniqueResult();
+        session.close();
+        
+        return result;
+	}
 	
 
 }

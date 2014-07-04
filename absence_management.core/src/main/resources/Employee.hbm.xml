@@ -10,7 +10,7 @@
         </id>
         <property name="firstName"/>
         <property name="lastName"/>
-	 <set name="absences" table="absence" inverse="true" lazy="false" fetch="select">
+	 <set name="absences" table="absence" cascade="all" inverse="true" lazy="false" fetch="select">
             <key>
                 <column name="employee_id" not-null="true" />
             </key>
