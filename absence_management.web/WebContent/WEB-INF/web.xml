@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:web="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" id="WebApp_ID" version="2.4">
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:web="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd http://xmlns.jcp.org/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.4">
   <display-name>absence_management.web</display-name>
   <servlet>
     <description>
@@ -29,5 +29,35 @@
   <servlet-mapping>
     <servlet-name>EmployeeTableController</servlet-name>
     <url-pattern>/showEmployees.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>AbsenceTableController</display-name>
+    <servlet-name>AbsenceTableController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.AbsenceTableController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AbsenceTableController</servlet-name>
+    <url-pattern>/showAbsences.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>AbsenceTypeTableController</display-name>
+    <servlet-name>AbsenceTypeTableController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.AbsenceTypeTableController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AbsenceTypeTableController</servlet-name>
+    <url-pattern>/showAbscenceType.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>DeleteEmployeeController</display-name>
+    <servlet-name>DeleteEmployeeController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.DeleteEmployeeController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DeleteEmployeeController</servlet-name>
+    <url-pattern>/deleteEmployee.do</url-pattern>
   </servlet-mapping>
 </web-app>
