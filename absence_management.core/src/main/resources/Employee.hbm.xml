@@ -5,11 +5,20 @@
 <hibernate-mapping package="com.crispico.absence_management.model">
 
     <class name="Employee" table="EMPLOYEE">
-        <id name="id" column="ID">
+        <id name="id" column="IDemployee">
             <generator class="native"/>
         </id>
         <property name="firstName"/>
         <property name="lastName"/>
+        
+        <set name="Absences" table="ABSENCE"
+                inverse="true" lazy="false" fetch="select" cascade = "all">
+            <key>
+                <column name="emp_id" not-null="true"  />
+            </key>
+            <one-to-many class="Absence"   />
+        </set>
+        
     </class>
 
 </hibernate-mapping>
