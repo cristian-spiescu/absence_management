@@ -1,5 +1,8 @@
 package com.crispico.absence_management.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Employee {
 
 	private long id;
@@ -7,13 +10,25 @@ public class Employee {
 	private String firstName;
 
 	private String lastName;
-
+	
+	Set<Absence> absenceList = new HashSet<>();
+	
 	public long getId() {
 		return id;
 	}
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+
+
+	public Set<Absence> getAbsenceList() {
+		return absenceList;
+	}
+
+	public void setAbsenceList(Set<Absence> absenceList) {
+		this.absenceList = absenceList;
 	}
 
 	public String getFirstName() {
@@ -34,7 +49,7 @@ public class Employee {
 
 	@Override
 	public String toString() {
-		return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + "]";
+		return id+ " " + firstName + " "+ lastName ;
 	}
 
 	@Override

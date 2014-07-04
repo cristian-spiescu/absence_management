@@ -16,7 +16,7 @@ public class EmployeeHibernateDao {
         session.getTransaction().commit();
 	}
 	
-	public List<Employee> getAll() {
+	public static List<Employee> getAll() {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         @SuppressWarnings("unchecked")
@@ -24,5 +24,21 @@ public class EmployeeHibernateDao {
         session.getTransaction().commit();
         
         return result;
+	}	
+	
+	public static Employee getEmployeeById(long id) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        Employee result = (Employee) session.createQuery("from Employee where Id = " + id).uniqueResult();
+        session.getTransaction().commit();
+        return result;
+	}	
+	
+	public void delete(Employee employee) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.delete(employee);
+        session.getTransaction().commit();
 	}
+
 }

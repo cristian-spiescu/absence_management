@@ -1,4 +1,3 @@
-<%@page import="com.crispico.absence_management.model.Employee"%>
 <%@page import="com.crispico.absence_management.model.Absence"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
@@ -11,7 +10,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Employees</title>
+<title>Absences</title>
 
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -33,45 +32,41 @@
 			</tr>
 
 		</div>
+
 		<div class="panel panel-success">
 			<div class="panel-heading">
-				<h3 class="panel-title">Employees</h3>
+				<h3 class="panel-title">Absences</h3>
 			</div>
 			<div class="panel-body">
 				<table class="table table-bordered table-striped">
 					<thead>
-						<th>First Name</th>
-						<th>Last Name</th>
-						<th>Absences</th>
+						<th>EmployeeId</th>
+						<th>FirstName</th>
+						<th>LastName</th>
+						<th>StartDate</th>
+						<th>EndDate</th>
+						<th>Type</th>
 						<th>Commands</th>
 					</thead>
 					<%
-						for (Employee employee : (List<Employee>) request
-								.getAttribute("list")) {
+						for (Absence absence : (List<Absence>) request.getAttribute("list")) {
 					%>
 					<tr>
-						<td><%=employee.getFirstName()%></td>
-						<td><%=employee.getLastName()%></td>
-						<td>
-							<%
-								for (Absence absence : employee.getAbsenceList()) {
-							%> <%
- 	SimpleDateFormat formatter = new SimpleDateFormat(
- 					"yyyy-MM-dd");
- %> <%=formatter.format(absence.getStartDate())%> <%="->"%> <%=formatter.format(absence.getEndDate())%>
-							<%="; \n"%>
-							<p></p> <%
- 	}
- %>
-						</td>
-						<td>
-
-							<button class="btn btn-xs btn-warning" type="button">Edit</button>
-							<form action="deleteEmployee.do" method="POST">
+						<%
+							SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+						%>
+						<td><%=absence.getEmployee().getId()%></td>
+						<td><%=absence.getEmployee().getFirstName()%></td>
+						<td><%=absence.getEmployee().getLastName()%></td>
+						<td><%=formatter.format(absence.getStartDate())%></td>
+						<td><%=formatter.format(absence.getEndDate())%></td>
+						<td><%=absence.getAbsenceType()%></td>
+						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
+							<form action="deleteAbsence.do" method="POST">
 								<button class="btn btn-xs btn-danger" type="submit">Delete</button>
-								<input type="hidden" name="employeeId"
-									value="<%=employee.getId()%>">
-							</form>
+								<input type="hidden" name="absenceId"
+									value="<%=absence.getId() %>">
+							</form></td>
 					</tr>
 					<%
 						}
@@ -80,6 +75,5 @@
 			</div>
 		</div>
 	</div>
-	<%@include file = "addEmployee.jsp" %>
 </body>
 </html>
