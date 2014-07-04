@@ -30,4 +30,24 @@
     <servlet-name>EmployeeTableController</servlet-name>
     <url-pattern>/showEmployees.do</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>AbsenceTableController</display-name>
+    <servlet-name>AbsenceTableController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.AbsenceTableController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AbsenceTableController</servlet-name>
+    <url-pattern>/showAbsences.do</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>EmployeeDeleteControler</display-name>
+    <servlet-name>EmployeeDeleteControler</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.EmployeeDeleteControler</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EmployeeDeleteControler</servlet-name>
+    <url-pattern>/deleteEmployee.do</url-pattern>
+  </servlet-mapping>
 </web-app>

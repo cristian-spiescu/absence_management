@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.crispico.absence_management.model">
+
+    <class name="Absence" table="ABSENCE">
+       
+        <id name="absenceId" column="IDABSENCE">
+            <generator class="native"/>
+        </id>
+        <property name="startDate" column = "startDate" type = "date"/>
+        <property name="endDate" column = "endDate" type = "date"/>
+       	
+       	<many-to-one name="absenceType" class="AbsenceType" fetch="select" lazy = "false">
+            <column name="absenceTypeId" not-null = "true"/>
+        </many-to-one>
+        
+        
+        <many-to-one name="employee" class="Employee" fetch="select" lazy = "false" cascade = "all">
+            <column name="ID" not-null = "true"/>
+        </many-to-one>
+    </class>
+
+</hibernate-mapping>

@@ -10,7 +10,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Employees</title>
+<title>Absences</title>
 
 <!-- Bootstrap core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -21,29 +21,30 @@
 <body>
 	<div class="container theme-showcase" role="main">
 		<p>
-		<div class="panel panel-success">
+		<div class="panel panel-warning">
 			<div class="panel-heading">
-				<h3 class="panel-title">Employees</h3>
+				<h3 class="panel-title">Absences</h3>
 			</div>
 			<div class="panel-body">
 				<table class="table table-bordered table-striped">
 					<thead>
-						<th>First Name</th>
-						<th>Last Name</th>
-						<th>Commands</th>
-						<th align = "center">Absences</th>
+						<th>Absence id</th>
+						<th>Start Date</th>
+						<th>End Date</th>
+						<th>Type</th>
+						<th>Employee</th>
 					</thead>
 					<%
-						for (Employee employee : (List<Employee>) request.getAttribute("list")) {
-							String str = "deleteEmployee.do?id=" + String.valueOf(employee.getId());
+						for (Absence absence : (List<Absence>) request.getAttribute("list")) {
 					%>
 					<tr>
-						<td><%=employee.getFirstName()%></td>
-						<td><%=employee.getLastName()%></td>
-						<td align = "center"><button class="btn btn-xs btn-info" type="button" >Edit</button>
-							<a href=<%=str%> class="btn btn-danger btn-xs" type="button">Delete</a></td>
+						<td align="center"><%=absence.getAbsenceId()%></td>
+						<td><%=absence.getStartDate()%></td>
+						<td><%=absence.getEndDate() %></td>
+						<td><%=absence.getAbsenceType().getAbsenceType() %></td>
+						<td><%=absence.getEmployee().getFirstName()+ " " +absence.getEmployee().getLastName() %></td>
+						
 					
-						<td><%= employee.printAbsences()+ "\n" %></td>
 					</tr>
 					<%
 						}
@@ -54,3 +55,5 @@
 	</div>
 </body>
 </html>
+
+
