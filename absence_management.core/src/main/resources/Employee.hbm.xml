@@ -10,6 +10,15 @@
         </id>
         <property name="firstName"/>
         <property name="lastName"/>
+        
+ 	 <set name="absenceList" table="ABSENCE"
+                inverse="true" lazy="false" cascade="all" >
+            <key>
+                <column name="ID" not-null="true" />
+            </key>
+            <one-to-many class="Absence" />
+      </set>
+        
     </class>
 
 </hibernate-mapping>

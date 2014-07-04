@@ -2,6 +2,7 @@ package com.crispico.absence_management.dao;
 
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 import com.crispico.absence_management.HibernateUtil;
@@ -25,4 +26,14 @@ public class EmployeeHibernateDao {
         
         return result;
 	}
+	
+	public void delete(String idEmployee) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        Query query = session.createQuery("from Employee E where E.id=:idEmployee");
+        query.setParameter("idEmployee", Long.parseLong(idEmployee));
+        session.delete(query.list().get(0));
+        session.getTransaction().commit();
+	}
+	
 }

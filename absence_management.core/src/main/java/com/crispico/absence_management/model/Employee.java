@@ -1,5 +1,7 @@
 package com.crispico.absence_management.model;
 
+import java.util.Set;
+
 public class Employee {
 
 	private long id;
@@ -7,6 +9,24 @@ public class Employee {
 	private String firstName;
 
 	private String lastName;
+	
+	private Set<Absence> absenceList;
+	
+	public String printAbsence(){
+		String res = "";
+		for(Absence abs : this.absenceList){
+			res += abs + "," + '\n';
+		}
+		return res;
+	}
+ 
+	public Set<Absence> getAbsenceList() {
+		return absenceList;
+	}
+
+	public void setAbsenceList(Set<Absence> absenceList) {
+		this.absenceList = absenceList;
+	}
 
 	public long getId() {
 		return id;

@@ -1,8 +1,7 @@
 package com.crispico.absence_management.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,24 +9,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.crispico.absence_management.dao.EmployeeHibernateDao;
-import com.crispico.absence_management.model.Employee;
 
 /**
- * Servlet implementation class EmployeeTableController
+ * Servlet implementation class DeleteEmployeeController
  */
-public class EmployeeTableController extends HttpServlet {
+public class DeleteEmployeeController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
-	@Override
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		List<Employee> list = new ArrayList<>();
+		String val = req.getParameter("id");
 		EmployeeHibernateDao dao = new EmployeeHibernateDao();
-	
-		list = dao.getAll();
-		
-		req.setAttribute("list", list);
-		req.getRequestDispatcher("views/employeeTable.jsp").forward(req, resp);
-		
+		dao.delete(val);
+		resp.sendRedirect("showEmployees.do");
 	}
 
 }
