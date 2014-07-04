@@ -1,21 +1,15 @@
 package com.crispico.absence_management.model;
 
-import java.util.Date;
-
 public class AbsenceType {
 	
-	private long id;
-
-	private Date start;
-
-	private Date end;
-
 	@Override
 	public String toString() {
-		return "AbsenceType [id=" + id + ", start=" + start + ", end=" + end
-				+ "]";
+		return description;
 	}
 
+	private long id;
+	private String description;
+	
 	public long getId() {
 		return id;
 	}
@@ -24,21 +18,42 @@ public class AbsenceType {
 		this.id = id;
 	}
 
-	public Date getStart() {
-		return start;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setStart(Date start) {
-		this.start = start;
+	public void setDescription(String desc) {
+		this.description = desc;
 	}
 
-	public Date getEnd() {
-		return end;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
 	}
 
-	public void setEnd(Date end) {
-		this.end = end;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbsenceType other = (AbsenceType) obj;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (id != other.id)
+			return false;
+		return true;
 	}
 
-
+	
 }

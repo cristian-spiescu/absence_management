@@ -20,6 +20,7 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  
   <servlet>
     <description></description>
     <display-name>EmployeeTableController</display-name>
@@ -30,4 +31,51 @@
     <servlet-name>EmployeeTableController</servlet-name>
     <url-pattern>/showEmployees.do</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>AbsenceTableController</display-name>
+    <servlet-name>AbsenceTableController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.AbsenceTableController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AbsenceTableController</servlet-name>
+    <url-pattern>/showAbsences.do</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>AbsenceTypeTableController</display-name>
+    <servlet-name>AbsenceTypeTableController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.AbsenceTypeTableController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AbsenceTypeTableController</servlet-name>
+    <url-pattern>/showTypes.do</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>EmployeeDeleteController</display-name>
+    <servlet-name>EmployeeDeleteController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.EmployeeDeleteController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EmployeeDeleteController</servlet-name>
+    <url-pattern>/deleteEmp.do</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>EmployeeAddController</display-name>
+    <servlet-name>EmployeeAddController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.EmployeeAddController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EmployeeAddController</servlet-name>
+    <url-pattern>/addEmp.do</url-pattern>
+  </servlet-mapping>
+  
+  
+  
 </web-app>
