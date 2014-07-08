@@ -15,6 +15,32 @@
 				</properties>
 			</destination>
 		</service>
+		<service id="abcense-service" class="flex.messaging.services.RemotingService">
+		    <adapters>
+		        <adapter-definition id="java-object" class="flex.messaging.services.remoting.adapters.JavaAdapter" default="true"/>
+		    </adapters>
+			<default-channels>
+		        <channel ref="remoting-amf"/>
+		    </default-channels>
+			<destination id="absenceService">
+				<properties>
+				    <source>com.crispico.absence_management.service.AbsenceService</source>
+				</properties>
+			</destination>
+		</service>
+		<service id="absence-type-service" class="flex.messaging.services.RemotingService">
+		    <adapters>
+		        <adapter-definition id="java-object" class="flex.messaging.services.remoting.adapters.JavaAdapter" default="true"/>
+		    </adapters>
+			<default-channels>
+		        <channel ref="remoting-amf"/>
+		    </default-channels>
+			<destination id="absenceTypeService">
+				<properties>
+				    <source>com.crispico.absence_management.service.AbsenceTypeService</source>
+				</properties>
+			</destination>
+		</service>
 	</services>
 	
    	<!-- For more details about channel definition configuration check http://livedocs.adobe.com/livecycle/8.2/programLC/programmer/lcds/help.html?content=lcconfig_3.html. -->

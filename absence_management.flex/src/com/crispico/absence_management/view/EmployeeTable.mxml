@@ -17,43 +17,22 @@
 			private var list:ArrayCollection = new ArrayCollection();
 
 			private function creationCompleteHandler(event:FlexEvent):void {
-				for (var i:int = 0; i < 10; i++) {
-					var employee:Employee = new Employee();
-					employee.firstName = "First " + i;
-					employee.lastName = "Last " + i;
-					list.addItem(employee);
-				}
-				grid.dataProvider = list;	
+				employeeService.getAllEmployees();
 			}
 			
-			private function addClickHandler(event:MouseEvent):void {
-				var employee:Employee = new Employee();
-				employee.firstName = "New First";
-				employee.lastName = "Last";
-				list.addItem(employee);			
+			private function addEmployeeModal(event:MouseEvent):void {
+				var addEmployeeForm:AddEmployeeForm = new AddEmployeeForm();
+				addEmployeeForm.grid = DataGrid(grid);
+				PopUpManager.addPopUp(addEmployeeForm, this, true);
+				PopUpManager.centerPopUp(addEmployeeForm);	
 			}
 			
-			private function reverseClickHandler(event:MouseEvent):void {
-//				for each (var employee:Employee in grid.selectedItems) {
-//					var temp:String = employee.firstName;
-//					employee.firstName = employee.lastName;
-//					employee.lastName = temp;
-//				}
-				var employee:Employee = Employee(grid.selectedItem);
-				var temp:String = employee.firstName;
-				employee.firstName = employee.lastName;
-				employee.lastName = temp;
-			}
-			
-			private function editClickHandler(event:MouseEvent):void {
-				var form:EmployeeForm = new EmployeeForm();
+			private function editEmployeeModal(event:MouseEvent):void {
+				var form:EditEmployeeForm = new EditEmployeeForm();
 				form.employee = Employee(grid.selectedItem);
+				form.grid = DataGrid(grid);
 				PopUpManager.addPopUp(form, this, true);
 				PopUpManager.centerPopUp(form);
-			}
-			
-			private function sayHelloResultHandler(event:ResultEvent):void {
-//				Alert.show("" + event.result);
 			}
 			
 			private function employeeServiceFaultHandler(event:FaultEvent):void {
@@ -61,8 +40,16 @@
 			}
 			
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
-				Alert.show("" + ArrayCollection(event.result));
+				grid.dataProvider = ArrayCollection(event.result);	
 			}			
+			
+			protected function deleteEmployee(event:MouseEvent):void {
+				var employee:Employee = Employee(grid.selectedItem);
+				employeeService.deleteEmployee(employee.id);
+				var i:Number = ArrayCollection(grid.dataProvider).getItemIndex(employee);
+				ArrayCollection(grid.dataProvider).removeItemAt(i);
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -70,15 +57,14 @@
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
 		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
-			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
 			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
 		</mx:RemoteObject>
 	</fx:Declarations>
 	<s:HGroup>
-		<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
-		<s:Button label="Reverse First/Last Name" enabled="{grid.selectedItem != null}" click="reverseClickHandler(event)"/>
-		<s:Button label="Edit" click="editClickHandler(event)"/>
-		<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>
+		<mx:Button label="Add" click="addEmployeeModal(event); grid.selectedIndex = -1"/>
+		<s:Button label="Delete" enabled="{grid.selectedItem != null}" click="deleteEmployee(event)"/>
+
+		<s:Button label="Edit" click="editEmployeeModal(event)" enabled="{grid.selectedItem != null}"/>
 	</s:HGroup>
 	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
 		<mx:columns>
@@ -88,3 +74,4 @@
 		</mx:columns>
 	</mx:DataGrid>
 </s:VGroup>
+

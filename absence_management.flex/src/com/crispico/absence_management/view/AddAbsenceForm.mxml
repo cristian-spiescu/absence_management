@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 close="PopUpManager.removePopUp(this)" width="600" height="250" creationComplete="getAllAbsenceTypes(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			[Bindable]
+			public var employee:Employee = new Employee();
+			[Bindable]
+			public var myDP:ArrayCollection = new ArrayCollection([]);
+			
+			protected function getAllAbsenceTypes(event:FlexEvent):void {
+				absenceTypeService.getAllAbsenceTypes();
+			}
+			
+			private function getAllAbsenceTypeResultHandler(event:ResultEvent):void {	
+				for each(var type:AbsenceType in ArrayCollection(event.result)){
+					myDP.addItem({type:type.type, id:type.id});
+				}
+				typeList.dataProvider = myDP;
+			}
+			
+			protected function addAbsence(event:MouseEvent):void{
+				absenceTypeService.getAbsenceTypeById(typeList.selectedItem.id);
+			}
+			
+//			protected function getAbsenceType(){
+//				absenceTypeService.getAbsenceTypeById(typeList.selectedItem.id);
+//			}
+			
+			private function getAbsenceTypeByIdResultHandler(event:ResultEvent):void {
+				var absenceType:AbsenceType = AbsenceType(event.result);
+				var absence:Absence = new Absence();
+				absence.startDate = new Date(startDate.text)
+				absence.endDate = new Date(endDate.text);
+				absence.employee = employee;
+				absence.type = absenceType;
+				absenceService.addAbsence(absence);
+				//Alert(this.parentApplication.employee.firstName);
+				PopUpManager.removePopUp(this);
+				
+			}	
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceTypeService" destination="absenceTypeService" channelSet="{channelSet}" >
+			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypeResultHandler(event)"/>
+			<mx:method name="getAbsenceTypeById" result="getAbsenceTypeByIdResultHandler(event)"/>
+		</mx:RemoteObject>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" >
+		</mx:RemoteObject>
+	</fx:Declarations>
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<s:Form>
+		<s:FormItem label="start date">
+			<mx:DateField id="startDate"></mx:DateField>
+		</s:FormItem>
+		<s:FormItem label="end date">
+			<mx:DateField id="endDate"></mx:DateField>
+		</s:FormItem>
+		<s:FormItem label="type">
+			<s:DropDownList id="typeList" prompt="Select type" width="200"  labelField="type"  />
+		</s:FormItem>
+		<s:FormItem >
+			<s:Button label="Save" click="addAbsence(event)" enabled="{typeList.selectedItem!=null &amp;&amp; startDate.text!='' &amp;&amp; endDate.text!=''}"></s:Button>
+		</s:FormItem>
+	</s:Form>
+
+
+</s:TitleWindow>

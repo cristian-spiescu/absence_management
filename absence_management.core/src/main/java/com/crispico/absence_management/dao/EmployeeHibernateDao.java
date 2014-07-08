@@ -24,7 +24,7 @@ public class EmployeeHibernateDao {
         session.beginTransaction();
         session.delete(employee);
         session.getTransaction().commit();
-       // session.close();
+        //session.close();
 	}
 	
 	public void update(Employee employee) {

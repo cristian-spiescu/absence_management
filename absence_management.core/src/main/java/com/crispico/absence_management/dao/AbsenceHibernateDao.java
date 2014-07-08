@@ -17,12 +17,14 @@ public class AbsenceHibernateDao {
         session.beginTransaction();
         session.save(absence);
         session.getTransaction().commit();
+       // session.close();
 	}
 	public void delete(Absence absence) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         session.delete(absence);
         session.getTransaction().commit();
+       // session.close();
 	}
 
 	

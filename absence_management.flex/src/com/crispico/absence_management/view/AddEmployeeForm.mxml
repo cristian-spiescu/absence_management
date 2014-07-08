@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 close="PopUpManager.removePopUp(this)" width="300" height="200">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.DataGrid;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+
+			public var grid:mx.controls.DataGrid;		
+			
+			protected function addEmployee(event:MouseEvent):void {
+				
+				var emp:Employee = new Employee();
+				emp.firstName = firstNameEmp.text;
+				emp.lastName = lastNameEmp.text;
+				employeeService.addEmployee(emp);	
+				
+			}
+			
+			private function addEmployeeHandler(event:ResultEvent):void {
+				var newEmp:Employee = Employee(event.result);
+				ArrayCollection(grid.dataProvider).addItem(newEmp);
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" >
+			<mx:method name="addEmployee" result="addEmployeeHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<s:Label>First name </s:Label> <s:TextInput id="firstNameEmp"  />
+	<s:Label>Last name </s:Label> <s:TextInput id="lastNameEmp"/>
+	<s:Button label="Add" click="addEmployee(event)"></s:Button>
+		
+</s:TitleWindow>

@@ -17,7 +17,7 @@ public class AbsenceTypeHibernateDao {
         session.beginTransaction();
         session.save(absenceType);
         session.getTransaction().commit();
-      //  session.close();
+       // session.close();
 	}
 	
 	public void delete(AbsenceType type) {
@@ -27,7 +27,7 @@ public class AbsenceTypeHibernateDao {
         session.getTransaction().commit();
        // session.close();
 	}
-	public AbsenceType getAbsenceTypeById(Long id) {
+	public AbsenceType getAbsenceTypeById(long id) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
 		AbsenceType result = (AbsenceType) session.createQuery("from AbsenceType where id="+id).uniqueResult();
