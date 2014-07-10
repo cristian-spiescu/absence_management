@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow 
+		 xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 title="{'New Employee'}" close="PopUpManager.removePopUp(this)">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var employeeTable:EmployeeTable;
+			
+			public var newEmployee:Employee = new Employee();
+			
+			protected function SaveHandler(event:MouseEvent):void{
+				if(newLastName.text.length == 0 || newFirstName.text.length == 0){
+					Alert.show("You must enter a complete name ! ");
+				} else {
+					newEmployee.firstName = newFirstName.text;
+					newEmployee.lastName = newLastName.text;
+					newEmployee.absenceList = new ArrayCollection();
+					
+					employeeService.saveEmployee(newEmployee);
+					employeeService.getAllEmployees();
+					
+					PopUpManager.removePopUp(this);
+					
+				}
+			}
+			
+			private function getAllEmployeesResultHandler(event:ResultEvent):void {
+				var newEmpList:ArrayCollection = ArrayCollection(event.result);
+				newEmployee.id = Employee(newEmpList.getItemAt(newEmpList.length - 1)).id;
+				employeeTable.list.addItem(newEmployee);
+			}	
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}">
+			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:HGroup>
+		<s:BitmapImage source="image/add.png" />
+		
+		<s:Form>
+			<s:FormItem label="First Name:" required="true"> 
+					<s:TextInput text="" editable="true" id="newFirstName" />
+			</s:FormItem>
+			
+			<s:FormItem label="Last Name:" required="true"> 
+				<s:TextInput text="" editable="true" id="newLastName"/>
+			</s:FormItem>
+			
+			<s:FormItem>
+				<mx:Button label="Save" click="SaveHandler(event)" />
+			</s:FormItem> 
+		</s:Form>
+		
+	</s:HGroup>
+	
+</s:TitleWindow>

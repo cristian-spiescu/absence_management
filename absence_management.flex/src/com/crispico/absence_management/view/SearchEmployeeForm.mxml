@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   title="Search" close="PopUpManager.removePopUp(this)">
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var employeeTable:EmployeeTable;
+			
+			
+		]]>
+	</fx:Script>
+	
+	<s:VGroup>
+		<s:Form>
+			<s:FormItem label="Search:">
+			</s:FormItem>
+		</s:Form>
+		
+	</s:VGroup>
+	
+	
+</s:TitleWindow>

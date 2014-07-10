@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   title="{'Add absences'}" close="PopUpManager.removePopUp(this)"
+			   creationComplete="absenceFormCreationComplete(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+		
+			[Bindable]
+			public var employeeForm:EmployeeForm;
+			
+			[Bindable]
+			public var absList:ArrayCollection;
+			
+			public var absence:Absence = new Absence();;
+			
+			protected function absenceFormCreationComplete(event:FlexEvent):void{
+				absenceService.getAllAbsencesType();
+			}
+			
+			private function getAllAbsencesTypeResultHandler(event:ResultEvent):void {
+				absList = ArrayCollection(event.result);
+				var absTypeList:ArrayCollection = new ArrayCollection();
+				
+				for each (var absence:AbsenceType in absList){
+					absTypeList.addItem(absence.typeAbsence);
+				}
+				
+				typeAbsDropDownList.dataProvider = absTypeList;
+			}
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function dateChangeHandler(event:CalendarLayoutChangeEvent):void {  
+				if ((event.target.id == "endDate") && 
+					(startDate.selectedDate > endDate.selectedDate) && 
+					(startDate.selectedDate != null) || 
+					((event.target.id == "startDate") && 
+					(startDate.selectedDate > endDate.selectedDate) && 
+					(endDate.selectedDate != null))) {
+					Alert.show("Start date must be scheduled before end date."); 
+				}
+			}
+			
+			
+			protected function validateAbsence(startDate:Date,endDate:Date):Boolean {
+				for each (var absence:Absence in employeeForm.absenceList) {
+					if (startDate <= absence.date_start) {
+						if (endDate >= absence.date_start && endDate <= absence.date_end
+							||
+							endDate >= absence.date_end) {
+							return false;
+						}
+					} else if (startDate >= absence.date_start && startDate <= absence.date_end) {
+						if (endDate >= absence.date_end 
+							||
+							endDate >= absence.date_start && endDate <= absence.date_end) {
+							return false;
+						}
+					}
+				}
+				
+				return true;
+			}
+			
+			
+			protected function saveAbsenceClickHandler(event:MouseEvent):void{
+				if(startDate == null || endDate == null){
+					Alert.show("You must choose a start/end date!");
+				} else if (!validateAbsence(startDate.selectedDate,endDate.selectedDate)){
+						Alert.show("Date already exists! Choose other date!");
+				} else {
+					absence.date_start = startDate.selectedDate;
+					absence.date_end = endDate.selectedDate;
+					
+					var absenceName:String = typeAbsDropDownList.selectedItem;
+					for each(var absenceType:AbsenceType in absList){
+						if(absenceType.typeAbsence == absenceName){
+							absence.typeAbs = absenceType;
+							break;
+						}
+					}	
+					
+					absence.emp = employeeForm.employee;
+					absenceService.saveAbsence(absence);
+					PopUpManager.removePopUp(this);
+					
+				}
+			}
+			
+			private function saveAbsenceResultHandler(event:ResultEvent):void {				
+				absence.id = Number(event.result);
+				employeeForm.absenceList.addItem(absence);
+				employeeForm.employee.absenceList.addItem(absence);
+			}
+			
+		]]>
+		
+	</fx:Script>
+	
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method  name="getAllAbsencesType" result="getAllAbsencesTypeResultHandler(event)" />
+			<mx:method name="saveAbsence" result="saveAbsenceResultHandler(event)" />
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	
+	<s:Form>	
+		<s:FormItem label="Type:">
+			 <s:DropDownList id="typeAbsDropDownList" requireSelection="true"/>
+		</s:FormItem>
+		
+		<s:HGroup>
+			<s:FormItem label="Start Date:" >
+				<mx:DateChooser id="startDate"  change="dateChangeHandler(event)"/>
+			</s:FormItem>
+			
+			<s:FormItem label="End Date:">
+				<mx:DateChooser id="endDate"  change="dateChangeHandler(event)"/>
+			</s:FormItem>
+		</s:HGroup>
+		
+		<mx:Button label="Save" click="saveAbsenceClickHandler(event)"/>
+	</s:Form>
+	
+</s:TitleWindow>

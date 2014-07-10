@@ -14,8 +14,14 @@
 				    <source>com.crispico.absence_management.service.EmployeeService</source>
 				</properties>
 			</destination>
+			<destination id="absenceService">
+				<properties>
+				    <source>com.crispico.absence_management.service.AbsenceService</source>
+				</properties>
+			</destination>
 		</service>
 	</services>
+	
 	
    	<!-- For more details about channel definition configuration check http://livedocs.adobe.com/livecycle/8.2/programLC/programmer/lcds/help.html?content=lcconfig_3.html. -->
     <channels>

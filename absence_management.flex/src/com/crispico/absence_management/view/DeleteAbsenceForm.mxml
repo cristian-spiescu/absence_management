@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   title="{'Delete Absence'}" close="PopUpManager.removePopUp(this)"
+			   width="400" height="140">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var employeeForm:EmployeeForm;
+			
+			[Bindable]
+			public var absence:Absence;
+			
+			protected function deleteAbsenceHandler(event:MouseEvent):void {
+				absence = Absence(employeeForm.gridAbs.selectedItem);
+				employeeForm.absenceService.deleteAbsence("" + absence.id);
+				var index:int = employeeForm.absenceList.getItemIndex(absence);
+				employeeForm.absenceList.removeItemAt(index);
+				var deleteEmp:Employee = absence.emp;
+				
+				for each(var searchEmployee:Employee in employeeForm.employeeTable.list){
+					if(searchEmployee.id == deleteEmp.id){
+						var absenceListSearchEmp:ArrayCollection = searchEmployee.absenceList;
+						for each(var searchAbsence:Absence in absenceListSearchEmp){
+							if(searchAbsence.id == absence.id){
+								var indexSearchAbsence:int = absenceListSearchEmp.getItemIndex(searchAbsence);
+								absenceListSearchEmp.removeItemAt(indexSearchAbsence);
+							}
+						}
+					}
+				}
+				
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+
+	<s:HGroup >
+		<s:BitmapImage source="image/delete.png" width="50" height="50"/>
+		<s:VGroup>
+			<s:Form>
+				<s:FormItem label="Are you sure you want to delete the absence ?" /> 
+			</s:Form> 
+			<s:HGroup horizontalAlign="center" horizontalCenter="0" width="280">
+				<mx:Button label="YES" click="deleteAbsenceHandler(event)" />
+				<mx:Button label="NO" click="PopUpManager.removePopUp(this)" />
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>
+	
+</s:TitleWindow>

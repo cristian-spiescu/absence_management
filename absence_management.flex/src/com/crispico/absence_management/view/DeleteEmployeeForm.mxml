@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   title="{'Delete Employee'}" close="PopUpManager.removePopUp(this)"
+			   width="400" height="140" >
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var deleteEmployee:Employee;
+		
+			[Bindable]
+			public var table:EmployeeTable;
+			
+			protected function DeleteYesHandler(event:MouseEvent):void {
+				table.employeeService.deleteEmployee(deleteEmployee);
+				var index:int = table.list.getItemIndex(deleteEmployee);
+				table.list.removeItemAt(index);
+				PopUpManager.removePopUp(this);
+			}
+			
+			
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:HGroup >
+		
+		<s:BitmapImage source="image/delete.png" width="50" height="50"/>
+		<s:VGroup>
+			<s:Form>
+				<s:FormItem label="Are you sure you want to delete {deleteEmployee.firstName} {deleteEmployee.lastName} ?" /> 
+			</s:Form> 
+			<s:HGroup horizontalAlign="center" horizontalCenter="0" width="280">
+				<mx:Button label="YES" click="DeleteYesHandler(event)" />
+				<mx:Button label="NO" click="PopUpManager.removePopUp(this)" />
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>
+	
+</s:TitleWindow>

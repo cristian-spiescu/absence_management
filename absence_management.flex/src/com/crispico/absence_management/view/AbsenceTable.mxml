@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 creationComplete="putAbsenceTable(event)"
+		 title="{'View all absences'}" close="PopUpManager.removePopUp(this)">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var employeeTable:EmployeeTable;
+			
+			public var absencesList:ArrayCollection = new ArrayCollection();
+			
+			protected function putAbsenceTable(event:FlexEvent):void {
+				for each(var employee:Employee in employeeTable.list){
+					for each(var absence:Absence in employee.absenceList){
+						absencesList.addItem(absence);
+					}
+				}
+				absenceTableGrid.dataProvider = absencesList;
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:DataGrid id="absenceTableGrid" width="100%" height="100%" allowMultipleSelection="true">
+		<mx:columns>
+			<mx:DataGridColumn dataField="emp.firstName" headerText="First Name" />
+			<mx:DataGridColumn dataField="emp.lastName" headerText="Last Name"/>
+			<mx:DataGridColumn dataField="date_start" headerText="Date Start" />
+			<mx:DataGridColumn dataField="date_end" headerText="Date Start" />
+			<mx:DataGridColumn dataField="typeAbs.typeAbsence" headerText="Absence Type" />
+		</mx:columns>
+	</mx:DataGrid>
+	
+</s:TitleWindow>
