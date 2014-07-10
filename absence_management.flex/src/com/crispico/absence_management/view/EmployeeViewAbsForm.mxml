@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   close="PopUpManager.removePopUp(this)"
+			   title="View absences"
+			   creationComplete="employeeService.getAbsencesByEmployee(employee)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var employee:Employee;			
+			
+			private function formatDate(date:String):String{
+				if(date.length == 1)
+					return "0" + date;
+				return date;
+			}
+			
+			private function viewAbsencesHandler(event:ResultEvent):void {
+				var absenceListAbsence:ArrayCollection = ArrayCollection(event.result);
+				
+				for each(var absence:Absence in absenceListAbsence){
+					myLabel.text += formatDate(absence.startDate.fullYear + "") + "/" + formatDate((absence.startDate.month + 1) + "") + "/" + formatDate(absence.startDate.date + "");
+					myLabel.text += " - ";
+					myLabel.text += formatDate(absence.endDate.fullYear + "") + "/" + formatDate((absence.endDate.month + 1) + "") + "/" + formatDate(absence.endDate.date + "");
+					myLabel.text += ": ";
+					myLabel.text += absence.type.description;
+					myLabel.text += "\n";				
+				}
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}">
+			<mx:method name="getAbsencesByEmployee" result="viewAbsencesHandler(event)"/>
+		</mx:RemoteObject>		
+	</fx:Declarations>	
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:HGroup paddingTop="20" paddingLeft="20" gap="30">
+		<s:Image width="100" height="100"
+				 source="@Embed(source='D:/data/git/absence_management/absence_management.flex/resources/view.png')"/>
+		<s:VGroup>
+			<s:Panel title="{employee.firstName + ' ' + employee.lastName + '\'s Absences:'}">
+				<s:Label id="myLabel" />
+			</s:Panel>
+			
+		</s:VGroup>		
+	</s:HGroup>
+		
+</s:TitleWindow>

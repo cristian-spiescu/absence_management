@@ -10,11 +10,12 @@ import com.crispico.absence_management.model.Employee;
 
 public class EmployeeHibernateDao {
 
-	public void save(Employee employee) {
+	public long save(Employee employee) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         session.save(employee);
         session.getTransaction().commit();
+        return employee.getId();
 	}
 	
 	public List<Employee> getAll() {
@@ -39,4 +40,17 @@ public class EmployeeHibernateDao {
         //session.flush();
         session.getTransaction().commit();
 	}
+	
+	
+	public void updateEmployee(Long id, String firstName, String lastName){
+	      Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+	      session.beginTransaction();     
+	      Employee employee = (Employee)session.get(Employee.class, id); 
+	      employee.setFirstName(firstName);
+	      employee.setLastName(lastName);
+	      session.update(employee); 
+	      session.getTransaction().commit();
+	}
+	
+	
 }

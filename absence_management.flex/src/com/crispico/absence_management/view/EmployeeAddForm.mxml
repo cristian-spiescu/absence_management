@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   close="PopUpManager.removePopUp(this)"
+			   title="Add new employee">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			[Bindable]		
+			public var table:EmployeeTable;
+			
+			[Bindable]
+			public var employee:Employee = new Employee();
+			
+			private function addEmployeeHandler(event:MouseEvent):void {
+				if(fstName.text.length == 0)
+					Alert.show("You must enter a first name!", "Error");
+				else
+					if(lstName.text.length == 0)
+						Alert.show("You must enter a last name!",  "Error");
+					else{
+						employee.firstName = fstName.text;
+						employee.lastName = lstName.text;
+						employee.absences = new ArrayCollection();
+						employeeService.addEmployee(employee);
+						table.list.addItem(employee);
+						PopUpManager.removePopUp(this);
+					}
+			}
+					
+			private function addEmployeeResultHandler(event:ResultEvent):void {
+				employee.id = Number(event.result);				
+			}
+				
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}">
+			<mx:method name="addEmployee" result="addEmployeeResultHandler(event)"/>
+		</mx:RemoteObject>
+		
+	</fx:Declarations>	
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<s:HGroup height="100" paddingTop="20" paddingLeft="20" verticalAlign="middle" gap="30">
+		<s:Image width="100" height="100"
+				 source="@Embed(source='D:/data/git/absence_management/absence_management.flex/resources/add.png')"/>
+		<s:VGroup>
+			<s:FormItem label="First name:" required="true">
+				<s:TextInput id="fstName"/>					
+			</s:FormItem>
+			<s:FormItem label="Last name:" required="true">
+				<s:TextInput id="lstName"/>					
+			</s:FormItem>		
+		</s:VGroup>	
+	</s:HGroup>
+	<s:HGroup width="390"
+			  paddingBottom="20" gap="15"
+			  horizontalAlign="center">
+		<s:Button id="ok" label="Ok"
+				  click="addEmployeeHandler(event)"/>
+		<s:Button label="Cancel"
+				  click="PopUpManager.removePopUp(this)"/>
+	</s:HGroup>
+	
+</s:TitleWindow>

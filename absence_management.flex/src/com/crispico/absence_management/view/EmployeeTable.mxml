@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 creationComplete="creationCompleteHandler(event)">
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  creationComplete="creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Employee;
@@ -11,78 +11,120 @@
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-
-			private var list:ArrayCollection = new ArrayCollection();
-
+			import mx.rpc.events.ResultEvent;			
+			
+			[Bindable]
+			public var list:ArrayCollection = new ArrayCollection();			
+			
 			private function creationCompleteHandler(event:FlexEvent):void {
-				for (var i:int = 0; i < 10; i++) {
-					var employee:Employee = new Employee();
-					employee.firstName = "First " + i;
-					employee.lastName = "Last " + i;
-					list.addItem(employee);
-				}
-				grid.dataProvider = list;	
+				employeeService.getAllEmployees();
 			}
 			
 			private function addClickHandler(event:MouseEvent):void {
-				var employee:Employee = new Employee();
-				employee.firstName = "New First";
-				employee.lastName = "Last";
-				list.addItem(employee);			
+				var form:EmployeeAddForm = new EmployeeAddForm();
+				form.table = this;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
 			}
 			
-			private function reverseClickHandler(event:MouseEvent):void {
-//				for each (var employee:Employee in grid.selectedItems) {
-//					var temp:String = employee.firstName;
-//					employee.firstName = employee.lastName;
-//					employee.lastName = temp;
-//				}
-				var employee:Employee = Employee(grid.selectedItem);
-				var temp:String = employee.firstName;
-				employee.firstName = employee.lastName;
-				employee.lastName = temp;
+			private function deleteClickHandler(event:MouseEvent):void {
+				var form:EmployeeDeleteForm = new EmployeeDeleteForm();
+				form.employee = Employee(grid.selectedItem);
+				form.table = this;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
 			}
 			
-			private function editClickHandler(event:MouseEvent):void {
-				var form:EmployeeForm = new EmployeeForm();
+			private function viewClickHandler(event:MouseEvent):void {
+				var form:EmployeeViewAbsForm = new EmployeeViewAbsForm();
 				form.employee = Employee(grid.selectedItem);
 				PopUpManager.addPopUp(form, this, true);
 				PopUpManager.centerPopUp(form);
 			}
 			
-			private function sayHelloResultHandler(event:ResultEvent):void {
-//				Alert.show("" + event.result);
+			private function editClickHandler(event:MouseEvent):void {
+				var form:EmployeeEditForm = new EmployeeEditForm();
+				form.employee = Employee(grid.selectedItem);
+				form.employeeTable = this;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
 			}
 			
-			private function employeeServiceFaultHandler(event:FaultEvent):void {
-				Alert.show("Service invocation error: " + event.fault.faultString);				
+			private function filterClickHandler(event:MouseEvent):void {
+				var form:AbsenceFilter = new AbsenceFilter();
+//				form.employee = Employee(grid.selectedItem);
+				form.height = this.height;
+				form.width = this.width;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
 			}
 			
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
-				Alert.show("" + ArrayCollection(event.result));
-			}			
+				list = ArrayCollection(event.result);
+				grid.dataProvider = list;
+			}
+			
 		]]>
 	</fx:Script>
+	
+		<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		.myHeaderStyles { 
+			fontSize:"14";
+			fontWeight:"bold";
+			textAlign:center;
+		}
+	</fx:Style>
+	
 	<fx:Declarations>
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
-			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}">
 			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
-		</mx:RemoteObject>
+		</mx:RemoteObject>		
 	</fx:Declarations>
-	<s:HGroup>
-		<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
-		<s:Button label="Reverse First/Last Name" enabled="{grid.selectedItem != null}" click="reverseClickHandler(event)"/>
-		<s:Button label="Edit" click="editClickHandler(event)"/>
-		<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>
+	
+	<s:HGroup height="70" paddingLeft="20" verticalAlign="middle" chromeColor="0x003300">
+		<mx:Button label="Add new employee"
+				  fontSize="18"
+				  chromeColor="0x330000" color="0xe0e0e0"
+				  height="28"
+				  click="addClickHandler(event);"/>
+		<mx:Button label="Delete employee"
+				   fontSize="18"
+				   chromeColor="0x330000" color="0xe0e0e0"
+				   height="28"
+				   enabled="{grid.selectedItem != null}"
+				   click="deleteClickHandler(event);"/>
+		<mx:Button label="Edit employee"
+				  fontSize="18"
+				  chromeColor="0x330000" color="0xe0e0e0"
+				  height="28"
+				  enabled="{grid.selectedItem != null}"
+				  click="editClickHandler(event);"/>
+		<mx:Button label="View an employee's absences"
+				   fontSize="18"
+				   chromeColor="0x330000" color="0xe0e0e0"
+				   height="28"
+				   enabled="{grid.selectedItem != null}"
+				   click="viewClickHandler(event);"/>		
+		<mx:Button label="Filter absences"
+				   fontSize="18"
+				   chromeColor="0x330000" color="0xe0e0e0"
+				   height="28"
+				   click="filterClickHandler(event);"/>
 	</s:HGroup>
-	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+	
+	<mx:DataGrid id="grid" 
+				 width="100%" height="100%"
+				 chromeColor="0x000033"
+				 headerStyleName="myHeaderStyles"				 
+				 horizontalGridLines="true" horizontalGridLineColor="0x707070">
 		<mx:columns>
-			<mx:DataGridColumn dataField="id" headerText="ID"/>
+			<mx:DataGridColumn dataField="id" headerText="Employee's ID"/>
 			<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
 			<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
 		</mx:columns>

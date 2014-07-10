@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   close="PopUpManager.removePopUp(this)"
+			   title="Delete employee"
+			   creationComplete="creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			[Bindable]
+			public var employee:Employee;
+			
+			[Bindable]
+			public var absence:Absence = new Absence();
+			
+			[Bindable]
+			public var grid:EmployeeEditForm;
+			
+			[Bindable]
+			public var listTypes:ArrayCollection = new ArrayCollection();
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				absenceService.getAbsencesTypes();
+				absenceService.getAbsencesByEmployee(employee);
+			}
+			
+			private function getAbsencesTypesResultHandler(event:ResultEvent):void {
+				listTypes = ArrayCollection(event.result);
+				dropList.dataProvider = listTypes;
+			}
+			
+			private function submitClickHandler(event:MouseEvent):void {
+				absence.employee = employee;
+				
+				if(absence.type == null)
+					Alert.show("You must choose an absence type!", "Error");
+				else				
+					if(absence.startDate == null)
+						Alert.show("You must enter a start date!", "Error");
+					else
+						if(absence.endDate == null)
+							Alert.show("You must enter a end date!", "Error");
+						else
+							if(absence.startDate > absence.endDate)
+								Alert.show("Start date must be earlier than end date!", "Error");
+							else
+								if(!validateAbsence(absence.startDate, absence.endDate))
+									Alert.show("You already have an absence in this period. Please choose another period!", "Error");
+								else{
+									absenceService.addAbsence(absence);
+									grid.absenceList.addItem(absence);
+									grid.employee.absences.addItem(absence);
+									PopUpManager.removePopUp(this);
+								}
+				
+				
+				
+				
+			}
+			
+			protected function validateAbsence(s:Date,e:Date):Boolean {
+				for each (var absence:Absence in grid.absenceList)
+					if (s <= absence.startDate){
+						if (e >= absence.startDate && e <= absence.endDate || e >= absence.endDate)
+							return false;
+					}
+					else
+						if (s >= absence.startDate && s <= absence.endDate)
+							if (e >= absence.endDate || e >= absence.startDate && e <= absence.endDate)
+								return false;
+				return true;
+			}
+			
+			private function getAllAbsencesResultHandler(event:ResultEvent):void {
+				grid.absenceList.removeAll();
+				for each (var absence:Absence in ArrayCollection(event.result))
+					grid.absenceList.addItem(absence);
+			}
+			
+			private function addAbsenceResultHandler(event:ResultEvent):void {
+				absence.id = Number(event.result);
+			}		
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}">
+			<mx:method name="getAbsencesByEmployee" result="getAllAbsencesResultHandler(event)"/>
+			<mx:method name="addAbsence" result="addAbsenceResultHandler(event)"/>
+			<mx:method name="getAbsencesTypes" result="getAbsencesTypesResultHandler(event)"/>
+		</mx:RemoteObject>		
+	</fx:Declarations>	
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:Form>
+		<s:FormItem label="Select type:">
+			<s:DropDownList id="dropList" prompt="Absence type" width="40%"
+							labelField="description"
+							change="absence.type = AbsenceType(dropList.selectedItem)"/>
+		</s:FormItem>
+		
+		<s:FormHeading label="Period"/>	
+		
+		<s:FormItem>
+			<s:HGroup gap="70">
+				<s:VGroup>
+					<s:Label text="Select start date:" fontWeight="bold"/>
+					<mx:DateChooser id="startDate"
+									change="absence.startDate = startDate.selectedDate"/>
+				</s:VGroup>				
+				<s:VGroup>
+					<s:Label text="Select end date:" fontWeight="bold"/>
+					<mx:DateChooser id="endDate"
+									change="absence.endDate = endDate.selectedDate"/>
+				</s:VGroup>
+			</s:HGroup>
+		</s:FormItem>
+
+		<s:FormItem>
+			<s:HGroup 
+				paddingBottom="20" paddingLeft="90" gap="15"
+				horizontalAlign="center">
+				<s:Button label="Submit" fontWeight="bold"
+						  click="submitClickHandler(event)"/>
+				<s:Button label="Cancel" fontWeight="bold"
+						  click="PopUpManager.removePopUp(this)"/>
+			</s:HGroup>
+		</s:FormItem>
+		
+	</s:Form>	
+	
+</s:TitleWindow>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   close="PopUpManager.removePopUp(this)"
+			   title="Delete absence">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var absence:Absence;
+			
+			[Bindable]
+			public var table:EmployeeEditForm;
+			
+			private function deleteEmployeeHandler(event:MouseEvent):void {
+				for (var i:int = 0; i < table.absenceList.length; i++)
+					if(Absence(table.absenceList.getItemAt(i)).id == absence.id){
+						absenceService.deleteAbsence(absence.id);
+						table.absenceList.removeItemAt(i);
+						break;
+					}
+				
+				for (var j:int = 0; j < table.employee.absences.length; j++)
+					if(Absence(table.employee.absences.getItemAt(i)).id == absence.id){
+						table.employee.absences.removeItemAt(i);
+						break;
+					}
+			}			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}">
+		</mx:RemoteObject>		
+	</fx:Declarations>	
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:HGroup paddingTop="20" paddingLeft="20" gap="30">
+		<s:Image width="50" height="50"
+				 source="@Embed(source='D:/data/git/absence_management/absence_management.flex/resources/Delete.png')"/>
+		<s:Label
+			text="{'   Are you sure that you want to permanently delete the selected absence from the database?'}"
+			color="black"
+			fontSize="16" fontStyle="italic"
+			height="50" width="400"/>
+	</s:HGroup>
+	
+	<s:HGroup width="490"
+			  paddingBottom="20" gap="15"
+			  horizontalAlign="center">
+		<s:Button label="Yes" 				 
+				  click="deleteEmployeeHandler(event); PopUpManager.removePopUp(this)"/>
+		<s:Button label="No"
+				  click="PopUpManager.removePopUp(this)"/>
+	</s:HGroup>
+	
+</s:TitleWindow>
