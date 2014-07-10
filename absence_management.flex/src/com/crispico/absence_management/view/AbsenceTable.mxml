@@ -168,7 +168,7 @@
 	
 -->
 	
-	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+	<mx:DataGrid id="grid" width="100%" minHeight="0" rowCount="10" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn dataField="absence_id" headerText="ID"/>
 			<mx:DataGridColumn dataField="employee" headerText="Employee" labelFunction="getFullName" sortable="true" sortCompareFunction="sortCompareFunction"/>
