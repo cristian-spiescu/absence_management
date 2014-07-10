@@ -16,14 +16,16 @@ public class AbsenceService {
 		return dao.getAbsences();
 	}
 	
-	public void deleteAbsence(long id){
-		Absence absence = dao.getAbsenceById(id);
+	public void deleteAbsence(Absence absence){
 		dao.delete(absence);
 	}
 	
-	public void addAbsence(Absence absence) throws ParseException{
-//		SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd"); 
-//		absence.setStartDate(dt.parse(absence.getStartDate().)); 
+	public void updateAbsence(Absence absence){
+		dao.update(absence);
+	}
+	
+	public Absence addAbsence(Absence absence) {
 		dao.save(absence);
+		return absence;
 	}
 }

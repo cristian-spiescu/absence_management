@@ -3,6 +3,7 @@ package com.crispico.absence_management.service;
 import java.util.List;
 
 import com.crispico.absence_management.dao.AbsenceTypeHibernateDao;
+import com.crispico.absence_management.model.Absence;
 import com.crispico.absence_management.model.AbsenceType;
 
 public class AbsenceTypeService {
@@ -15,6 +16,19 @@ public class AbsenceTypeService {
 	
 	public AbsenceType getAbsenceTypeById(long id){
 		return dao.getAbsenceTypeById(id);
+	}
+	
+	public AbsenceType addAbsenceType(AbsenceType absenceType){
+		dao.save(absenceType);
+		return absenceType;
+	}
+	
+	public void deleteAbsenceType(AbsenceType absenceType){
+		dao.delete(absenceType);
+	}
+	
+	public void updateAbsenceType(AbsenceType absenceType){
+		dao.update(absenceType);
 	}
 
 }

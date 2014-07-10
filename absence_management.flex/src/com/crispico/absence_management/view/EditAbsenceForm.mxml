@@ -10,16 +10,18 @@
 			import com.crispico.absence_management.model.Employee;
 			
 			import mx.collections.ArrayCollection;
-			import mx.controls.DataGrid;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
-			
 			[Bindable]
 			public var employee:Employee = new Employee();
 			[Bindable]
-			public var absencesGrid:DataGrid;
+			public var absence:Absence = new Absence();
+
+			protected function editAbsence(event:MouseEvent):void{
+				absenceTypeService.getAbsenceTypeById(typeList.selectedItem.id);
+			}
 			
 			protected function getAllAbsenceTypes(event:FlexEvent):void {
 				absenceTypeService.getAllAbsenceTypes();
@@ -29,26 +31,14 @@
 				typeList.dataProvider = ArrayCollection(event.result);
 			}
 			
-			protected function addAbsence(event:MouseEvent):void{
-				absenceTypeService.getAbsenceTypeById(typeList.selectedItem.id);
-			}
-			
-			private function getAbsenceTypeByIdResultHandler(event:ResultEvent):void {
+			private function getAbsenceTypeByIdResultHandler(event:ResultEvent):void {	
 				var absenceType:AbsenceType = AbsenceType(event.result);
-				var absence:Absence = new Absence();
 				absence.startDate = new Date(startDate.text)
 				absence.endDate = new Date(endDate.text);
-				absence.employee = employee;
 				absence.type = absenceType;
-				absenceService.addAbsence(absence);
-			}	
-			
-			private function addAbsenceHandler(event:ResultEvent):void {
-				var absence:Absence = Absence(event.result);
-				ArrayCollection(absencesGrid.dataProvider).addItem(absence);
+				absenceService.updateAbsence(absence);
 				PopUpManager.removePopUp(this);
 			}
-			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -60,7 +50,6 @@
 			<mx:method name="getAbsenceTypeById" result="getAbsenceTypeByIdResultHandler(event)"/>
 		</mx:RemoteObject>
 		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" >
-			<mx:method name="addAbsence" result="addAbsenceHandler(event)"/>
 		</mx:RemoteObject>
 	</fx:Declarations>
 	<s:layout>
@@ -68,16 +57,16 @@
 	</s:layout>
 	<s:Form>
 		<s:FormItem label="start date">
-			<mx:DateField id="startDate"></mx:DateField>
+			<mx:DateField id="startDate" text="{absence.startDate}"></mx:DateField>
 		</s:FormItem>
-		<s:FormItem label="end date">
-			<mx:DateField id="endDate"></mx:DateField>
+		<s:FormItem label="end date" >
+			<mx:DateField id="endDate" text="{absence.endDate}"></mx:DateField>
 		</s:FormItem>
 		<s:FormItem label="type">
-			<s:DropDownList id="typeList" prompt="Select type" width="200"  labelField="type" />
+			<s:DropDownList id="typeList" prompt="{absence.type.type}" width="200"  labelField="type"  />
 		</s:FormItem>
 		<s:FormItem >
-			<s:Button label="Save" click="addAbsence(event)" enabled="{typeList.selectedItem!=null &amp;&amp; startDate.text!='' &amp;&amp; endDate.text!=''}"></s:Button>
+			<s:Button label="Update" click="editAbsence(event)" enabled="{typeList.selectedItem!=null &amp;&amp; startDate.text!='' &amp;&amp; endDate.text!=''}"></s:Button>
 		</s:FormItem>
 	</s:Form>
 

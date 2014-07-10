@@ -8,15 +8,13 @@
 			import com.crispico.absence_management.model.Employee;
 			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.controls.DataGrid;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 
 			public var grid:mx.controls.DataGrid;		
 			
-			protected function addEmployee(event:MouseEvent):void {
-				
+			protected function addEmployee(event:MouseEvent):void {			
 				var emp:Employee = new Employee();
 				emp.firstName = firstNameEmp.text;
 				emp.lastName = lastNameEmp.text;
@@ -26,7 +24,9 @@
 			
 			private function addEmployeeHandler(event:ResultEvent):void {
 				var newEmp:Employee = Employee(event.result);
-				ArrayCollection(grid.dataProvider).addItem(newEmp);
+				if(ArrayCollection(grid.dataProvider).length<10){
+					ArrayCollection(grid.dataProvider).addItem(newEmp);
+				}
 				PopUpManager.removePopUp(this);
 			}
 			
@@ -41,10 +41,16 @@
 		</mx:RemoteObject>
 	</fx:Declarations>
 	<s:layout>
-		<s:VerticalLayout/>
+		<s:VerticalLayout horizontalAlign="center"/>
 	</s:layout>
-	<s:Label>First name </s:Label> <s:TextInput id="firstNameEmp"  />
-	<s:Label>Last name </s:Label> <s:TextInput id="lastNameEmp"/>
+	<s:Form>
+		<s:FormItem label="first name">
+			<s:TextInput id="firstNameEmp"  />
+		</s:FormItem>
+		<s:FormItem label="last name">
+			<s:TextInput id="lastNameEmp"/>
+		</s:FormItem>
+	</s:Form>
 	<s:Button label="Add" click="addEmployee(event)"></s:Button>
 		
 </s:TitleWindow>

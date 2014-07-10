@@ -8,7 +8,7 @@ public class Employee {
 	private long id;
 	private String firstName;
 	private String lastName;
-	
+
 	private Set<Absence> absences = new HashSet<Absence>();
 
 	public Set<Absence> getAbsences() {
@@ -45,7 +45,8 @@ public class Employee {
 
 	@Override
 	public String toString() {
-		return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + "]";
+		return "Employee [id=" + id + ", firstName=" + firstName
+				+ ", lastName=" + lastName + "]";
 	}
 
 	@Override

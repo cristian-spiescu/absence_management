@@ -15,7 +15,7 @@
             column="employee_id" not-null="true"
              lazy="false" />
         <many-to-one name="type" class="AbsenceType"
-            column="type_id" not-null="true"
+            column="type_id" not-null="true" 
              lazy="false" />            
            
 

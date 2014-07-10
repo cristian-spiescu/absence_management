@@ -5,12 +5,9 @@
 		 creationComplete="creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[
-			import com.crispico.absence_management.model.Absence;
-			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
-			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 
@@ -20,7 +17,6 @@
 				absenceService.getAllAbsences();
 			}
 			
-
 			private function absenceServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
@@ -28,6 +24,11 @@
 			private function getAllAbsencesResultHandler(event:ResultEvent):void {
 				grid.dataProvider = ArrayCollection(event.result);	
 			}	
+			
+			private function formatDate(item:Object, column:DataGridColumn):String{
+				return (item[column.dataField] as Date).date+"/"+((item[column.dataField] as Date).month+1)+"/"+(item[column.dataField] as Date).fullYear;
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -44,8 +45,8 @@
 	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn dataField="id" headerText="ID"/>
-			<mx:DataGridColumn dataField="startDate" headerText="start date"/>
-			<mx:DataGridColumn dataField="endDate" headerText="end date"/>
+			<mx:DataGridColumn dataField="startDate" headerText="start date" labelFunction="formatDate"/>
+			<mx:DataGridColumn dataField="endDate" headerText="end date" labelFunction="formatDate"/>
 			<mx:DataGridColumn dataField="type.type" headerText="type"/>
 		</mx:columns>
 	</mx:DataGrid>

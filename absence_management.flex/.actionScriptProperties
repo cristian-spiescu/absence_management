@@ -12,10 +12,10 @@
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
-  <theme themeIsDefault="false" themeIsSDK="true" themeLocation="${SDK_THEMES_DIR}/frameworks/themes/Halo"/>
+  <theme themeIsDefault="false" themeIsSDK="true" themeLocation="${SDK_THEMES_DIR}/samples/themes/zen"/>
   <applications>
-    <application path="Main.mxml"/>
     <application path="test.mxml"/>
+    <application path="Main.mxml"/>
   </applications>
   <modules/>
   <workers/>

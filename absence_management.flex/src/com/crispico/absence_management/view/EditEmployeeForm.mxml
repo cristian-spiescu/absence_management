@@ -9,7 +9,6 @@
 			import com.crispico.absence_management.model.Employee;
 			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.controls.DataGrid;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
@@ -36,17 +35,31 @@
 			
 			protected function deleteEmployeeAbsence(event:MouseEvent):void {
 				var absence:Absence = Absence(absencesGrid.selectedItem);
-				absenceService.deleteAbsence(absence.id);
+				absenceService.deleteAbsence(absence);
 				var i:Number = ArrayCollection(absencesGrid.dataProvider).getItemIndex(absence);
-				ArrayCollection(absencesGrid.dataProvider).removeItemAt(i);
-				
+				ArrayCollection(absencesGrid.dataProvider).removeItemAt(i);	
 			}
+			
 			private function addAbsenceModal(event:MouseEvent):void {
 				var addAbsenceForm:AddAbsenceForm = new AddAbsenceForm();
 				addAbsenceForm.employee = employee;
+				addAbsenceForm.absencesGrid = absencesGrid;
 				PopUpManager.addPopUp(addAbsenceForm, this, true);
 				PopUpManager.centerPopUp(addAbsenceForm);	
 			}
+			
+			private function editAbsenceModal(event:MouseEvent):void {
+				var editAbsenceForm:EditAbsenceForm = new EditAbsenceForm();
+				editAbsenceForm.employee = employee;
+				editAbsenceForm.absence = Absence(absencesGrid.selectedItem);
+				PopUpManager.addPopUp(editAbsenceForm, this, true);
+				PopUpManager.centerPopUp(editAbsenceForm);		
+			}
+			
+			private function formatDate(item:Object, column:DataGridColumn):String{
+				return (item[column.dataField] as Date).date+"/"+((item[column.dataField] as Date).month+1)+"/"+(item[column.dataField] as Date).fullYear;
+			}
+
 			
 		]]>
 	</fx:Script>
@@ -75,12 +88,13 @@
 		<s:Button label="Update" click="updateEmployee(event)"></s:Button>
 		<s:Button label="Delete" click="deleteEmployeeAbsence(event)" enabled="{absencesGrid.selectedItem != null}"></s:Button>
 		<s:Button label="Add absence" click="addAbsenceModal(event); grid.selectedIndex = -1"/>
+		<s:Button label="Edit absence" click="editAbsenceModal(event);" enabled="{absencesGrid.selectedItem !=null}"/>
 	</s:HGroup>
-	<mx:DataGrid id="absencesGrid" width="100%" height="100%" allowMultipleSelection="true">
+	<mx:DataGrid id="absencesGrid" width="100%" height="100%" allowMultipleSelection="true" >
 		<mx:columns>
 			<mx:DataGridColumn dataField="id" headerText="ID"/>
-			<mx:DataGridColumn dataField="startDate" headerText="start date"/>
-			<mx:DataGridColumn dataField="endDate" headerText="end date"/>
+			<mx:DataGridColumn dataField="startDate" headerText="start date" labelFunction="formatDate" />
+			<mx:DataGridColumn dataField="endDate" headerText="end date"  labelFunction="formatDate"/>
 			<mx:DataGridColumn dataField="type.type" headerText="type"/>
 		</mx:columns>
 	</mx:DataGrid>

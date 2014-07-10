@@ -14,10 +14,6 @@ package com.crispico.absence_management.model {
 		public var type:AbsenceType;
 		
 		public var employee:Employee;
-		
-//		public function asdfsda(){
-//			//endDate.
-//		}
 
 	}
 }

@@ -5,26 +5,50 @@
 		 creationComplete="creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.AbsenceType;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-
+			
 			private var list:ArrayCollection = new ArrayCollection();
 
 			private function creationCompleteHandler(event:FlexEvent):void {
 				absenceTypeService.getAllAbsenceTypes();
 			}
 			
-
 			private function absenceTypeServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
 					
 			private function getAllAbsenceTypeResultHandler(event:ResultEvent):void {
-				grid.dataProvider = ArrayCollection(event.result);	
+				absenceTypeGrid.dataProvider = ArrayCollection(event.result);	
 			}	
+			
+			private function addAbsenceTypeModal(event:MouseEvent):void {
+				var addAbsenceTypeForm:AddAbsenceTypeForm = new AddAbsenceTypeForm();
+				addAbsenceTypeForm.absenceTypeGrid = DataGrid(absenceTypeGrid);
+				PopUpManager.addPopUp(addAbsenceTypeForm, this, true);
+				PopUpManager.centerPopUp(addAbsenceTypeForm);	
+			}
+			
+			protected function deleteAbsenceType(event:MouseEvent):void{
+				var absenceType:AbsenceType = AbsenceType(absenceTypeGrid.selectedItem);
+				absenceTypeService.deleteAbsenceType(absenceType);
+				var i:Number = ArrayCollection(absenceTypeGrid.dataProvider).getItemIndex(absenceType);
+				ArrayCollection(absenceTypeGrid.dataProvider).removeItemAt(i);
+			}
+			
+			private function editAbsenceTypeModal(event:MouseEvent):void {
+				var editAbsenceTypeForm:EditAbsenceTypeForm = new EditAbsenceTypeForm();
+				editAbsenceTypeForm.absenceType = AbsenceType(absenceTypeGrid.selectedItem);
+				PopUpManager.addPopUp(editAbsenceTypeForm, this, true);
+				PopUpManager.centerPopUp(editAbsenceTypeForm);	
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -35,10 +59,14 @@
 			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypeResultHandler(event)"/>
 		</mx:RemoteObject>
 	</fx:Declarations>
-	<s:HGroup>
+	<s:HGroup paddingTop="10" >
+		<mx:Button label="Add" click="addAbsenceTypeModal(event); absenceTypeGrid.selectedIndex = -1"/>
+		<s:Button label="Delete" enabled="{absenceTypeGrid.selectedItem != null}" click="deleteAbsenceType(event)"/>
+		<s:Button label="Edit" click="editAbsenceTypeModal(event)" enabled="{absenceTypeGrid.selectedItem != null}"/>
 
-	</s:HGroup>
-	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+	</s:HGroup >
+
+	<mx:DataGrid id="absenceTypeGrid" width="100%" height="100%" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn dataField="id" headerText="ID"/>
 			<mx:DataGridColumn dataField="type" headerText="type"/>
