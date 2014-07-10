@@ -36,4 +36,15 @@ public class EmployeeHibernateDao {
         session.delete(employee);
         session.getTransaction().commit();
 	}
+	public void update(long id, String firstname, String lastname){
+		String hql = "UPDATE Employee e SET e.firstName = :fname, e.lastName = :lname WHERE e.id = :employee_id";
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        Query query = session.createQuery(hql);
+        query.setParameter("employee_id", id);
+        query.setString("fname", firstname);
+        query.setString("lname", lastname);
+	    query.executeUpdate();
+        session.getTransaction().commit();
+	}
 }

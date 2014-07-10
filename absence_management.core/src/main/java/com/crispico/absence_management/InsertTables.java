@@ -2,8 +2,6 @@ package com.crispico.absence_management;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
-
 import com.crispico.absence_management.dao.AbsenceHibernateDao;
 import com.crispico.absence_management.dao.AbsenceTypeHibernateDao;
 import com.crispico.absence_management.dao.EmployeeHibernateDao;

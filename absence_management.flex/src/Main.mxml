@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:ns="com.crispico.absence_management.view.*"
+			   backgroundColor="#fbf6e1">
+	
+	<mx:TabNavigator width="90%" height="95%">
+		<s:NavigatorContent label="Employees" width="100%">
+			<ns:EmployeeTable width="100%" height="100%"/>
+		</s:NavigatorContent>
+	</mx:TabNavigator>
+</s:Application>

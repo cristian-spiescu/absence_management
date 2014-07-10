@@ -1,7 +1,6 @@
 package com.crispico.absence_management.model;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Employee {
