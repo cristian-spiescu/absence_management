@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 creationComplete="creationCompleteHandler(event)">
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 creationComplete="creationCompleteHandler(event)"
+		 paddingLeft="5" paddingRight="5"
+		 paddingBottom="5" paddingTop="5">
+	
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.AbsenceType;
 			import com.crispico.absence_management.model.Employee;
 			
 			import mx.collections.ArrayCollection;
@@ -13,78 +17,152 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.IndexChangeEvent;
+						
+			[Bindable]
+			public var list:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var searchEmployeeList:ArrayCollection = new ArrayCollection(["by Employee", "by Absence Type"]);
 
-			private var list:ArrayCollection = new ArrayCollection();
-
+			[Bindable]
+			public var absenceTypeList:ArrayCollection;
+			
 			private function creationCompleteHandler(event:FlexEvent):void {
-				for (var i:int = 0; i < 10; i++) {
-					var employee:Employee = new Employee();
-					employee.firstName = "First " + i;
-					employee.lastName = "Last " + i;
-					list.addItem(employee);
-				}
-				grid.dataProvider = list;	
+				employeeService.getAllEmployees();
 			}
 			
-			private function addClickHandler(event:MouseEvent):void {
-				var employee:Employee = new Employee();
-				employee.firstName = "New First";
-				employee.lastName = "Last";
-				list.addItem(employee);			
-			}
-			
-			private function reverseClickHandler(event:MouseEvent):void {
-//				for each (var employee:Employee in grid.selectedItems) {
-//					var temp:String = employee.firstName;
-//					employee.firstName = employee.lastName;
-//					employee.lastName = temp;
-//				}
-				var employee:Employee = Employee(grid.selectedItem);
-				var temp:String = employee.firstName;
-				employee.firstName = employee.lastName;
-				employee.lastName = temp;
+			private function addClickHandler(event:MouseEvent):void {	
+				var addForm:AddEmployeeForm = new AddEmployeeForm();
+				addForm.employeeTable = this;
+				
+				/* PopUp for adding new Employee */
+				PopUpManager.addPopUp(addForm, this, true);
+				PopUpManager.centerPopUp(addForm);
 			}
 			
 			private function editClickHandler(event:MouseEvent):void {
 				var form:EmployeeForm = new EmployeeForm();
 				form.employee = Employee(grid.selectedItem);
+				form.employeeTable = this;
+				
 				PopUpManager.addPopUp(form, this, true);
 				PopUpManager.centerPopUp(form);
 			}
-			
-			private function sayHelloResultHandler(event:ResultEvent):void {
-//				Alert.show("" + event.result);
-			}
-			
+					
 			private function employeeServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
 			
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
-				Alert.show("" + ArrayCollection(event.result));
+				list = ArrayCollection(event.result);
+								
+				grid.dataProvider = list;
 			}			
+			
+			private function deleteEmployeeClickHandler(event:MouseEvent):void {
+				var deleteForm: DeleteEmployeeForm = new DeleteEmployeeForm();
+				
+				deleteForm.deletedEmployee = Employee(grid.selectedItem);
+				deleteForm.employeeTable = this;				
+				
+				PopUpManager.addPopUp(deleteForm, this, true);
+				PopUpManager.centerPopUp(deleteForm);
+			}
+			
+			private function viewAllAbsencesClickHandler(event:MouseEvent):void {
+				var absenceTable : AbsenceTable = new AbsenceTable();
+				absenceTable.employeeTable = this;
+				absenceTable.width = this.width;
+				absenceTable.height = this.height;
+				
+				PopUpManager.addPopUp(absenceTable, this, true);
+				PopUpManager.centerPopUp(absenceTable);
+				
+			}
+			
+			private function searchEmployeeClickHandler(event:MouseEvent):void {
+				searchEmployeeDropDownList.visible = true;
+			}
+			
+			private function searchEmployeeDropDownListChangeHandler(event:IndexChangeEvent):void {
+				if (searchEmployeeDropDownList.selectedIndex == 1) {
+					absenceTypeDropDownList.visible = true;
+				}
+			}
+			
+			/* Get all absence type from database */
+			private function getAllAbsenceTypeResultHandler(event:ResultEvent): void {
+				absenceTypeList = ArrayCollection(event.result);
+				
+				var absenceNames: ArrayCollection = new ArrayCollection;
+				for each (var absenceType:AbsenceType in absenceTypeList) {
+					absenceNames.addItem(absenceType.absenceName);
+				}
+				
+				absenceTypeDropDownList.dataProvider = absenceNames;
+			}
+			
+			private function absenceTypeDropDownListCreationCompleteHandler(event:FlexEvent):void {
+				absenceService.getAllAbsenceType();		
+			}
+			
+
+			
 		]]>
 	</fx:Script>
+	
 	<fx:Declarations>
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
 		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
-			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
 			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
 		</mx:RemoteObject>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}">
+			<mx:method name="getAllAbsenceType" result="getAllAbsenceTypeResultHandler(event)"/>
+		</mx:RemoteObject>
 	</fx:Declarations>
-	<s:HGroup>
-		<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
-		<s:Button label="Reverse First/Last Name" enabled="{grid.selectedItem != null}" click="reverseClickHandler(event)"/>
-		<s:Button label="Edit" click="editClickHandler(event)"/>
-		<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>
+	
+	<s:HGroup gap="600">
+
+		<s:HGroup horizontalAlign="right">
+			<mx:Button label="View All Absences" 
+					   fontWeight="bold"
+					   click="viewAllAbsencesClickHandler(event)"/> 
+			<mx:Button label="Search Employee"
+					   fontWeight="bold"
+					   click="searchEmployeeClickHandler(event)" />
+			<s:DropDownList id="searchEmployeeDropDownList" 
+							prompt="Search Criteria"
+							visible="false"
+							dataProvider="{searchEmployeeList}"
+							width="130"
+							change="searchEmployeeDropDownListChangeHandler(event)"/>
+			<s:DropDownList id="absenceTypeDropDownList"
+							prompt="Select Absence Type"
+							visible="false"
+							width="140"
+							creationComplete="absenceTypeDropDownListCreationCompleteHandler(event)"/>
+		</s:HGroup>
+		
+		<s:HGroup fontWeight="bold"
+				  horizontalAlign="right">
+			<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1" />
+			<mx:Button label="Edit" enabled="{grid.selectedItem != null}" click="editClickHandler(event); "/>
+			<mx:Button label="Delete" enabled="{grid.selectedItem != null}" click="deleteEmployeeClickHandler(event)"/>
+		</s:HGroup>
+	
 	</s:HGroup>
+		
 	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+			
 		<mx:columns>
-			<mx:DataGridColumn dataField="id" headerText="ID"/>
-			<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
-			<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
+			<mx:DataGridColumn dataField="id" headerText="ID" />
+			<mx:DataGridColumn dataField="firstName" headerText="First Name" />
+			<mx:DataGridColumn dataField="lastName" headerText="Last Name" />
 		</mx:columns>
+		
 	</mx:DataGrid>
 </s:VGroup>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  creationComplete="populateAbsenceTable()"
+		  close="PopUpManager.removePopUp(this)"
+		  title="View All Absences" >
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="employeeDateFormatter"
+							 dateTimePattern="dd-MMM-yyyy"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var employeeTable : EmployeeTable;
+			
+			[Bindable]
+			public var allAbsences : ArrayCollection;
+			
+			public function populateAbsenceTable():void {
+				allAbsences = new ArrayCollection();
+												
+				for each (var employee:Employee in employeeTable.list)  {
+					var employeeAbsences:ArrayCollection = employee.absences;
+					for each (var absence:Absence in employeeAbsences) {
+						allAbsences.addItem(absence);
+					}
+				}	
+				absenceTableGrid.dataProvider = allAbsences;
+			}
+						
+			/* Date Formatters */
+			private function startDateFormatter(item:Object, column:DataGridColumn):String { 
+				return employeeDateFormatter.format(item.startDate); 
+			}
+			
+			private function endDateFormatter(item:Object, column:DataGridColumn):String { 
+				return employeeDateFormatter.format(item.endDate); 
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout paddingLeft="5" paddingRight="5"
+						  paddingBottom="5" paddingTop="5" />
+	</s:layout>
+	
+	<mx:DataGrid id="absenceTableGrid" 
+				 width="100%" height="70%" 
+				 allowMultipleSelection="true">
+		
+		<mx:columns>
+			<mx:DataGridColumn dataField="id" headerText="Absence ID" />
+			<mx:DataGridColumn dataField="employee.firstName" headerText="First Name" />
+			<mx:DataGridColumn dataField="employee.lastName" headerText="Last Name" />
+			<mx:DataGridColumn dataField="startDate" 
+							   headerText="Start Date"
+							   labelFunction="startDateFormatter"/>
+			<mx:DataGridColumn dataField="endDate" 
+							   headerText="End Date"
+							   labelFunction="endDateFormatter"/>
+			<mx:DataGridColumn dataField="absenceType.absenceName" headerText="Absence Type"/>
+		</mx:columns>
+		
+	</mx:DataGrid>
+	
+</s:TitleWindow>

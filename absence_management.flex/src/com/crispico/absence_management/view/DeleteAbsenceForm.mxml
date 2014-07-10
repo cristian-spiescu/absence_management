@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				close="PopUpManager.removePopUp(this)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			public var employeeForm:EmployeeForm;
+			
+			private function deleteAbsenceClickHandler(event:MouseEvent):void {
+				var absence:Absence = Absence(employeeForm.employeeFormDataGrid.selectedItem);				
+				employeeForm.absenceService.deleteAbsence(absence.id+"");
+				
+				var index:Number = employeeForm.absenceList.getItemIndex(absence);
+				/* refresh parent */
+				employeeForm.absenceList.removeItemAt(index);
+
+				employeeForm.employee.absences.removeItemAt(index);
+
+				/* refresh grandparent */
+				
+				/* first find the employee */
+				var employeeToDeleteAbsence : Employee = absence.employee;
+				
+				var employeeList:ArrayCollection = employeeForm.employeeTable.list;
+				for each (var employee:Employee in employeeList) {
+					if (employee.id == employeeToDeleteAbsence.id) {
+						/* delete absence by ID */
+						var absencesToDelete: ArrayCollection = employee.absences;
+						for each(var absenceToDelete:Absence in absencesToDelete){
+							if (absenceToDelete.id == absence.id) {
+								var indexToDelete : Number = absencesToDelete.getItemIndex(absenceToDelete);
+								absencesToDelete.removeItemAt(indexToDelete);
+								break;
+							}
+						}
+						break;
+					}
+				}
+				
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+		
+	<s:layout>
+		<s:HorizontalLayout horizontalAlign="center" verticalAlign="middle"
+							paddingBottom="10" paddingTop="10" 
+							paddingLeft="10" paddingRight="10"/>
+	</s:layout>
+		
+	<s:BitmapImage source="images/delete_absence.png" 
+				   width="100" height="100"/>
+	
+	<s:VGroup verticalAlign="middle" horizontalAlign="center">
+		<s:FormItem label="Are you sure you want to delete this absence?"
+					horizontalCenter="0" />
+		
+		<s:HGroup>
+			<s:Button label="Yes" click="deleteAbsenceClickHandler(event)"/>
+			<s:Button label="No" click="PopUpManager.removePopUp(this)"/>
+		</s:HGroup>
+	</s:VGroup>
+	
+</s:TitleWindow>

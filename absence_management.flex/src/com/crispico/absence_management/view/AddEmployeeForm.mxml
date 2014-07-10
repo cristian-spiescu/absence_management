@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 title="Add new Employee" 
+		 close="PopUpManager.removePopUp(this)">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			public var newEmployee: Employee = new Employee();
+			
+			/* Parent window is EmployeeTable */
+			[Bindable]
+			public var employeeTable:EmployeeTable;
+			
+			private function addEmployeeClickHandler(event:MouseEvent):void {
+				if (firstNameInput.text.length == 0 || lastNameInput.text.length == 0) {
+					Alert.show("The First Name and Last Name Fields must be completed!", "Add Employee Error");
+				} else {
+					newEmployee.firstName = firstNameInput.text;
+					newEmployee.lastName = lastNameInput.text;
+					newEmployee.absences = new ArrayCollection();			
+					
+					employeeService.save(newEmployee);
+							
+					/* for refresh */
+					employeeService.getAllEmployees();
+					/*****/
+									
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			private function getAllEmployeesResultHandler(event:ResultEvent):void {
+				/* take the list from Java */
+				var refreshEmployees:ArrayCollection = ArrayCollection(event.result);
+							
+				newEmployee.id = Employee(refreshEmployees.getItemAt(refreshEmployees.length - 1)).id;
+				employeeTable.list.addItem(newEmployee);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}">
+			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:HGroup>
+	
+		<s:BitmapImage source="images/add_user.png"/>
+		
+		<s:Form>
+			<s:FormItem label="First name:" required="true">
+				<s:TextInput id="firstNameInput"/>
+			</s:FormItem>
+			
+			<s:FormItem label="Last name:" required="true">
+				<s:TextInput id="lastNameInput"/>
+			</s:FormItem>
+			
+			<s:FormItem>
+				<s:Button label="Add Employee" click="addEmployeeClickHandler(event)"
+						  fontWeight="bold"/>
+			</s:FormItem>
+		</s:Form>
+		
+	</s:HGroup>
+			
+</s:TitleWindow>

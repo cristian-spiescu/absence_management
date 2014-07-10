@@ -17,4 +17,13 @@ public class EmployeeService {
 	public List<Employee> getAllEmployees() {
 		return dao.getAll();
 	}
+
+	public void save(Employee employee) {
+		dao.save(employee);
+	}
+	
+	public void deleteEmployee(Employee employee) {
+		dao.delete(employee.getId());
+	}
+	
 }
