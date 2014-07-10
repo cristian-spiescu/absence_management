@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- containers\spark\SparkPanelSimple.mxml -->
+<s:Form  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 creationComplete="employeeService.getEmployeeAbsences(idEdit)"> 
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public var idEdit:Number;
+			public var grid:DataGrid;
+
+			
+			private function getEmployeeAbsencesResultHandler(event:ResultEvent):void {
+				gridAbs.dataProvider = event.result;
+			}
+			private function getAllEmployeesResultHandler(event:ResultEvent):void {
+				grid.dataProvider = event.result;
+			}	
+			private function closePopUp(evt:MouseEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			private function addClickHandler(event:MouseEvent):void {
+				var form:addAbsence = new addAbsence();
+				form.idEdit = idEdit;
+				form.gridAbs = gridAbs;
+				form.grid = grid;
+				PopUpManager.addPopUp(form, FlexGlobals.topLevelApplication as DisplayObject, true);
+				PopUpManager.centerPopUp(form);	
+			}
+			private function editClickHandler(event:MouseEvent):void {
+				var form:editAbsence = new editAbsence();
+				form.absence = getAbsenceForDeleteOrEdit();
+				form.gridAbs = gridAbs;
+				form.idEdit = idEdit;
+				form.grid = grid;
+				PopUpManager.addPopUp(form, FlexGlobals.topLevelApplication as DisplayObject, true);
+				PopUpManager.centerPopUp(form);	
+			}
+			private function getAbsenceForDeleteOrEdit():Absence{
+				var a:Absence = new Absence();
+				a = Absence(gridAbs.selectedItem);
+				return a;
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
+			<mx:method name="editEmployee"/>
+			<mx:method name="getEmployeeAbsences" result="getEmployeeAbsencesResultHandler(event)"/>
+			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+		</mx:RemoteObject>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="deleteAbsence"/>
+		</mx:RemoteObject>
+		
+	</fx:Declarations>
+	
+	<s:Panel id="myPanel" title="Edit Employee" >
+		<s:Form id="myForm" width="400">
+		
+			<s:FormItem label="New First Name">
+				<s:TextInput id="fname" width="100%"/>
+			</s:FormItem>
+			
+			<s:FormItem label="New Last Name">
+				<s:TextInput id="lname" width="100%"/>
+			</s:FormItem>	
+			<s:HGroup>
+				<mx:Button label="Add" click="addClickHandler(event)"/>
+				<mx:Button label="Delete" id="deleteButton" enabled = "{gridAbs.selectedItem != null}" click="absenceService.deleteAbsence(getAbsenceForDeleteOrEdit()), employeeService.getEmployeeAbsences(idEdit)"/> 
+				<mx:Button label="Edit" id="editButton" enabled = "{gridAbs.selectedItem != null}" click="editClickHandler(event)"/>
+				<mx:Button label="Refresh Absences" click="employeeService.getEmployeeAbsences(idEdit)"/>
+			</s:HGroup>
+			<mx:DataGrid id="gridAbs" width="100%" height="100%" allowMultipleSelection="false">
+				<mx:columns>
+					<mx:DataGridColumn id="start" dataField="startDate" headerText="Start" />
+					<mx:DataGridColumn id="end" dataField="endDate" headerText="End" />
+					<mx:DataGridColumn id="type" dataField="absenceType.description" headerText="Type"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<s:FormItem>
+				<mx:HRule width="200" height="1"/>
+				<s:HGroup>
+					<mx:Button id="Save" label="Save" enabled="{fname.text!='' &amp;&amp; lname.text!=''}" click="employeeService.editEmployee(idEdit,fname.text,lname.text), closePopUp(event),employeeService.getAllEmployees() "/>
+					<mx:Button id="Cancel" label="Cancel" click="closePopUp(event)"/>
+				</s:HGroup>
+			</s:FormItem>
+			
+		</s:Form>
+	</s:Panel>
+</s:Form>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.controls.Alert;
+			import mx.controls.DataGrid;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public var idEdit:Number;
+			public var gridAbs:DataGrid;
+			public var grid:DataGrid;
+			
+			public function compare (date1 : Date, date2 : Date) : Number {
+				var date1Timestamp : Number = date1.getTime ();
+				var date2Timestamp : Number = date2.getTime ();
+				var result : Number = -1;
+				if (date1Timestamp <= date2Timestamp){
+					result = 0;
+				} else if (date1Timestamp > date2Timestamp){
+					result = 1;
+					//Alert.show("Start Date is after End Date");
+				}
+				return result;
+			}
+			public function parseDate( str : String ) : Date {
+				var matches : Array = str.match(/(\d\d)-(\d\d)-(\d\d\d\d)/);
+				
+				var d : Date = new Date();
+				
+				d.setUTCFullYear(int(matches[3]), int(matches[2]) - 1, int(matches[1]));
+				
+				return d;
+			}
+			public function checkEmployeeNewAbsence(date1:Date, date2:Date):Number{
+				var dateStartTyped : Number = date1.getTime ();
+				var dateEndTyped : Number = date2.getTime ();
+				var result : Number = 0;
+				var employees:ArrayCollection = ArrayCollection(grid.dataProvider);
+				for each(var e:Employee in employees)
+					if(e.id == idEdit)
+					{
+						for each (var a:Absence in e.absences) {
+							if((dateStartTyped >= parseDate(a.startDate).getTime() 
+							&& dateStartTyped <= parseDate(a.endDate).getTime())  
+							&& (dateEndTyped >= parseDate(a.startDate).getTime()
+							&& dateEndTyped <= parseDate(a.endDate).getTime()) 
+							||
+							(dateStartTyped >= parseDate(a.startDate).getTime() 
+							&& dateStartTyped <= parseDate(a.endDate).getTime())  
+							&& (dateEndTyped >= parseDate(a.startDate).getTime()
+							&& dateEndTyped >= parseDate(a.endDate).getTime())
+							||
+							(dateStartTyped <= parseDate(a.startDate).getTime() 
+							&& dateStartTyped <= parseDate(a.endDate).getTime())  
+							&& (dateEndTyped >= parseDate(a.startDate).getTime()
+							&& dateEndTyped <= parseDate(a.endDate).getTime())
+							||
+							(dateStartTyped <= parseDate(a.startDate).getTime() 
+							&& dateStartTyped <= parseDate(a.endDate).getTime())  
+							&& (dateEndTyped >= parseDate(a.startDate).getTime()
+							&& dateEndTyped >= parseDate(a.endDate).getTime())){
+								result = 1;  //nu este buna 
+							}
+						}
+					}
+				//Alert.show("Exista un concediu in acest interval!");
+				return result;
+			}
+			
+			private function getEmployeeAbsencesResultHandler(event:ResultEvent):void {
+				gridAbs.dataProvider = event.result;
+			}	
+			private function closePopUp(evt:MouseEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="addAbsence"/>
+		</mx:RemoteObject>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
+			<mx:method name="getEmployeeAbsences" result="getEmployeeAbsencesResultHandler(event)"/>
+		</mx:RemoteObject>
+
+	</fx:Declarations>
+
+	<s:Panel id="myPanel" title="Add Absence" >
+		<s:Form id="myForm" width="400">
+			<s:VGroup>
+				<s:Label text="Button Save inactiv atunci cand intervalul este deja ocupat{'\n'}de alt concediu sau End Date este mai mic decat Start Date" >    
+					</s:Label>
+				<s:FormItem label="Start Date">
+					<mx:DateField id="start">
+					</mx:DateField>     
+				</s:FormItem>
+				
+				<s:FormItem label="End Date">
+					<mx:DateField id="end"> 
+					</mx:DateField> 
+				</s:FormItem>
+				
+				<s:FormItem label="Type">
+					<s:DropDownList id="type" 
+									width="200"
+									selectedIndex="-1"
+									prompt="Select a type"> 
+						<mx:ArrayCollection>
+							<fx:String>Concediu Odihna</fx:String>
+							<fx:String>Concediu Medical</fx:String>
+							<fx:String>Concediu fara plata</fx:String>
+							<fx:String>Concediu pentru formare profesionala</fx:String>
+							<fx:String>Concediu de maternitate</fx:String>
+							<fx:String>Concediu de risc maternal</fx:String>
+							<fx:String>Concediu pentru carantina</fx:String>
+							<fx:String>Concediu pentru ingrijirea copilului bolnav</fx:String>
+							<fx:String>Concediu paternal</fx:String>
+							<fx:String>Concediu platit pentru evenimente familiale deosebite</fx:String>
+						</mx:ArrayCollection>
+					</s:DropDownList>
+				</s:FormItem>
+				
+				<s:FormItem>
+					<mx:HRule width="200" height="1"/>
+					<s:HGroup>
+						<s:Button id="btn" label="Save" enabled="{start.text!='' &amp;&amp; end.text!='' &amp;&amp; type.selectedItem.toString()!=''&amp;&amp; compare(start.selectedDate,end.selectedDate)==0 &amp;&amp; checkEmployeeNewAbsence(start.selectedDate,end.selectedDate)==0}" click="absenceService.addAbsence(idEdit,start.text,end.text,type.selectedItem.toString()),employeeService.getEmployeeAbsences(idEdit),closePopUp(event)"/>
+						<s:Button id="Cancel" label="Cancel" click="closePopUp(event)"/>
+					</s:HGroup>
+				</s:FormItem>
+			</s:VGroup>
+		</s:Form>
+	</s:Panel>
+</s:Form>
