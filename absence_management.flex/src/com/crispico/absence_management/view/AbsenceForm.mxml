@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   title="{'Add absence ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)"
+			   creationComplete="creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.events.IndexChangedEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			public var employee:Employee;	
+			private var list:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var absence:Absence = new Absence();
+			[Bindable]
+			public var absenceType:AbsenceType;
+			public var employeeForm:EmployeeForm;
+			private var listTypes:ArrayCollection = new ArrayCollection();
+			private var absenceId:Number;
+			[Bindable]
+			public var correct:Boolean = false;
+			
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				absenceTypeService.getAllAbsenceTypes();
+			}
+			
+			private function saveClickHandler(event:MouseEvent):void{
+				//employeeService.addEmployee(employee);
+				//PopUpManager.removePopUp(this)
+				//absence = new Absence();
+				absence.start_date = startDate.selectedDate;
+				absence.end_date = endDate.selectedDate;
+				absence.employee = employeeForm.employee;
+				absence.type = dropDownList.selectedItem;
+				//absenceTypeService.addAbsenceType(absenceType);
+				//absence.type = absenceType;
+				absenceService.addAbsence(absence);
+				employeeForm.employee.absences.addItem(absence);
+				employeeForm.list.addItem(absence);
+				//Alert.show("id: " + absence.id);
+				PopUpManager.removePopUp(this);
+			}
+			
+			
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function absenceTypeServiceFaultHandler(event:FaultEvent):void{
+				Alert.show("Service invocation error: " + event.fault.faultString);
+			}
+			
+			private function getAllAbsenceTypesResultHandler(event:ResultEvent):void{
+				listTypes = ArrayCollection(event.result);
+				dropDownList.dataProvider = listTypes;
+			}
+			
+			private function startDateChangeHandler(event:CalendarLayoutChangeEvent):void{
+				//absence.start_date = new Date("05/11/2011");
+				absence.start_date = event.target.selectedDate;
+				Alert.show("You have chosen the date: " + event.currentTarget.selectedDate.toString());
+			}
+			
+			private function endDateChangeHandler(event:CalendarLayoutChangeEvent):void{
+				//absence.start_date = new Date("05/11/2011");
+				absence.end_date = event.target.selectedDate; 
+			}
+//			
+//			private function absenceTypeChangeHandler(event:IndexChangeEvent):void{
+//				absenceType.type = event.target.selectedItem;
+//				absenceTypeService.addAbsenceType(absenceType);
+//				absence.type = absenceType;
+//				Alert.show("You have chosen type: " + event.target.selectedItem);
+//			}
+			
+			private function addAbsenceTypeResultHandler(event:ResultEvent):void{
+				absenceId = Number(event.result);
+				//Alert.show("absId: " +absenceId);
+				absence.id = absenceId;
+				
+				//Alert.show("absId: " +absence.id);
+			}
+			
+			private function okClickHandler(event:MouseEvent):void{
+				var i:Number;
+				if(employeeForm.list.length == 0){
+					correct = true;
+//					Alert.show("intraaaaaaaaaaa");
+				}
+				else{
+					for(i=0;i<employeeForm.list.length;i++){
+//						Alert.show("start: " + employeeForm.list.getItemAt(i).start_date +
+//							"\nend: " + employeeForm.list.getItemAt(i).end_date + "\n" +
+//						"\nstart: " + startDate.selectedDate + "\nend: " + endDate.selectedDate);
+						if((startDate.selectedDate > employeeForm.list.getItemAt(i).start_date &&
+							startDate.selectedDate < employeeForm.list.getItemAt(i).end_date) ||
+							(endDate.selectedDate > employeeForm.list.getItemAt(i).start_date &&
+							endDate.selectedDate < employeeForm.list.getItemAt(i).end_date) ||
+							(startDate.selectedDate < employeeForm.list.getItemAt(i).start_date &&
+							endDate.selectedDate > employeeForm.list.getItemAt(i).end_date)){
+							correct = false;
+							break;
+						}
+						else correct = true;
+					}
+					
+				}
+//				Alert.show("correct: " + correct);
+				correct = correct && startDate.selectedDate != null && 
+				endDate.selectedDate != null && dropDownList.selectedItem != null && endDate.selectedDate >= 
+					startDate.selectedDate;
+			}
+			
+		]]>
+		
+		
+		
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="addAbsence" result="addAbsenceTypeResultHandler(event)">
+				<mx:arguments>
+					<arg1>
+						{absence}
+					</arg1>
+				</mx:arguments>
+			</mx:method>
+		</mx:RemoteObject>
+		<mx:RemoteObject id="absenceTypeService" destination="absenceTypeService" channelSet="{channelSet}" fault="absenceTypeServiceFaultHandler(event)">
+			<mx:method name="addAbsenceType" >
+				<mx:arguments>
+					<arg1>
+						{absenceType}
+					</arg1>
+				</mx:arguments>
+			</mx:method>
+			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypesResultHandler(event)">
+			</mx:method>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:HGroup paddingTop="20" paddingLeft="70" paddingRight="20">
+		<s:Label paddingTop="5" text="Start date"/>
+		<mx:DateChooser id="startDate"/>
+	</s:HGroup>
+	<s:HGroup paddingLeft="70" paddingBottom="20" paddingRight="20">
+		<s:Label paddingTop="5" text="Last Name"/>
+		<mx:DateChooser id="endDate"/>
+	</s:HGroup>
+	<s:HGroup paddingLeft="70">
+		<s:DropDownList id="dropDownList" labelField="type" />	
+	</s:HGroup>
+	 
+		
+	
+	
+	<s:HGroup paddingLeft="120" paddingRight="20" paddingBottom="20">
+		<s:Button label="Save" click="saveClickHandler(event)" enabled = "{correct}"/>
+		<s:Button label="Ok" click="okClickHandler(event)"/>
+	</s:HGroup>
+	
+	
+</s:TitleWindow>

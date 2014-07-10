@@ -35,12 +35,13 @@
 					</thead>
 					<%
 						for (Employee employee : (List<Employee>) request.getAttribute("list")) {
+							String s = "deleteEmployee.do?id=" + String.valueOf(employee.getId());
 					%>
 					<tr>
 						<td><%=employee.getFirstName()%></td>
 						<td><%=employee.getLastName()%></td>
 						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
+							<a href=<%=s%> class="btn btn-xs btn-danger" type="button">Delete</a></td>
 						<td><%=employee.printAbsences() %></td>
 					</tr>
 					<%

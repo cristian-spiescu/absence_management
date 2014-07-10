@@ -17,6 +17,7 @@ import com.crispico.absence_management.dao.EmployeeHibernateDao;
 import com.crispico.absence_management.model.Absence;
 import com.crispico.absence_management.model.AbsenceType;
 import com.crispico.absence_management.model.Employee;
+import com.crispico.absence_management.service.AbsenceService;
 
 public class Main {
 
@@ -37,20 +38,52 @@ public class Main {
 		//dao.save(e);
 		String string;
 		Scanner scanner = new Scanner(System.in);
-		List<Employee> employees = eDao.getAll();
-		
+		//List<Employee> employees = eDao.getAll();
+		String[] nume = new String[8];
+		nume[0]="Ana";
+		nume[1]="Ion";
+		nume[2]="Maria";
+		nume[3]="Gheorghe";
+		nume[4]="Maricica";
+		nume[5]="Gheorghita";
+		nume[6]="Anica";
+		nume[7]="Ionel";
 		
 		
 		Absence abs = new Absence();
-		int nr;
+		int nr,nr_angajati=10,numar;
 		
-		String[] tip = new String[2];
+		String[] tip = new String[4];
 		tip[0]="medical";
 		tip[1]="odihna";
+		tip[2]="neplatit";
+		tip[3]="absent";
 		
-		for (Employee employee : employees) {
-		//for(int i=0;i<nr;i++){
-			//e = new Employee();
+		t.setType(tip[0]);
+		aTDao.save(t);
+		t.setType(tip[1]);
+		aTDao.save(t);
+		t.setType(tip[2]);
+		aTDao.save(t);
+		t.setType(tip[3]);
+		aTDao.save(t);
+	/*	
+		AbsenceService abss = new AbsenceService();
+		
+		List<Absence> aux = abss.getAbsencesByEmployee(eDao.getAll().get(0));
+		
+		//System.out.println("12431");
+		System.out.println("uaaaaaaaaaaaaaai ");
+		for(Absence absence:aux){
+			System.out.println(absence.getEmployee().getFirstName() + " "
+					+ absence.getEmployee().getLastName() + " " +
+					absence.getStart_date() + " " +
+					absence.getEnd_date());
+		}*/
+		
+		//for (Employee employee : employees) {
+		for(int i=0;i<nr_angajati;i++){
+			Employee employee = new Employee();
 			Set<Absence> absences = new HashSet<Absence>();
 			//System.out.println(employee);
 			//citesc data de start
@@ -59,16 +92,23 @@ public class Main {
 			//System.out.println("Introduceti numarul de linii noi");
 			Random rand = new Random();
 			
-			nr = rand.nextInt(6);
-			if(employee.getFirstName().equals("John")){
-				nr=0;
-			}
-			//nr = Integer.parseInt(scanner.nextLine());
+			nr = rand.nextInt(8);
+			rand = new Random();
+			numar = rand.nextInt(8);
 			
-			for(int i=0;i<nr;i++){
+//			if(employee.getFirstName().equals("John")){
+//				nr=0;
+//			}
+			//nr = Integer.parseInt(scanner.nextLine());
+			//e = new Employee();
+			employee.setFirstName(nume[nr]);
+			employee.setLastName(nume[numar]);
+			//eDao.save(employee);
+			for(int j=0;j<nr;j++){
 				
 				a = new Absence();
 				t = new AbsenceType();
+				
 				//string = new String(begin.toString());
 				//string = scanner.nextLine();
 				//System.out.println("uaaaaai " + string);
@@ -81,9 +121,9 @@ public class Main {
 				a.setEnd_date(date);
 				a.setEmployee(employee);
 				//citesc tipul absentei
-				string = tip[nr%2];
+				string = tip[nr%4];
 				t.setType(string);
-				aTDao.save(t);
+				//aTDao.save(t);
 				//absences.add(abs);
 				//e.setAbsences(absences);
 				a.setType(t);
@@ -92,11 +132,12 @@ public class Main {
 				aDao.save(a);
 				
 			}
-			if(employee.getFirstName().equals("John")){
-				eDao.delete(employee.getId());
-			}
+//			if(employee.getFirstName().equals("John")){
+//				eDao.delete(employee.getId());
+//			}
 			employee.setAbsences(absences);
-			System.out.println(employee.printAbsences());
+			System.out.println(employee.getFirstName());
+			//eDao.save(employee);
 		}
 		
 		

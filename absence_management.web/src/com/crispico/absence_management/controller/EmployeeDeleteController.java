@@ -28,7 +28,11 @@ public class EmployeeDeleteController extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		EmployeeHibernateDao dao = new EmployeeHibernateDao();
+		String s = request.getParameter("id");
+		dao.delete(Long.valueOf(s));
 		
+		response.sendRedirect("showEmployees.do");
 		
 	}
 
@@ -37,9 +41,7 @@ public class EmployeeDeleteController extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		EmployeeHibernateDao dao = new EmployeeHibernateDao();
-		String s = request.getParameter("id");
-		dao.delete(Long.valueOf(s));
+		
 		
 	}
 

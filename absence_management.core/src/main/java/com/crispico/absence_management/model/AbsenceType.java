@@ -22,4 +22,18 @@ public class AbsenceType {
 		return this.type;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbsenceType other = (AbsenceType) obj;
+		if (!type.equals(other.type))
+			return false;
+		return true;
+	}
+	
 }

@@ -32,8 +32,8 @@ public class EmployeeHibernateDao {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
         //session.delete(employee);
-        org.hibernate.Query query = session.createQuery("from Employee where id = " + String.valueOf(id));
-        int result = query.executeUpdate();
+        org.hibernate.Query query = session.createQuery("from Employee where id = " + id + "");
+        session.delete(query.list().get(0));
         session.getTransaction().commit();
 	}
 }

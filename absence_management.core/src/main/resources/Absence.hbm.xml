@@ -11,7 +11,7 @@
         <property name="start_date" column="start_date" type="date" />
         <property name="end_date" column="end_date" type="date"/>
         
-        <many-to-one name="employee" class="Employee" cascade="all" fetch="select" lazy="false">
+        <many-to-one name="employee" class="Employee" fetch="select" lazy="false">
             <column name="ID" not-null="true" />
         </many-to-one>
         

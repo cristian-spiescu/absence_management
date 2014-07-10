@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   title="{'Add ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)"
+			   creationComplete="creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			import com.crispico.absence_management.model.AbsenceType;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var employee:Employee;	
+			private var list:ArrayCollection = new ArrayCollection();
+			private var abs:Absence;
+			private var abst:AbsenceType;
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				
+			}
+			
+			private function saveClickHandler(event:MouseEvent):void{
+				employeeService.addEmployee(employee);
+				PopUpManager.removePopUp(this)
+			}
+			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+		]]>
+		
+		
+		
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
+			<mx:method name="addEmployee">
+				<mx:arguments>
+					<arg1>
+						{employee}
+					</arg1>
+				</mx:arguments>
+			</mx:method>
+		</mx:RemoteObject> 
+	</fx:Declarations>
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<s:HGroup>
+		<s:VGroup>
+			<s:HGroup paddingTop="20" paddingLeft="10" paddingRight="20">
+				<s:Label paddingTop="5" text="First Name"/>
+				<s:TextInput text="@{employee.firstName}"/>
+			</s:HGroup>
+			<s:HGroup paddingLeft="10" paddingBottom="20" paddingRight="20">
+				<s:Label paddingTop="5" text="Last Name"/>
+				<s:TextInput text="@{employee.lastName}"/>
+			</s:HGroup>
+		</s:VGroup>
+		<s:HGroup paddingTop="20" paddingRight="20">
+			<s:BitmapImage source="images/images4.jpg" width="100" height="100" />
+		</s:HGroup>
+	</s:HGroup>
+	
+	<s:HGroup paddingLeft="120" paddingRight="20" paddingBottom="20">
+		<s:Button label="Save" click="saveClickHandler(event)"/>
+	</s:HGroup>
+	
+	
+</s:TitleWindow>

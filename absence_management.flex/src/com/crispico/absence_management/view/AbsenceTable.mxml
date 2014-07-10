@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  creationComplete="creationCompleteHandler(event)"
+		  title="{'Absences'}" close="PopUpManager.removePopUp(this)"
+		
+		  >
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			public var list:ArrayCollection = new ArrayCollection();
+			
+			public var listByType:ArrayCollection = new ArrayCollection();
+			
+			private var listTypes:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var absenceType:AbsenceType = new AbsenceType();
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				absenceService.getAllAbsences();
+				absenceTypeService.getAllAbsenceTypes();
+			}
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void{
+				Alert.show("Service invocation error: " + event.fault.faultString);
+			}
+			
+			private function absenceTypeServiceFaultHandler(event:FaultEvent):void{
+				Alert.show("Service invocation error: " + event.fault.faultString);
+			}
+			
+			private function getAllAbsencesResultHandler(event:ResultEvent):void{
+				list = ArrayCollection(event.result);
+				grid.dataProvider = list;
+			}
+			
+			private function getAllAbsenceTypesResultHandler(event:ResultEvent):void{
+				listTypes = ArrayCollection(event.result);
+				dropDownList.dataProvider = listTypes;
+			}
+			
+			private function filterOnClickHandler(event:MouseEvent):void{
+				absenceType = dropDownList.selectedItem;
+				absenceService.getAbsencesByType(absenceType);
+//				absenceType.type = dropDownList.selectedItem;
+//				dropDownList.dataProvider = absenceService.getAbsencesByType(absenceType);
+			}
+			
+			private function filterOffClickHandler(event:MouseEvent):void{
+				grid.dataProvider = list;
+			}
+			
+			private function getAbsencesByTypeResultHandler(event:ResultEvent):void{
+				listByType = ArrayCollection(event.result);
+				grid.dataProvider = listByType;
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="getAllAbsences" result="getAllAbsencesResultHandler(event)"/>
+			<mx:method name="getAbsencesByType" result="getAbsencesByTypeResultHandler(event)"/>
+		</mx:RemoteObject>
+		<mx:RemoteObject id="absenceTypeService" destination="absenceTypeService" channelSet="{channelSet}" fault="absenceTypeServiceFaultHandler(event)">
+			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypesResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	<s:VGroup>
+		<s:HGroup paddingBottom="4">
+			<s:DropDownList id="dropDownList" labelField="type" />
+			<s:Button label="Filter on" enabled="{dropDownList.selectedItem != null}" click="filterOnClickHandler(event)"/>
+			<s:Button label="Filter off" click="filterOffClickHandler(event)"/>
+		</s:HGroup>
+		<s:HGroup>
+			<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+				<mx:columns>
+					<mx:DataGridColumn dataField="id" headerText="ID"/>
+					<mx:DataGridColumn dataField="employee.firstName" headerText="First Name"/>
+					<mx:DataGridColumn dataField="employee.lastName" headerText="Last Name"/>
+					<mx:DataGridColumn dataField="start_date" headerText="Start date"/>
+					<mx:DataGridColumn dataField="end_date" headerText="End Date"/>
+					<mx:DataGridColumn dataField="type.type" headerText="Type"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</s:HGroup>
+	</s:VGroup>
+</s:TitleWindow>

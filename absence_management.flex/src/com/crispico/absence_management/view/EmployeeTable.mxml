@@ -17,20 +17,33 @@
 			private var list:ArrayCollection = new ArrayCollection();
 
 			private function creationCompleteHandler(event:FlexEvent):void {
-				for (var i:int = 0; i < 10; i++) {
-					var employee:Employee = new Employee();
-					employee.firstName = "First " + i;
-					employee.lastName = "Last " + i;
-					list.addItem(employee);
-				}
-				grid.dataProvider = list;	
+//				for (var i:int = 0; i < 10; i++) {
+//					var employee:Employee = new Employee();
+//					employee.firstName = "First " + i;
+//					employee.lastName = "Last " + i;
+//					list.addItem(employee);
+//				}
+				
+				employeeService.getAllEmployees();
+				//grid.dataProvider = list;	
 			}
 			
 			private function addClickHandler(event:MouseEvent):void {
 				var employee:Employee = new Employee();
-				employee.firstName = "New First";
-				employee.lastName = "Last";
+				employee.firstName = "First name";
+				employee.lastName = "Last Name";
+				var form:EmployeeAddForm = new EmployeeAddForm();
+				form.employee = employee;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+				//employeeService.addEmployee(employee);
 				list.addItem(employee);			
+			}
+			
+			private function deleteClickHandler(event:MouseEvent):void{
+				var employee:Employee = Employee(grid.selectedItem);
+				list.removeItemAt(list.getItemIndex(employee));
+				employeeService.deleteEmployee(employee);
 			}
 			
 			private function reverseClickHandler(event:MouseEvent):void {
@@ -61,8 +74,23 @@
 			}
 			
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
-				Alert.show("" + ArrayCollection(event.result));
-			}			
+				//Alert.show("" + ArrayCollection(event.result));
+				list = ArrayCollection(event.result);
+				grid.dataProvider = list;	
+			}	
+			
+			private function deselectClickHandler(event:MouseEvent):void{
+				grid.selectedItem = null;
+				grid.selectedIndex = -1;
+			}
+			
+			private function filterAbsencesClickHandler(event:MouseEvent):void{
+				var form:AbsenceTable = new AbsenceTable();
+				form.list = list;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -72,13 +100,16 @@
 		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
 			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
 			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
-		</mx:RemoteObject>
+		</mx:RemoteObject> 
 	</fx:Declarations>
-	<s:HGroup>
+	<s:HGroup paddingTop="10" paddingBottom="4">
 		<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
+		<s:Button label="Delete" click="deleteClickHandler(event); grid.selectedIndex = -1" enabled="{grid.selectedItem != null}"/>
 		<s:Button label="Reverse First/Last Name" enabled="{grid.selectedItem != null}" click="reverseClickHandler(event)"/>
-		<s:Button label="Edit" click="editClickHandler(event)"/>
-		<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>
+		<s:Button label="Edit" click="editClickHandler(event)" enabled="{grid.selectedItem != null}"/>
+		<!--<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>-->
+		<s:Button label="Deselect" click="deselectClickHandler(event)" enabled="{grid.selectedItem != null}"/>
+		<s:Button label="Filter absences" click="filterAbsencesClickHandler(event)"/>
 	</s:HGroup>
 	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
 		<mx:columns>
