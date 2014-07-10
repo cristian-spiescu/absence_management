@@ -55,10 +55,9 @@
 						<td>
 							<%
 								for (Absence absence : employee.getAbsenceList()) {
-							%> <%
- 	SimpleDateFormat formatter = new SimpleDateFormat(
- 					"yyyy-MM-dd");
- %> <%=formatter.format(absence.getStartDate())%> <%="->"%> <%=formatter.format(absence.getEndDate())%>
+							%> 
+						<%SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); %> 
+ 						<%=formatter.format(absence.getStartDate())%> <%="->"%> <%=formatter.format(absence.getEndDate())%>
 							<%="; \n"%>
 							<p></p> <%
  	}

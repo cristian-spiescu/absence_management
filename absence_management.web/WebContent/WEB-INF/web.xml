@@ -111,4 +111,15 @@
     <url-pattern>/deleteAbsence.do</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <description></description>
+    <display-name>addEmployeeController</display-name>
+    <servlet-name>addEmployeeController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.addEmployeeController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addEmployeeController</servlet-name>
+    <url-pattern>/addEmployee.do</url-pattern>
+  </servlet-mapping>
+  
 </web-app>

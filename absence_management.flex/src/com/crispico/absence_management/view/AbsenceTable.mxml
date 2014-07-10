@@ -6,106 +6,107 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.crispico.absence_management.model.Employee;
+			import com.crispico.absence_management.model.Absence;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			import mx.formatters.DateFormatter;
 			
-			[Bindable]
+			
 			private var list:ArrayCollection = new ArrayCollection();
-
+			
 			private function creationCompleteHandler(event:FlexEvent):void {
-				employeeService.getAllEmployees();
+				absenceService.getAllAbsences();
 			}
 			
 			private function addClickHandler(event:MouseEvent):void {
-				var form: AddEmployeeForm = new AddEmployeeForm();
-				form.employee = new Employee();
+				var form: AddAbsenceForm = new AddAbsenceForm();
+				form.absence = new Absence();
 				PopUpManager.addPopUp(form, this, true);
 				PopUpManager.centerPopUp(form);
-			}
-			
-			private function reverseClickHandler(event:MouseEvent):void {
-				var employee:Employee = Employee(grid.selectedItem);
-				var temp:String = employee.firstName;
-				employee.firstName = employee.lastName;
-				employee.lastName = temp;
 			}
 			
 			private function editClickHandler(event:MouseEvent):void {
-				var form:EmployeeForm = new EmployeeForm();
-				form.employee = Employee(grid.selectedItem);
+				var form:AbsenceForm = new AbsenceForm();
+				form.absence = Absence(grid.selectedItem);
 				PopUpManager.addPopUp(form, this, true);
 				PopUpManager.centerPopUp(form);
-			  }
+			}
 			
 			private function deleteClickHandler(event:MouseEvent):void {
-				var form:DeleteEmployeeForm = new DeleteEmployeeForm();
-				form.employee = Employee(grid.selectedItem);
+				var form:DeleteAbsenceForm = new DeleteAbsenceForm();
+				form.absence = Absence(grid.selectedItem);
 				PopUpManager.addPopUp(form, this, true);
 				PopUpManager.centerPopUp(form);
 			}
 			
-			private function searchClickHandler(event:MouseEvent):void {
-				var form:SearchEmployeeForm = new SearchEmployeeForm();
-				form.employee = Employee(grid.selectedItem);
-				PopUpManager.addPopUp(form, this, true);
-				PopUpManager.centerPopUp(form);
+			private function sayHelloResultHandler(event:ResultEvent):void {
+				//				Alert.show("" + event.result);
 			}
-
 			
-			private function employeeServiceFaultHandler(event:FaultEvent):void {
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
 			
-			private function getAllEmployeesResultHandler(event:ResultEvent):void {
-					grid.dataProvider = ArrayCollection(event.result);
+			private function getAllAbsencesResultHandler(event:ResultEvent):void {
+				var formatter : DateFormatter;
+				formatter = new DateFormatter();
+				formatter.formatString = "DD MM YYYY";
+				
+				grid.dataProvider = event.result;
 			}	
-
 			
 			private function saveResultHandler(event:ResultEvent):void{
 				ExternalInterface.call("document.location.reload",true);
 			}
-
-			private function deleteEmpResultHandler(event:ResultEvent):void{
+			
+			private function deleteAbsResultHandler(event:ResultEvent):void{
 				ExternalInterface.call("document.location.reload",true);
 			}
-						
+			
 			private function editResultHandler(event:ResultEvent):void{
 				ExternalInterface.call("document.location.reload",true);
 			}
 			
+			public function formatDate(item:Object,column:DataGridColumn):String {
+				return df.format(item[column.dataField]);
+			} 
 		]]>
 	</fx:Script>
-
+	
 	<fx:Declarations>
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="employeeService" channelSet="{channelSet}" destination="employeeService"
-						 fault="employeeServiceFaultHandler(event)">
-			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+		<mx:RemoteObject id="absenceService" channelSet="{channelSet}" destination="absenceService" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
+			<mx:method name="getAllAbsences" result="getAllAbsencesResultHandler(event)"/>
 			<mx:method name="save" result="saveResultHandler(event)"/>
-			<mx:method name="editEmp" result="editResultHandler(event)"/>
-			<mx:method name="deleteEmp" result="deleteEmpResultHandler(event)"/>
+			<mx:method name="editAbs" result="editResultHandler(event)"/>
+			<mx:method name="deleteAbs" result="deleteAbsResultHandler(event)"/>
 		</mx:RemoteObject>
+		<mx:DateFormatter id="df" formatString="DD/MM/YYYY"/> 
 	</fx:Declarations>
-	
 	<s:HGroup>
 		<s:Button label="Add" click="addClickHandler(event);  grid.selectedIndex = -1"/>
-		<s:Button label="Reverse First/Last Name" click="reverseClickHandler(event)" enabled="{grid.selectedItem != null}"/>
 		<s:Button label="Edit" click="editClickHandler(event)" enabled="{grid.selectedItem != null}"/>
 		<s:Button label="Delete" click="deleteClickHandler(event)" enabled="{grid.selectedItem != null}"/>
-		<s:Button label="Search" click="searchClickHandler(event)"/>
 	</s:HGroup>
+	
+	
 	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn dataField="id" headerText="ID"/>
-			<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
-			<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
+			<mx:DataGridColumn dataField="employee.id" headerText="ID Employee"/>
+			<mx:DataGridColumn dataField="employee.firstName" headerText="First Name"/>
+			<mx:DataGridColumn dataField="employee.lastName" headerText="Last Name"/>
+			<mx:DataGridColumn dataField="absenceType.absenceType" headerText="Absence Type"/>
+			<mx:DataGridColumn  labelFunction="formatDate" dataField="startDate" headerText="Start Date"/>
+			<mx:DataGridColumn  labelFunction="formatDate" dataField="endDate" headerText="End Date"/>
 		</mx:columns>
 	</mx:DataGrid>
 	

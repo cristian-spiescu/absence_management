@@ -40,5 +40,12 @@ public class EmployeeHibernateDao {
         session.delete(employee);
         session.getTransaction().commit();
 	}
-
+	
+	public void update(Employee employee) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.update(employee);
+        session.getTransaction().commit();
+	}
+	
 }

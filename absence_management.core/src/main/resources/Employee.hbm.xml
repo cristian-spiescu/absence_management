@@ -17,6 +17,7 @@
 			</key>
 			<one-to-many class="Absence" />
 		</set>
+
 	</class>
 
 </hibernate-mapping>

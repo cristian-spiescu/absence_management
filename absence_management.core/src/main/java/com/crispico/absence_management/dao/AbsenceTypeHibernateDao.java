@@ -40,5 +40,11 @@ public class AbsenceTypeHibernateDao {
         session.getTransaction().commit();
 	}
 	
+	public void update(AbsenceType absenceType) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.update(absenceType);
+        session.getTransaction().commit();
+	}
 	
 }

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   close="PopUpManager.removePopUp(this); "
+			   creationComplete="absenceTypeService.getAllAbsenceTypes(); creationCompleteHandler(event)" title="Edit">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var absence:Absence;		
+			public var list: ArrayCollection;
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				DFS.selectedDate = absence.startDate;
+				DFE.selectedDate = absence.endDate;
+				myCB.selectedItem = absence.absenceType.absenceType;
+			}
+			
+			private function absenceTypeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAllAbsenceTypesResultHandler(event:ResultEvent):void {
+				list = ArrayCollection(event.result);
+				myCB.dataProvider = list;
+			}	 
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function editResultHandler(event:ResultEvent):void{
+			//	ExternalInterface.call("document.location.reload",true);
+			}
+			
+			private function functieAlert(): void{
+				if (((DFS.selectedDate != null && DFE.selectedDate != null) && (DFS.selectedDate.getTime() > DFE.selectedDate.getTime())) || 
+					((DFS.selectedDate == null && DFE.selectedDate!=null) && (DFE.selectedDate.getTime() < absence.startDate.getTime())) ||  
+					((DFE.selectedDate == null && DFS.selectedDate!=null) && (DFS.selectedDate.getTime() > absence.endDate.getTime()))){
+					Alert.show("Start date must be before than End date!");
+				}
+				else {
+					functie();
+				}
+			}
+			
+			private function functie () : void {
+						
+				if (myCB.selectedItem != null) {
+					absence.absenceType = myCB.selectedItem;
+				}
+				if (DFS.selectedDate != null) {
+					absence.startDate = DFS.selectedDate;
+				}
+				if (DFE.selectedDate != null) {
+					absence.endDate = DFE.selectedDate;
+				}
+				absenceService.edit(absence);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:Form id="EdAbsForm">
+		<s:Graphic>  
+			<s:BitmapImage width="100" height="30"  fillMode="clip"	source="@Embed('D:/data/Images/Absence.jpg')"/>
+		</s:Graphic>
+
+		<s:FormItem label="StartDate:">
+			<mx:DateField id="DFS" formatString="DD/MM/YYYY" />	
+		</s:FormItem>
+		<s:FormItem label="End Date:">
+			<mx:DateField id="DFE" formatString="DD/MM/YYYY"/>
+		</s:FormItem>
+		<s:FormItem label="Absence Type:">
+			<s:ComboBox id="myCB" width="140" labelField="absenceType"/>
+		</s:FormItem>
+		<s:Button id="submitButton" label="Submit" click="functieAlert();PopUpManager.removePopUp(this); "/>
+	</s:Form>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" channelSet="{channelSet}" destination="absenceService"
+						 fault="absenceServiceFaultHandler(event)">
+			<mx:method name="edit" result="editResultHandler(event)"/>
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="absenceTypeService" channelSet="{channelSet}"
+						 destination="absenceTypeService"
+						 fault="absenceTypeServiceFaultHandler(event)">
+			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypesResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+</s:TitleWindow>

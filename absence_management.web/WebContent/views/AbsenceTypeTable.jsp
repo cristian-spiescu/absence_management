@@ -43,8 +43,7 @@
 						<th>Commands</th>
 					</thead>
 					<%
-						for (AbsenceType absenceT : (List<AbsenceType>) request
-								.getAttribute("list")) {
+						for (AbsenceType absenceT : (List<AbsenceType>) request.getAttribute("list")) {
 					%>
 					<tr>
 						<td><%=absenceT.getIdT()%>

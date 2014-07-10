@@ -1,13 +1,10 @@
 package com.crispico.absence_management;
 
-import java.util.Date;
-import java.util.Calendar;
 import java.util.List;
 
 import com.crispico.absence_management.dao.AbsenceHibernateDao;
 import com.crispico.absence_management.dao.AbsenceTypeHibernateDao;
 import com.crispico.absence_management.dao.EmployeeHibernateDao;
-import com.crispico.absence_management.model.Absence;
 import com.crispico.absence_management.model.AbsenceType;
 import com.crispico.absence_management.model.Employee;
 

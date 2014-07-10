@@ -6,6 +6,7 @@ import org.hibernate.Session;
 
 import com.crispico.absence_management.HibernateUtil;
 import com.crispico.absence_management.model.Absence;
+import com.crispico.absence_management.model.AbsenceType;
 
 public class AbsenceHibernateDao {
 	public void save(Absence absence) {
@@ -40,5 +41,21 @@ public class AbsenceHibernateDao {
         session.getTransaction().commit();
 	}
 	
+	public void update(Absence absence) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.update(absence);
+        session.getTransaction().commit();
+	}
+
+
+	public static AbsenceType getAbsenceTypeByEmployeeId(long id){
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        AbsenceType result = (AbsenceType) session.createQuery("from AbsenceType where employee.id = " + id).uniqueResult();
+        session.getTransaction().commit();
+        return result;
+	}
+		
 }
 

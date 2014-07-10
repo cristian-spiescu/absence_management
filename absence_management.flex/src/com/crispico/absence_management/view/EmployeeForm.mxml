@@ -1,20 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)">
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   close="PopUpManager.removePopUp(this); " creationComplete="getAbsences(event)"
+			   title="{'Edit ' + employee.firstName + ' ' + employee.lastName}">
+	
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.Employee;
-			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
 			
 			[Bindable]
-			public var employee:Employee;			
+			public var employee:Employee;		
+			[Bindable]
+			public var absence:Absence;
+			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+				
+			private function editResultHandler(event:ResultEvent):void{
+				//ExternalInterface.call("document.location.reload",true);
+			}
+		
+			private function functie () : void {
+				employeeService.edit(employee);
+			}
+						
+			protected function getAbsences(event:FlexEvent):void
+			{
+				grid1.dataProvider = employee.absenceList;
+			}
+			
+			private function functieAdd():void {
+				var form: AddAbsEmpForm = new AddAbsEmpForm();
+				form.employee = employee;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+			}
+			
+			private function functieDel():void {
+				var form:DeleteAbsenceForm = new DeleteAbsenceForm();
+				form.absence = Absence(grid1.selectedItem);
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+			}
+			
+			private function functieEd():void {
+				var form:AbsenceForm = new AbsenceForm();
+				form.absence = Absence(grid1.selectedItem);
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+			}
+			
+			public function formatDate(item:Object,column:DataGridColumn):String {
+				return df.format(item[column.dataField]);
+			} 
 		]]>
 	</fx:Script>
+	
+	
+		
 	<s:layout>
 		<s:VerticalLayout/>
 	</s:layout>
-	<s:TextInput text="@{employee.firstName}"/>
+	
+	<s:Form id="EdEmpForm">
+		<s:Graphic>  
+			<s:BitmapImage width="100" height="30"  fillMode="clip"	source="@Embed('D:/data/Images/Employee-logo.jpg')"/>
+		</s:Graphic>
+		<s:FormItem label="First Name:">
+			<s:TextInput text="@{employee.firstName}"/>
+		</s:FormItem>
+		<s:FormItem label="Last Name:">
+			<s:TextInput text="@{employee.lastName}"/>
+		</s:FormItem>
+		<s:FormItem>
+			<s:Button id="submitButton" label="Submit"
+					  click="functie();PopUpManager.removePopUp(this); "/>	
+		</s:FormItem>
+		<s:FormItem label="Absences:"> </s:FormItem>
+		<mx:DataGrid id="grid1" width="100%" height="100%" allowMultipleSelection="true">
+			<mx:columns>
+				<mx:DataGridColumn dataField="id" headerText="ID"/>
+				<mx:DataGridColumn labelFunction="formatDate" dataField="startDate" headerText="Start Date"/>
+				<mx:DataGridColumn labelFunction="formatDate" dataField="endDate" headerText="End Date"/>
+				<mx:DataGridColumn dataField="absenceType.absenceType" headerText="Absence Type"/>
+			</mx:columns>
+		</mx:DataGrid>
+		<s:HGroup>
+			<s:FormItem>
+				<s:Button id="addAbsButton" label="Add" click="functieAdd();"/>	
+			</s:FormItem>	
+			<s:FormItem>
+				<s:Button id="delAbsButton" label="Delete" click="functieDel();"
+						  enabled="{grid1.selectedItem != null}"/>	
+			</s:FormItem>	
+			<s:FormItem>
+				<s:Button id="edAbsButton" label="Edit" click="functieEd();"
+						  enabled="{grid1.selectedItem != null}"/>	
+			</s:FormItem>	
+		</s:HGroup>
+	</s:Form>
+
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" channelSet="{channelSet}" destination="employeeService"
+						 fault="employeeServiceFaultHandler(event)">
+			<mx:method name="edit" result="editResultHandler(event)"/>
+		</mx:RemoteObject>
+		<mx:DateFormatter id="df" formatString="DD/MM/YYYY"/> 
+	</fx:Declarations>
+	
 </s:TitleWindow>

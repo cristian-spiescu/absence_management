@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   close="PopUpManager.removePopUp(this); "
+			   title="Edit">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.AbsenceType;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var absenceType:AbsenceType;		
+			
+			private function absenceTypeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function editResultHandler(event:ResultEvent):void{
+			//	ExternalInterface.call("document.location.reload",true);
+			}
+			
+			private function functie () : void {
+				absenceTypeService.editAbsType(absenceType);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:Form id="EdAbsTypeForm">
+		<s:Graphic>  
+			<s:BitmapImage width="100" height="30"  fillMode="clip"	source="@Embed('D:/data/Images/AbsenceType.jpg')"/>
+		</s:Graphic>
+		<s:FormItem label="Type:">
+			<s:TextInput text="@{absenceType.absenceType}"/>
+		</s:FormItem>
+		<s:Button id="submitButton" label="Submit" click="functie();PopUpManager.removePopUp(this)"/>
+	</s:Form>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceTypeService" channelSet="{channelSet}" destination="absenceTypeService"
+						 fault="absenceTypeServiceFaultHandler(event)">
+			<mx:method name="editAbsType" result="editResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+</s:TitleWindow>
