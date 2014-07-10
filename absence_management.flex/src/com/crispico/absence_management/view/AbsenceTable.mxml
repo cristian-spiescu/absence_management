@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 creationComplete="creationCompleteHandler(event)"
+		 paddingBottom="30" paddingLeft="30" paddingRight="30" paddingTop="30">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.components.gridClasses.GridColumn;
+			import spark.globalization.SortingCollator;
+			
+			
+			
+			
+			[Bindable]
+			public var all_absences:ArrayCollection = new ArrayCollection();
+			public var df:DateFormatter = new DateFormatter();
+			
+			var total:Number;
+			public var howManyAbsPages:Number;
+			public var currentAbsPage:Number;
+			
+			var loc:Number;
+			var absence:Absence;
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				df.formatString = "DD-MMM-YYYY";
+				absenceService.howMany();;
+			}
+			
+			private function howManyResultHandler(event:ResultEvent):void {
+				total = Number(event.result);
+				//				Alert.show(total+"");
+				if (total%10 != 0) {
+					howManyAbsPages = Math.floor(total/10) +1; 
+				}
+				else {
+					howManyAbsPages = Math.floor(total/10);
+				}
+				currentAbsPage = 1;
+				absenceService.getAbsencesFromTo(0);
+			}
+			
+			private function getAbsencesFromToResultHandler(event:ResultEvent):void {
+				all_absences = ArrayCollection(event.result)
+				grid.dataProvider = all_absences;	
+				setPages();
+			}
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAllAbsencesResultHandler(event:ResultEvent):void {
+				//Alert.show("" + ArrayCollection(event.result));
+				
+				all_absences = ArrayCollection(event.result);	
+				grid.dataProvider = all_absences;
+			}	
+			
+//			private function getEmployee(emp:Employee, col:DataGridColumn): String {
+//				return emp.firstName + " " +emp.lastName;
+//			}
+			
+			private function getFullName(item:Object, column:DataGridColumn):String {
+				var emp:Employee = Employee(item[column.dataField]);
+				return emp.firstName+' '+emp.lastName;
+			}
+			
+			private function dateFormatFunction(item:Object, column:DataGridColumn):String {
+				return df.format(item[column.dataField] as Date);
+			}
+			
+			
+			//paging
+			private function backClickHandler(event:MouseEvent):void {
+				if (currentAbsPage > 1) {
+					currentAbsPage--;
+					//					Alert.show(((currentPage-1) * 10)+"");
+					absenceService.getAbsencesFromTo((currentAbsPage-1) * 10);
+					setPages();
+				}
+			}
+			
+			private function forwardClickHandler(event:MouseEvent):void {
+				if (currentAbsPage < howManyAbsPages) {
+					currentAbsPage++;
+					//					Alert.show(((currentPage-1) * 10)+"");
+					absenceService.getAbsencesFromTo((currentAbsPage-1) * 10);
+					setPages();
+				}
+			}
+			
+			private function setPages():void {
+				pagePosition.text = "Page " + currentAbsPage + " of " + howManyAbsPages;
+				if (currentAbsPage > 1) {
+					backButton.enabled = true;
+				}
+				else {
+					backButton.enabled = false;
+				}
+				
+				if (currentAbsPage < howManyAbsPages) {
+					forwardButton.enabled = true;
+				}
+				else {
+					forwardButton.enabled = false;
+				}
+			}
+			
+			private var collator:SortingCollator = new SortingCollator();
+			private function sortCompareFunction(obj1:Object, obj2:Object, gc:GridColumn):int {
+				// Make the sort case insensitive. The default is case sensitive.
+				collator.ignoreCase = true;
+				return collator.compare(obj1[gc.labelFunction], obj2[gc.labelFunction]);
+			}
+		]]>
+	</fx:Script>
+		
+		
+			
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="getAllAbsences" result="getAllAbsencesResultHandler(event)"/>
+			<mx:method name="howMany" result="howManyResultHandler(event)"/>
+			<mx:method name="getAbsencesFromTo" result="getAbsencesFromToResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+<!--	
+	<s:HGroup>
+		<s:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
+		<s:Button label="Edit" enabled="{grid.selectedItem != null}" click="editClickHandler(event)"/>
+		<s:Button label="Delete" enabled="{grid.selectedItem != null}" click="deleteClickHandler(event)"/>
+	</s:HGroup>
+
+	<mx:AdvancedDataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+		<mx:dataProvider>
+			<mx:HierarchicalData source="{list}"/>
+		</mx:dataProvider>
+		<mx:groupedColumns>
+			<mx:AdvancedDataGridColumn dataField="absence_id" headerText="ID"/>
+			<mx:AdvancedDataGridColumnGroup headerText="Employee" dataField="employee">
+				<mx:AdvancedDataGridColumn dataField="firstName" />
+				<mx:AdvancedDataGridColumn dataField="lastName" />
+			</mx:AdvancedDataGridColumnGroup>
+			<mx:AdvancedDataGridColumnGroup headerText="Absence" dataField="type">
+				<mx:AdvancedDataGridColumn dataField="type" headerText="Absence type"/>
+			</mx:AdvancedDataGridColumnGroup>
+			
+			<mx:AdvancedDataGridColumn dataField="start" headerText="Start date"/>
+			<mx:AdvancedDataGridColumn dataField="finish" headerText="End date"/>
+		</mx:groupedColumns>
+	</mx:AdvancedDataGrid>
+	
+-->
+	
+	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+		<mx:columns>
+			<mx:DataGridColumn dataField="absence_id" headerText="ID"/>
+			<mx:DataGridColumn dataField="employee" headerText="Employee" labelFunction="getFullName" sortable="true" sortCompareFunction="sortCompareFunction"/>
+			<mx:DataGridColumn dataField="type.type" headerText="Absence Type"/>
+			<mx:DataGridColumn dataField="start" headerText="Start date" labelFunction="dateFormatFunction"/>
+			<mx:DataGridColumn dataField="finish" headerText="End date" labelFunction="dateFormatFunction"/>
+		</mx:columns>
+	</mx:DataGrid>
+	
+	<s:HGroup>
+		<mx:Label id="pagePosition"/>	
+		
+	</s:HGroup>
+	
+	<s:HGroup>
+		<s:Button id="backButton" label="Back" click="backClickHandler(event); grid.selectedIndex = -1"/>
+		<s:Button id="forwardButton" label="Forward" click="forwardClickHandler(event); grid.selectedIndex = -1"/>
+	</s:HGroup>
+</s:VGroup>

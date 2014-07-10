@@ -2,35 +2,98 @@
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 paddingBottom="30" paddingLeft="30" paddingRight="30" paddingTop="30"
 		 creationComplete="creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.Employee;
 			
 			import mx.collections.ArrayCollection;
+			import mx.collections.Sort;
+			import mx.collections.SortField;
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			
+			
+			
 
+			[Bindable]
 			private var list:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var employee:Employee;
+			[Bindable]
+			public var abs_list:ArrayCollection;
+			
+			public var df:DateFormatter = new DateFormatter();
+			
+			var addForm:NewEmployeeForm ;
+			var editForm:EmployeeForm = new EmployeeForm();
+			
+			var loc:Number;
+			
+			public var currentPage:Number;
+			var total:Number;
+			public var howManyPages:Number;
+			
+			public var criteriu:String;
+//			public var sortare:String;
 
 			private function creationCompleteHandler(event:FlexEvent):void {
-				for (var i:int = 0; i < 10; i++) {
-					var employee:Employee = new Employee();
-					employee.firstName = "First " + i;
-					employee.lastName = "Last " + i;
-					list.addItem(employee);
+//				for (var i:int = 0; i < 10; i++) {
+//					var employee:Employee = new Employee();
+//					employee.firstName = "First " + i;
+//					employee.lastName = "Last " + i;
+//					list.addItem(employee);
+//				}
+//				grid.dataProvider = list;	
+				df.formatString = "DD-MMM-YYYY";
+				if (searchBox.text.length <1 ) {
+					criteriu = "%";
 				}
-				grid.dataProvider = list;	
+				else {
+					criteriu = searchBox.text; 
+				}
+//				Alert.show(criteriu);
+				employeeService.howMany(criteriu);
+//				employeeService.getAllEmployees();
 			}
 			
+			private function howManyResultHandler(event:ResultEvent):void {
+				total = Number(event.result);
+//				Alert.show(total+"");
+				if (total%10 != 0) {
+					howManyPages = Math.floor(total/10) +1; 
+				}
+				else {
+					howManyPages = Math.floor(total/10);
+				}
+				currentPage = 1;
+				employeeService.searchEmployee(criteriu,0);
+			}
+			
+			
+			
+			// add employee form opening and objects binding
 			private function addClickHandler(event:MouseEvent):void {
-				var employee:Employee = new Employee();
-				employee.firstName = "New First";
-				employee.lastName = "Last";
-				list.addItem(employee);			
+//				var employee:Employee = new Employee();
+//				employee.firstName = "New First";
+//				employee.lastName = "Last";
+//				list.addItem(employee);	
+				
+				addForm = PopUpManager.createPopUp(this,NewEmployeeForm, true) as NewEmployeeForm;
+				PopUpManager.centerPopUp(addForm);
+				employee = addForm.emp ;
+				addForm.cPage = currentPage;
+				addForm.manyPages = howManyPages;
+				addForm.list1 = list;
+				
 			}
 			
 			private function reverseClickHandler(event:MouseEvent):void {
@@ -45,24 +108,157 @@
 				employee.lastName = temp;
 			}
 			
+			// opening edit form
 			private function editClickHandler(event:MouseEvent):void {
-				var form:EmployeeForm = new EmployeeForm();
-				form.employee = Employee(grid.selectedItem);
-				PopUpManager.addPopUp(form, this, true);
-				PopUpManager.centerPopUp(form);
+				
+				editForm.employee = Employee(grid.selectedItem);
+				PopUpManager.addPopUp(editForm, this, true);
+				PopUpManager.centerPopUp(editForm);
 			}
 			
-			private function sayHelloResultHandler(event:ResultEvent):void {
-//				Alert.show("" + event.result);
-			}
 			
+			// error handler
 			private function employeeServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
 			
+			// grid populating
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
-				Alert.show("" + ArrayCollection(event.result));
-			}			
+				// Alert.show("" + ArrayCollection(event.result));
+				list = ArrayCollection(event.result)
+				grid.dataProvider = list;	
+				
+			}	
+			
+			//delete button
+			private function deleteClickHandler(event:MouseEvent):void {
+				employee = Employee(grid.selectedItem);
+				loc = grid.selectedIndex;
+				Alert.show("Do you really wish to delete employee " + employee.firstName + " " + employee.lastName + "?","Notification",Alert.OK | Alert.CANCEL,this,alertListener);
+				
+			}
+			
+			private function alertListener(eventObj:CloseEvent):void {
+				if (eventObj.detail==Alert.OK) {
+					
+					employeeService.deleteEmployee(employee.id);
+				}
+				PopUpManager.removePopUp(this);
+				
+			}
+			
+			
+			private function deleteEmployeeResultHandler(event:ResultEvent):void {
+				// Alert.show("" + ArrayCollection(event.result));
+				if (event.result == true) {
+					if (list.length > 1) {
+						list.removeItemAt(loc);	
+//						Alert.show("in cazul lista are mai multe elemente");
+					}
+					else {
+//						Alert.show("in cazul lista are un element");
+						currentPage--;
+						howManyPages--;
+						employeeService.searchEmployee(criteriu,(currentPage-1)*10);
+						
+					}
+				}
+				else {
+					Alert.show("Error deleting employee.","Error");
+				}
+				
+				
+			}
+			
+			private function getFullAbsences(item:Object, column:DataGridColumn):String {
+				var st:String = "";
+				abs_list = ArrayCollection(item[column.dataField]);
+				for each (var ab:Absence in abs_list) {
+					st = st + "[ " + ab.type.type + ": " + df.format(ab.start) + " " + df.format(ab.finish) + " ]\n" ;
+//					Alert.show(ab.type.type+"");
+				}
+				return st;
+			}
+			
+			//paging
+			private function backClickHandler(event:MouseEvent):void {
+				if (currentPage > 1) {
+					currentPage--;
+//					Alert.show(((currentPage-1) * 10)+"");
+					employeeService.searchEmployee(criteriu,(currentPage-1) * 10);
+					setPages();
+				}
+			}
+			
+			private function forwardClickHandler(event:MouseEvent):void {
+				if (currentPage < howManyPages) {
+					currentPage++;
+//					Alert.show(((currentPage-1) * 10)+"");
+					employeeService.searchEmployee(criteriu,(currentPage-1) * 10);
+					setPages();
+				}
+			}
+			
+			private function setPages():void {
+				pagePosition.text = "Page " + currentPage + " of " + howManyPages;
+				if (currentPage > 1) {
+					 backButton.enabled = true;
+				}
+				else {
+					backButton.enabled = false;
+				}
+					
+				if (currentPage < howManyPages) {
+					forwardButton.enabled = true;
+				}
+				else {
+					forwardButton.enabled = false;
+				}
+					
+			}
+			
+			//searchbox
+			private function searchClickHandler(event:MouseEvent):void {
+				criteriu = searchBox.text;
+				currentPage = 1;
+				employeeService.howMany(criteriu);
+			}
+			
+			private function searchEmployeeResultHandler(event:ResultEvent):void {
+				
+				if (list.length > 0) {
+					list.removeAll();
+					for each (var emp:Employee in ArrayCollection(event.result)) {
+						list.addItem(emp);	
+					}
+//					Alert.show("nenul: "+list.toString()+"\ncriteriu: "+criteriu+"\nsortare: "+sortare);
+				}
+				else {
+					list = ArrayCollection(event.result);
+					grid.dataProvider = list;
+//					Alert.show(list.toString()+"criteriu: "+criteriu);
+				}
+				setPages();
+				
+			}
+			
+//			public function sortByColumn(index:int):void {
+//				var c:DataGridColumn = grid.columns[index];
+//				var desc:Boolean = c.sortDescending;
+//				if (c.sortable) {
+//					sortare = c.dataField.toString();
+//					if (desc) {
+//						sortare += " desc";
+//					}
+//					else {
+//						sortare += " asc";
+//					}
+//					Alert.show(sortare);
+//					employeeService.searchEmployee(criteriu,(currentPage-1) * 10,sortare);	
+//				}
+//			}		
+					
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -70,21 +266,37 @@
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
 		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
-			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
 			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+			<mx:method name="deleteEmployee" result="deleteEmployeeResultHandler(event)"/>
+			<mx:method name="howMany" result="howManyResultHandler(event)"/>
+			<mx:method name="searchEmployee" result="searchEmployeeResultHandler(event)"/>
 		</mx:RemoteObject>
 	</fx:Declarations>
+	
 	<s:HGroup>
-		<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
-		<s:Button label="Reverse First/Last Name" enabled="{grid.selectedItem != null}" click="reverseClickHandler(event)"/>
-		<s:Button label="Edit" click="editClickHandler(event)"/>
-		<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>
+		<s:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
+		<s:Button label="Edit" enabled="{grid.selectedItem != null}" click="editClickHandler(event)"/>
+		<s:Button label="Delete" enabled="{grid.selectedItem != null}" click="deleteClickHandler(event)"/>
+		
+		<s:TextInput  id="searchBox" />
+		<s:Button label="Search employee" enabled="{searchBox.text.length > 0}" click="searchClickHandler(event)"/>
 	</s:HGroup>
-	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+	<mx:DataGrid id="grid" width="100%" allowMultipleSelection="true" minHeight="0" rowCount="10">
 		<mx:columns>
 			<mx:DataGridColumn dataField="id" headerText="ID"/>
-			<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
-			<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
+			<mx:DataGridColumn dataField="firstName" headerText="First Name" />
+			<mx:DataGridColumn dataField="lastName" headerText="Last Name" />
+			<mx:DataGridColumn dataField="absences" headerText="Absences" labelFunction="getFullAbsences"/>
 		</mx:columns>
 	</mx:DataGrid>
+	<s:HGroup>
+		<mx:Label id="pagePosition"/>	
+		
+	</s:HGroup>
+	
+	<s:HGroup>
+		<s:Button id="backButton" label="Back" click="backClickHandler(event); grid.selectedIndex = -1" />
+		<s:Button id="forwardButton" label="Forward" click="forwardClickHandler(event); grid.selectedIndex = -1"/>
+	</s:HGroup>
+	
 </s:VGroup>

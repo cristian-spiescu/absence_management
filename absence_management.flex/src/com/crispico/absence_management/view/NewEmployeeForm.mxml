@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
+		 title="Add new employee"
+		 close="PopUpManager.removePopUp(this)">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import flash.net.navigateToURL;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var list1:ArrayCollection;
+			[Bindable]
+			public var emp:Employee = new Employee();
+			
+			[Bindable]
+			public var manyPages:Number;
+			[Bindable]
+			public var cPage:Number;
+			
+			private function addEmpClickHandler(event:MouseEvent):void {
+				//				var employee:Employee = new Employee();
+				//				employee.firstName = "New First";
+				//				employee.lastName = "Last";
+				//				list.addItem(employee);	
+				
+				var fn:String = this.fname.text;
+				var ln:String = this.lname.text;
+				emp.firstName = fn;
+				emp.lastName = ln;
+				employeeService.addEmployee(fn,ln);
+			}
+			
+			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function alertListener():void {
+				PopUpManager.removePopUp(this);
+				
+				
+			}
+			
+			public function addEmployeeResultHandler(event:ResultEvent):Boolean {
+				if (event.result != null) {
+					Alert.show("Employee successfully added.","Notification",Alert.OK ,this,alertListener);
+					emp = Employee(event.result);
+					if (list1.length < 10) {
+						list1.addItem(emp);	
+//						Alert.show("in cazul in care raman pe pagina");
+					}
+					else {
+						cPage++;
+						manyPages++;
+						var pageURL:String = ExternalInterface.call('window.location.href.toString');
+						navigateToURL(new URLRequest(pageURL), "_self");
+						
+					}
+					
+					PopUpManager.removePopUp(this);
+					return true;
+				}
+				else {
+					Alert.show("Error adding employee.");
+					PopUpManager.removePopUp(this);
+					return false;
+				}
+				
+				
+			}	
+			
+			private function titleWindow_close(evt:CloseEvent):void {
+				PopUpManager.removePopUp(evt.target as IFlexDisplayObject);
+			}
+			
+			private function cancelClickHandler(evt:MouseEvent):void {
+				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				
+			}
+			
+			
+					
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
+			<mx:method name="addEmployee" result="addEmployeeResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:VGroup paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20">
+		<s:HGroup>
+			<s:Label>First name: </s:Label>
+			<s:TextInput id="fname"/>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label>Last name: </s:Label>
+			<s:TextInput id="lname"/>
+		</s:HGroup>
+		
+		<s:HGroup>
+			<s:Button label="Add" click="addEmpClickHandler(event) "/>
+			<s:Button label="Cancel" click="cancelClickHandler(event);" />
+		</s:HGroup>
+		
+	</s:VGroup>
+</s:TitleWindow>

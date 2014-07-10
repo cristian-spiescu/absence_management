@@ -107,55 +107,78 @@ public class Main {
 //			System.out.println(tip);
 //		}
 		
-		EmployeeHibernateDao ehd = new EmployeeHibernateDao();
-		List<Employee> e1 = ehd.getEmployee(1);
-		System.out.print(e1.toString());
+//		EmployeeHibernateDao ehd = new EmployeeHibernateDao();
+//		List<Employee> e1 = ehd.getEmployee(1);
+//		System.out.print(e1.toString());
+//		
+//		AbsenceTypeHibernateDao athd = new AbsenceTypeHibernateDao();
+//		List<AbsenceType> at = athd.getAbsenceType(2);
+//		
+//		AbsenceHibernateDao ahd = new AbsenceHibernateDao();
+//		Absence ar = new Absence();
+//		ar.setEmployee(e1.get(0));
+//		ar.setType(at.get(0));
+//				
+//		Date myStart;
+//      Calendar cal = Calendar.getInstance();
+//      cal.set(Calendar.MONTH, 8);
+//      cal.set(Calendar.DATE, 24);
+//      cal.set(Calendar.YEAR, 2014);
+//      cal.set(Calendar.HOUR,9);
+//      cal.set(Calendar.MINUTE,00);
+//      cal.set(Calendar.SECOND,00);
+//      myStart = cal.getTime();
+//      
+//      Date myEnd;
+//      Calendar cal1 = Calendar.getInstance();
+//      cal1.set(Calendar.MONTH, 8);
+//      cal1.set(Calendar.DATE, 31);
+//      cal1.set(Calendar.YEAR, 2014);
+//      cal1.set(Calendar.HOUR,18);
+//      cal1.set(Calendar.MINUTE,00);
+//      cal1.set(Calendar.SECOND,00);
+//      myEnd = cal1.getTime();
+//      
+//      ar.setStart(myStart);
+//		ar.setFinish(myEnd);
+//		
+//	
+//	ahd.save(ar);	
+//	e1.get(0).addToAbsences(ar);	
+//	List<Absence> types = ahd.getAll();
+//	for (Absence tip : types) {
+//		System.out.println(tip);
+//	}
+//	
+//	List<Employee> eee = ehd.getAll();
+//	for (Employee tip : eee) {
+//		System.out.println(tip);
+//	}
+//	
+//		HibernateUtil.getSessionFactory().close();
 		
-		AbsenceTypeHibernateDao athd = new AbsenceTypeHibernateDao();
-		List<AbsenceType> at = athd.getAbsenceType(2);
+//		EmployeeHibernateDao ehd = new EmployeeHibernateDao();
+//		AbsenceHibernateDao ahd = new AbsenceHibernateDao();
+//		List<Employee> emps = ehd.getAll();
+//		List<Absence> abss;
+//		for (Employee emp: emps) {
+//			abss = ahd.getEmployeeAbsences(emp.getId());
+//			System.out.println(emp.getId());
+//			System.out.println(abss);
+//		}
+//		EmployeeHibernateDao ehd = new EmployeeHibernateDao();
+//		Employee emp = new Employee();
+//		emp.setFirstName("fbau");
+//		emp.setLastName("lbau");
+//		boolean b = ehd.save(emp);
+//		System.out.println(b);
 		
-		AbsenceHibernateDao ahd = new AbsenceHibernateDao();
-		Absence ar = new Absence();
-		ar.setEmployee(e1.get(0));
-		ar.setType(at.get(0));
-				
-		Date myStart;
-      Calendar cal = Calendar.getInstance();
-      cal.set(Calendar.MONTH, 8);
-      cal.set(Calendar.DATE, 24);
-      cal.set(Calendar.YEAR, 2014);
-      cal.set(Calendar.HOUR,9);
-      cal.set(Calendar.MINUTE,00);
-      cal.set(Calendar.SECOND,00);
-      myStart = cal.getTime();
-      
-      Date myEnd;
-      Calendar cal1 = Calendar.getInstance();
-      cal1.set(Calendar.MONTH, 8);
-      cal1.set(Calendar.DATE, 31);
-      cal1.set(Calendar.YEAR, 2014);
-      cal1.set(Calendar.HOUR,18);
-      cal1.set(Calendar.MINUTE,00);
-      cal1.set(Calendar.SECOND,00);
-      myEnd = cal1.getTime();
-      
-      ar.setStart(myStart);
-		ar.setFinish(myEnd);
+//		EmployeeHibernateDao ehd = new EmployeeHibernateDao();
+//		System.out.println(ehd.deleteEmployee(61));
 		
-	
-	ahd.save(ar);	
-	e1.get(0).addToAbsences(ar);	
-	List<Absence> types = ahd.getAll();
-	for (Absence tip : types) {
-		System.out.println(tip);
-	}
-	
-	List<Employee> eee = ehd.getAll();
-	for (Employee tip : eee) {
-		System.out.println(tip);
-	}
-	
-		HibernateUtil.getSessionFactory().close();
+//		AbsenceHibernateDao ahd = new AbsenceHibernateDao();
+//		System.out.println(ahd.howManyAbsences());
+////		System.out.println(ehd.getFromTo(10));
 	}
 
 }

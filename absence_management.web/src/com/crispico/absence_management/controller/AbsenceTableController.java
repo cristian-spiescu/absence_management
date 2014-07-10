@@ -69,8 +69,8 @@ public class AbsenceTableController extends HttpServlet {
 					long iabs = Integer.parseInt(a);
 					List<AbsenceType> type = (List<AbsenceType>) athd.getAbsenceType(iabs);
 
-					Date start_date = new SimpleDateFormat("yyyy-mm-dd",Locale.ENGLISH).parse(d1);
-					Date finish_date = new SimpleDateFormat("yyyy-mm-dd",Locale.ENGLISH).parse(d2);
+					Date start_date = new SimpleDateFormat("yyyy-MM-dd",Locale.ENGLISH).parse(d1);
+					Date finish_date = new SimpleDateFormat("yyyy-MM-dd",Locale.ENGLISH).parse(d2);
 
 					Absence absence = new Absence();
 					absence.setEmployee(employee.get(0));
@@ -102,8 +102,8 @@ public class AbsenceTableController extends HttpServlet {
 						long iabs = Integer.parseInt(e_a);
 						List<AbsenceType> type = (List<AbsenceType>) athd.getAbsenceType(iabs);
 
-						Date start_date = new SimpleDateFormat("yyyy-mm-dd",Locale.ENGLISH).parse(e_d1);
-						Date finish_date = new SimpleDateFormat("yyyy-mm-dd",Locale.ENGLISH).parse(e_d2);
+						Date start_date = new SimpleDateFormat("yyyy-MM-dd",Locale.ENGLISH).parse(e_d1);
+						Date finish_date = new SimpleDateFormat("yyyy-MM-dd",Locale.ENGLISH).parse(e_d2);
 
 						List<Absence> absence = (List<Absence>) ahd.getAbsence(ia);
 						absence.get(0).setEmployee(employee.get(0));

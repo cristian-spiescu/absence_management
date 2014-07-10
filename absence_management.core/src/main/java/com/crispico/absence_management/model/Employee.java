@@ -82,6 +82,7 @@ public class Employee {
 
     public void removeFromAbsences(Absence ab) {
         this.getAbsences().remove(ab);
+       System.out.println(absences);
     }
 
     public String showAbsences() {

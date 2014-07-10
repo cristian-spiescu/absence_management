@@ -2,19 +2,411 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)">
+		 width="500"
+		 height="450"
+		 
+		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)"
+		 creationComplete="creationCompleteHandler(event)"
+		 >
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
 			import com.crispico.absence_management.model.Employee;
 			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.IFlexDisplayObject;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
 			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.validators.DateValidator;
+			
+			
+			
+			public var df1:DateFormatter = new DateFormatter();
+			public var df:DateFormatter = new DateFormatter();
 			
 			[Bindable]
-			public var employee:Employee;			
+			public var employee:Employee;
+			[Bindable]
+			public var absence:Absence;
+			[Bindable]
+			public var list:ArrayCollection;
+			public var types_list:ArrayCollection;
+			
+			public var loc:Number;
+			
+			private var start_valid:DateValidator = new DateValidator();
+			
+			// title window creation
+			[Bindable]
+			public var absences_list:ArrayCollection;
+			
+			private function creationCompleteHandler(event:FlexEvent):void {
+				df1.formatString = "DD-MMM-YYYY";
+				df.formatString = "DD-MM-YYYY";
+				absenceService.getAbsences(employee.id);
+				absence_typeService.getAllAbsenceTypes();
+//				Alert.show("am apelat getallabsencetypes");
+				
+			}
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAbsencesResultHandler(event:ResultEvent):void {
+				// Alert.show("" + ArrayCollection(event.result));
+				list = ArrayCollection(event.result);
+				absences_grid.dataProvider = ArrayCollection(list);	
+				
+			}	
+			
+//			
+			//error handler
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			
+			
+			//cancel button functions
+			private function titleWindow_close(evt:CloseEvent):void {
+				PopUpManager.removePopUp(evt.target as IFlexDisplayObject);
+			}
+			
+			private function cancelClickHandler(evt:MouseEvent):void {
+				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				
+			}
+			
+			//ok button 
+			private function okClickHandler(evt:MouseEvent): void {
+				employee.firstName = fname.text;
+				employee.lastName = lname.text;
+				employeeService.editEmployee(employee);
+				
+				
+			}
+			
+			//response to editing
+			private function editEmployeeResultHandler(event:ResultEvent):void {
+				if (event.result == true) {
+					Alert.show("Employee successfully edited.","Notification",Alert.OK ,this,alertListener);
+					var pageURL:String = ExternalInterface.call('window.location.href.toString');
+					navigateToURL(new URLRequest(pageURL), "_self");
+					PopUpManager.removePopUp(this);
+					
+				}
+				else {
+					Alert.show("Error editing employee.");
+					PopUpManager.removePopUp(this);
+					
+				}
+				
+				
+			}	
+			
+			private function alertListener():void {
+				
+				PopUpManager.removePopUp(this);
+				
+			}
+			
+			//add absence - TODO
+			private function addAbsenceClickHandler(evt:MouseEvent):void {
+				var CurrentDateTime:Date = new Date();
+				
+				var data_curenta:String = df.format(CurrentDateTime);
+				var data_aleasa:String = df.format(sdate.text);
+				var data_2:String = df.format(fdate.text);
+				if (data_2.substr(6,4) < data_aleasa.substr(6,4)) {
+					Alert.show("End year must be greater than or equal to the one for start date.");
+				}
+				else {
+					if (data_2.substr(3,2) < data_aleasa.substr(3,2)) {
+						Alert.show("End month must be greater than or equal to the one for start date.");
+					}
+					else {
+						if (data_2.substr(0,2) < data_aleasa.substr(0,2)) {
+							Alert.show("End day must be greater than or equal to the one for start date.");
+						}
+						else {
+							absenceService.addAbsenceToEmployee(employee,sdate.text,fdate.text,types.selectedItem);
+						}
+					}
+				}
+				
+			}
+			
+			private function addAbsenceToEmployeeResultHandler(event:ResultEvent):void {
+				if (event.result != null) {
+					Alert.show("Absence successfully added.","Notification",Alert.OK ,this,alertListener);
+					list.addItem(Absence(event.result));
+					
+//					PopUpManager.removePopUp(this);
+					addAbsenceAnchor.displayPopUp = false;
+				}
+				else {
+					Alert.show("Error adding absence.");
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			//get absence types
+			private function getAllAbsenceTypesResultHandler(event:ResultEvent):void {
+//				var tipuri:ArrayCollection = ArrayCollection(event.result);
+//				var st:ArrayCollection = new ArrayCollection();
+//				var i:Number;
+//				for (i=0;i<tipuri.length;i++ ) {
+//					st.addItem(tipuri.getItemAt(i).type);
+//				}
+//				types.dataProvider = st;
+				types_list = ArrayCollection(event.result);
+//				Alert.show(types_list+"");
+				types.dataProvider = types_list;
+				ed_types.dataProvider = types_list;
+			}
+			
+			private function absence_typeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			//delete button
+			private function deleteAbsenceClickHandler(event:MouseEvent):void {
+				absence = Absence(absences_grid.selectedItem);
+				loc = absences_grid.selectedIndex;
+				Alert.show("Do you really wish to delete absence?","Notification",Alert.OK | Alert.CANCEL,this,deleteAlertListener);
+				
+			}
+			
+			private function deleteAlertListener(eventObj:CloseEvent):void {
+				if (eventObj.detail==Alert.OK) {
+					absenceService.deleteAbsence(absence.absence_id);
+				}
+//				PopUpManager.removePopUp(this);
+				
+			}
+			
+			private function deleteAbsenceResultHandler(event:ResultEvent):void {
+				// Alert.show("" + ArrayCollection(event.result));
+				if (event.result == true) {
+					list.removeItemAt(loc);	
+					Alert.show("Absence succesfully deleted.","Success",Alert.OK ,this);
+					
+				}
+				else {
+					Alert.show("Error deleting absence.","Error");
+				}
+				
+			}
+			
+			//EDIT ABSENCE editAbsenceClickHandler(event)
+			private function editAbsenceClickHandler(event:MouseEvent):void {
+				absence = Absence(absences_grid.selectedItem);
+				var df:DateFormatter = new DateFormatter();
+				df.formatString = "YYYY-MM-DD";
+//				ed_types.selectedItem = AbsenceType(absence.type);
+				ed_sdate.text = df.format(absence.start.toString());
+				ed_fdate.text = df.format(absence.finish.toString());
+//				Alert.show("Lungimea este: "+Number(types_list.length)+" ");
+				for(var i:uint=0;i<types_list.length;i++) {		
+////					Alert.show(types_list.getItemAt(i)+" ");
+//					if(SerializeUtil.ObjectToString(types_list.getItemAt(i)) == SerializeUtil.ObjectToString(absence.type)) {						
+//						ed_types.selectedItem = types_list.getItemAt(i);
+////						Alert.show("da");
+//						break;											
+//					}	
+					var a:AbsenceType = AbsenceType(types_list.getItemAt(i));
+//					Alert.show("id-ul de comparat:"+absence.type.absence_type_id);
+//					Alert.show("id-ul curent:"+types_list.getItemAt(i).absence_type_id);
+					if (a.absence_type_id == absence.type.absence_type_id) {
+						ed_types.selectedItem = a;
+//						Alert.show("da");
+					}
+				}
+				
+				loc = absences_grid.selectedIndex;
+			}
+			
+			private function doneEditingAbsenceclickHandler(event:MouseEvent):void {
+				
+//				Alert.show(ed_sdate.text+" "+ed_fdate.text);
+				absenceService.editAbsence(absence.absence_id,ed_types.selectedItem,ed_sdate.text,ed_fdate.text );
+				
+			}
+			
+			private function editAbsenceResultHandler(event:ResultEvent):void {
+				// Alert.show("" + ArrayCollection(event.result));
+				if (event.result != null) {
+					Alert.show("Absence succesfully edited.","Success",Alert.OK ,this);
+					absence = Absence(event.result);
+					list.removeItemAt(loc);
+					list.addItem(absence);
+				}
+				else {
+					Alert.show("Error editing absence.","Error");
+				}
+				
+			}
+			
+			private function dateFormatFunction(item:Object, column:DataGridColumn):String {
+				return df1.format(item[column.dataField] as Date);
+			}
+			
+			///validation
+			private function startDateValidator():void {
+				var data_aleasa = df.format(sdate.value);
+				start_valid.daySource = data_aleasa.substr(0,2);
+				start_valid.monthSource = data_aleasa.substr(3,2);
+				start_valid.yearSource = data_aleasa.substr(6,4);
+//				Alert.show(data_aleasa.substr(8,2)+" " +data_aleasa.substr(5,2)+" " +data_aleasa.substr(0,4));
+			}
+			
 		]]>
 	</fx:Script>
-	<s:layout>
-		<s:VerticalLayout/>
-	</s:layout>
-	<s:TextInput text="@{employee.firstName}"/>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="getAbsences" result="getAbsencesResultHandler(event)"/>
+			<mx:method name="addAbsenceToEmployee" result="addAbsenceToEmployeeResultHandler(event)"/>
+			<mx:method name="deleteAbsence" result="deleteAbsenceResultHandler(event)"/>
+			<mx:method name="editAbsence" result="editAbsenceResultHandler(event)"/>
+		</mx:RemoteObject>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
+			<mx:method name="editEmployee" result="editEmployeeResultHandler(event)"/>
+		</mx:RemoteObject>
+		<mx:RemoteObject id="absence_typeService" destination="absence_typeService" channelSet="{channelSet}" fault="absence_typeServiceFaultHandler(event)">
+			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypesResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:VGroup paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20">
+		<s:VGroup height="100">
+				<s:HGroup>
+					<s:Label>First name: </s:Label>
+					<s:TextInput text="@{employee.firstName}" id="fname" />
+				</s:HGroup>
+				<s:HGroup>
+					<s:Label>Last name: </s:Label>
+					<s:TextInput text="@{employee.lastName}" id="lname" />
+				</s:HGroup>
+			
+			
+			<s:HGroup>
+				<s:Button label="OK" click="okClickHandler(event)" width="50%" />
+				<s:Button label="Cancel" click="cancelClickHandler(event)" width="50%" />
+			</s:HGroup>
+		</s:VGroup>
+						
+		<s:HGroup>
+			<s:Button label="Add absence" click="editAbsenceAnchor.displayPopUp = false;addAbsenceAnchor.displayPopUp = true; " />	
+			<s:Button label="Delete absence" enabled="{absences_grid.selectedItem != null}" click="deleteAbsenceClickHandler(event)" />
+			<s:Button label="Edit absence" enabled="{absences_grid.selectedItem != null}" click="addAbsenceAnchor.displayPopUp = false;editAbsenceAnchor.displayPopUp = true;editAbsenceClickHandler(event);" />
+		</s:HGroup>
+		
+		<s:HGroup width="100%">
+			<mx:DataGrid id="absences_grid" width="100%" height="100%" allowMultipleSelection="true" >
+				<mx:columns>
+					<mx:DataGridColumn dataField="absence_id" headerText="ID"/>
+					<mx:DataGridColumn dataField="type.type" headerText="Absence type"/>
+					<mx:DataGridColumn dataField="start" headerText="Start date" labelFunction="dateFormatFunction" />
+					<mx:DataGridColumn dataField="finish" headerText="End date" labelFunction="dateFormatFunction" />
+				</mx:columns>
+			</mx:DataGrid>
+		</s:HGroup>
+			
+		<s:PopUpAnchor id="addAbsenceAnchor">
+			<s:VGroup>
+				<s:HGroup>
+					<s:VGroup>
+						<s:Label>Type:</s:Label>
+						<s:DropDownList id="types" labelField="type">
+							
+						</s:DropDownList>
+					</s:VGroup>
+					<s:VGroup>
+						<s:Label>Start date:</s:Label>
+						<mx:DateField id="sdate" 
+									  editable="true" 
+									  width="100" 
+									  formatString="YYYY-MM-DD"
+									  selectableRange="{{rangeStart : new Date()}}"
+									  firstDayOfWeek="1"
+									  dayNames="['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+									  disabledDays="[0,6]" />
+							
+					</s:VGroup>
+					<s:VGroup>
+						<s:Label>End date:</s:Label>
+						<mx:DateField id="fdate" 
+									  editable="true" 
+									  width="100" 
+									  formatString="YYYY-MM-DD"
+									  selectableRange="{{rangeStart : new Date()}}"
+									  firstDayOfWeek="1"
+									  dayNames="['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+									  disabledDays="[0,6]" />
+							
+					</s:VGroup>
+				</s:HGroup>
+				<s:HGroup>
+					<s:Button label="Add" click="addAbsenceClickHandler(event);"/>
+					<s:Button label="Cancel" click="addAbsenceAnchor.displayPopUp = false;"/>
+				</s:HGroup>
+				
+			</s:VGroup>
+			
+		</s:PopUpAnchor>
+		
+		<s:PopUpAnchor id="editAbsenceAnchor">
+			<s:VGroup>
+				<s:HGroup>
+					<s:VGroup>
+						<s:Label>Type:</s:Label>
+						<s:DropDownList id="ed_types" labelField="type">
+							
+						</s:DropDownList>
+					</s:VGroup>
+					<s:VGroup>
+						<s:Label>Start date:</s:Label>
+						<mx:DateField id="ed_sdate" 
+									  editable="true" 
+									  width="100" 
+									  formatString="YYYY-MM-DD"
+									  selectableRange="{{rangeStart : new Date()}}"
+									  firstDayOfWeek="1"
+									  dayNames="['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+									  disabledDays="[0,6]" />
+					</s:VGroup>
+					<s:VGroup>
+						<s:Label>End date:</s:Label>
+						<mx:DateField id="ed_fdate" 
+									  editable="true" 
+									  width="100" 
+									  formatString="YYYY-MM-DD"
+									  selectableRange="{{rangeStart : new Date()}}" 
+									  firstDayOfWeek="1"
+									  dayNames="['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+									  disabledDays="[0,6]" />
+					</s:VGroup>
+				</s:HGroup>
+				<s:HGroup>
+					<s:Button label="Save" click="doneEditingAbsenceclickHandler(event)"/>
+					<s:Button label="Cancel" click="editAbsenceAnchor.displayPopUp = false;"/>
+				</s:HGroup>
+				
+			</s:VGroup>
+			
+		</s:PopUpAnchor>
+	</s:VGroup>
+	
+	
 </s:TitleWindow>
