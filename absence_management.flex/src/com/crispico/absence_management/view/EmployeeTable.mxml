@@ -1,90 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 creationComplete="creationCompleteHandler(event)">
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:myGrid="com.immy.*"
+		  creationComplete="creationCompleteHandler(event)">
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Employee;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.DataGridEvent;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-
+			
+			private var PAGE_SIZE:Number = 10;
+			[Bindable]
+			private var pag:Number = 0;
+			[Bindable]
+			private var nrPagini:Number = 0;
 			private var list:ArrayCollection = new ArrayCollection();
-
+            
+			
 			private function creationCompleteHandler(event:FlexEvent):void {
-				for (var i:int = 0; i < 10; i++) {
-					var employee:Employee = new Employee();
-					employee.firstName = "First " + i;
-					employee.lastName = "Last " + i;
-					list.addItem(employee);
-				}
-				grid.dataProvider = list;	
+			    // umplu cu date hardcodate si e nasol
+//				for (var i:int = 0; i < 10; i++) {
+//					var employee:Employee = new Employee();
+//					employee.firstName = "First " + i;
+//					employee.lastName = "Last " + i;
+//					list.addItem(employee);
+//				}
+				refresh();
 			}
+
+			
+			private function refreshClickHandler(event:MouseEvent):void {
+				refresh();
+			}
+
+			private function refresh(): void{
+				//employeeService.getAllEmployees();
+				employeeService.countEmployees();
+				employeeService.getPage(pag*PAGE_SIZE, PAGE_SIZE);
+			}
+			private var employee:Employee;
 			
 			private function addClickHandler(event:MouseEvent):void {
-				var employee:Employee = new Employee();
-				employee.firstName = "New First";
-				employee.lastName = "Last";
-				list.addItem(employee);			
+				// fac un popup
+				//PopUpManager.addPopUp(form, this, true);
+				//PopUpManager.centerPopUp(form);
+                var popup:AddEmployeeForm = PopUpManager.createPopUp( this, AddEmployeeForm, true) as AddEmployeeForm;
+				PopUpManager.centerPopUp(popup);				
+				popup.addButton.addEventListener(MouseEvent.CLICK, addEmployee);
+				employee = new Employee();
+				popup.employee = employee;
+				// pun un listener pt cand ii zic sa adauge
 			}
 			
-			private function reverseClickHandler(event:MouseEvent):void {
-//				for each (var employee:Employee in grid.selectedItems) {
-//					var temp:String = employee.firstName;
-//					employee.firstName = employee.lastName;
-//					employee.lastName = temp;
-//				}
+			private function addEmployee(event:Event):void  {
+                //Alert.show("adaug " + employee.firstName + " " + employee.lastName); 
+				// il adaug in baza
+				if(employee.firstName == null || employee.lastName == null || employee.firstName == "" || employee.lastName == "")return; // daca e macar un camp vid nu-l bag
+				employeeService.addEmployee(employee);
+			}
+			
+			private function deleteClickHandler(event:MouseEvent):void {
 				var employee:Employee = Employee(grid.selectedItem);
-				var temp:String = employee.firstName;
-				employee.firstName = employee.lastName;
-				employee.lastName = temp;
+				Alert.show("Sigur doriti sa il stergeti pe "+employee.firstName + " " + employee.lastName + " " + employee.ID, "Confirmare stergere", mx.controls.Alert.YES | mx.controls.Alert.CANCEL, null, reallyDelete);
+			}
+			
+			private function reallyDelete(event:CloseEvent): void{
+				if (event.detail == Alert.YES) {
+  				   var employee:Employee = Employee(grid.selectedItem);
+				   employeeService.deleteEmployee(employee.ID);
+				   //Alert.show("acum il sterg pe bune; o sa dau si un raspuns, ceva cu handler");
+			    }			
 			}
 			
 			private function editClickHandler(event:MouseEvent):void {
-				var form:EmployeeForm = new EmployeeForm();
-				form.employee = Employee(grid.selectedItem);
-				PopUpManager.addPopUp(form, this, true);
-				PopUpManager.centerPopUp(form);
+				var popup:EditEmployeeForm = new EditEmployeeForm();//PopUpManager.createPopUp( this, EditEmployeeForm, true) as EditEmployeeForm;
+				popup.employee = Employee(grid.selectedItem);
+				PopUpManager.addPopUp(popup, this, true);
+				popup.updateName.addEventListener(MouseEvent.CLICK, updateName);
+				employee = popup.employee;
+				PopUpManager.centerPopUp(popup);				
 			}
 			
-			private function sayHelloResultHandler(event:ResultEvent):void {
-//				Alert.show("" + event.result);
+
+
+			private function updateName(event:MouseEvent):void{
+				// Alert.show(employee.ID + " " + employee.firstName + " " + employee.lastName);
+				employeeService.updateName(employee.ID, employee.firstName, employee.lastName);
 			}
 			
-			private function employeeServiceFaultHandler(event:FaultEvent):void {
-				Alert.show("Service invocation error: " + event.fault.faultString);				
+			private function updateNameResultHandler(event:ResultEvent):void {
+				// Alert.show("Numele si prenumele au fost actualizate cu succes");				
 			}
-			
+
+			private function deleteEmployeeResultHandler(event:ResultEvent):void {
+				//list.removeItemAt(grid.selectedIndex);
+				//Alert.show("Stergerea angajatului a fost efectuata cu succes");				
+			}
+
+			private function addEmployeeResultHandler(event:ResultEvent):void {
+				// oki, deci l-a adaugat; acum vreau sa stiu cu ce id, ca sa-l bag si in lista
+               var ID:Number = Number(event.result);
+			   employee.ID = ID;
+			   //list.addItem(employee);
+			   //Alert.show("Angajatul a fost adaugat cu succes");				
+			}
+
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
-				Alert.show("" + ArrayCollection(event.result));
+				//Alert.show("" + ArrayCollection(event.result));
+				list = ArrayCollection(event.result);
+				grid.dataProvider = list;	
 			}			
+
+			private function getPageResultHandler(event:ResultEvent):void {
+				//Alert.show("" + ArrayCollection(event.result));
+				list = ArrayCollection(event.result);
+				grid.dataProvider = list;	
+			}			
+
+			private function countEmployeesResultHandler(event:ResultEvent):void {
+				nrPagini = Number(event.result);
+				//Alert.show("nrAng = " + nrPagini + "=> " + Math.floor(nrPagini / PAGE_SIZE));
+				var x:Number = 0;
+				if(nrPagini % PAGE_SIZE == 0) x = -1;
+				nrPagini = Math.floor(nrPagini / PAGE_SIZE);
+			    nrPagini += x;
+				if(pag > nrPagini){ 
+					schimba_pagina(""+nrPagini);
+				}
+			}			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error (employee): " + event.fault.faultString);				
+			}
+			private function schimba_pagina(p: String): void{
+				var aux: Number;
+				aux = Number(p);
+				if(!isNaN(aux) && aux <= nrPagini){
+					pag = aux;
+					// Alert.show("schimb pagina la " + pag);
+					refresh();
+				}else{
+					//Alert.show("nu schimb pagina la " + pg.text);
+					if(aux > nrPagini) // daca il sterg pe unicul de pe ultima pagina
+					     pag = nrPagini;
+					pg.text = "" + pag;
+				}
+				
+			}
+			
+			protected function grid_headerReleaseHandler(event:DataGridEvent):void{
+				switch(event.columnIndex){
+					case 1: {
+						Alert.show("Ai apasat pe header, coloana " + "firstName");
+						// trimit un querry; getAllEmployeesSortedBy(" ORDER BY firstName asc/desc");
+						break;
+					}
+					case 2: {
+						Alert.show("Ai apasat pe header, coloana " + "lastName");	
+						break;
+					}
+				}
+			}
+			
+			protected function grid_clickHandler(event:MouseEvent):void {
+				if(getQualifiedClassName(event.target) == 'mx.controls.listClasses::ListBaseContentHolder'){
+						event.currentTarget.selectedIndex = -1;
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
-			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
+		<mx:RemoteObject id="employeeService" channelSet="{channelSet}" destination="employeeService"
+						 fault="employeeServiceFaultHandler(event)">
+			<mx:method name="deleteEmployee" result="deleteEmployeeResultHandler(event)"/>
 			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+			<mx:method name="getPage" result="getPageResultHandler(event)"/>
+			<mx:method name="countEmployees" result="countEmployeesResultHandler(event)"/>
+			<mx:method name="addEmployee" result="addEmployeeResultHandler(event)"/>
+			<mx:method name="updateName" result="updateNameResultHandler(event)"/>
+			
 		</mx:RemoteObject>
+
 	</fx:Declarations>
-	<s:HGroup>
-		<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
-		<s:Button label="Reverse First/Last Name" enabled="{grid.selectedItem != null}" click="reverseClickHandler(event)"/>
-		<s:Button label="Edit" click="editClickHandler(event)"/>
-		<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>
-	</s:HGroup>
-	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+	<s:Form>
+		<s:HGroup>
+			<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
+			<mx:Button label="Delete" click="deleteClickHandler(event)"
+					   enabled="{grid.selectedItem != null}"/>
+			<mx:Button label="Edit" click="editClickHandler(event)"
+					   enabled="{grid.selectedItem != null}"/>
+			<mx:Button label="Refresh" click="refreshClickHandler(event);"/>
+			<mx:Button label="&lt;&lt;" click="pag--; refresh();" enabled="{pag &gt; 0}"/>
+			<s:Label id="pgText" text="Pagina "/>
+			<s:TextInput id="pg" width="30" enter="schimba_pagina(pg.text)" text="{pag}"/>
+			<s:Label id="total" text=" din {nrPagini}"/>
+			<mx:Button label="&gt;&gt;" click="pag++; refresh();" enabled="{!(pag &gt;= nrPagini)}"/>
+			<s:DropDownList id="dropDownPag" change="PAGE_SIZE = Number(dropDownPag.selectedItem); refresh();" selectedIndex="0">
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:String>10</fx:String>
+						<fx:String>20</fx:String>
+						<fx:String>30</fx:String>
+						<fx:String>40</fx:String>
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:DropDownList>
+		</s:HGroup>
+	</s:Form>
+	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="false"
+				 click="grid_clickHandler(event)" headerRelease="grid_headerReleaseHandler(event)">
 		<mx:columns>
-			<mx:DataGridColumn dataField="id" headerText="ID"/>
+			<mx:DataGridColumn width="70" dataField="ID" headerText="ID"/>
 			<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
 			<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
 		</mx:columns>
 	</mx:DataGrid>
+	<!--
+	<myGrid:pagedDatagrid id="grid" width="100%" height="100%" allowMultipleSelection="false" limit="10">
+		<myGrid:columns>
+			<mx:DataGridColumn dataField="ID" headerText="ID"/>
+			<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
+			<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
+		</myGrid:columns>
+	</myGrid:pagedDatagrid>
+  -->
 </s:VGroup>

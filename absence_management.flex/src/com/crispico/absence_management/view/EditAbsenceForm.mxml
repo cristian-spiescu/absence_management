@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   close="PopUpManager.removePopUp(this)"
+			   creationComplete="creationCompleteHandler(event)"
+			   title="{'adauga absenta pentru ' + employee.firstName + ' ' + employee.lastName}">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			
+			
+			
+			
+			
+			
+			
+			[Bindable]
+			public var absence:Absence;			
+			[Bindable]
+            public var employee:Employee;
+			private var dateFormatter:DateFormatter;
+
+			protected function editAbsence_clickHandler(event:MouseEvent):void {
+				PopUpManager.removePopUp(this);
+				// Alert.show("ii adaug lui " + employee.ID + " " + employee.firstName + " " + employee.lastName + " o absenta");
+			}
+			
+			protected function dataInceput_changeHandler(event:CalendarLayoutChangeEvent):void {
+				if (event.currentTarget.selectedDate == null) {
+					return; 
+				}
+				
+				absence.startDate = event.currentTarget.selectedDate;
+			}
+			protected function dataFinal_changeHandler(event:CalendarLayoutChangeEvent):void {
+				if (event.currentTarget.selectedDate == null) {
+					return ;
+				}
+				absence.endDate = event.currentTarget.selectedDate;
+			}
+			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				dataInceput.selectedDate = absence.startDate;//DateField.stringToDate(InputTxt.text, "DD/MM/YYYY");
+				dataFinal.selectedDate = absence.endDate;
+				absenceTypeService.getAllAbsenceTypes();
+			}
+			
+			private function getIndexFor(id: Number): Number{
+				var i:Number = 0;
+				var s:String="";
+				for each (var item:AbsenceType in dropDownList.dataProvider){
+					if(item.ID == id)return i;
+					i++;
+					s += item.ID;
+				}
+				Alert.show(s);
+				return -1;
+			}
+			
+			private function getAllAbsenceTypesResultHandler(event:ResultEvent):void {
+				dropDownList.dataProvider = ArrayCollection(event.result);				
+				dropDownList.selectedIndex = getIndexFor(absence.absenceType.ID);
+				// Alert.show("id-ul de cautat este " + absence.absenceType.ID);
+			}
+			
+			private function absenceTypeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error (absence): " + event.fault.faultString);				
+			}
+			
+			protected function dropDownList_changeHandler(event:IndexChangeEvent):void {
+				if (event.currentTarget.selectedItem == null) {
+					return; 
+				}
+				absence.absenceType = event.currentTarget.selectedItem;
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<mx:DateFormatter id="DateDisplay" formatString="DD-MM-YYY"/>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceTypeService" channelSet="{channelSet}"
+						 destination="absenceTypeService"
+						 fault="absenceTypeServiceFaultHandler(event)">
+			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypesResultHandler(event)"/>
+			
+		</mx:RemoteObject>
+
+	</fx:Declarations>
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:Form>
+		<s:HGroup>
+<!--
+		<s:TextInput id="dataInceputInput" text="@{absence.startDate}"/>
+		<s:Label text="Data final"/>
+		<s:TextInput id="dataFinalInput" text="@{absence.endDate}"/>	
+-->
+		<s:Label text="Data inceput"/>
+		<mx:DateField id="dataInceput" change="dataInceput_changeHandler(event)" formatString="DD/MM/YYYY"/>	
+		<mx:DateField id="dataFinal" change="dataFinal_changeHandler(event)" formatString="DD/MM/YYYY"/>	 
+		<s:DropDownList id="dropDownList" change="dropDownList_changeHandler(event)"
+						labelField="type"/>
+		<s:Button id="editAbsence" label="Editeaza absenta" click="editAbsence_clickHandler(event)"/>	
+       </s:HGroup>
+	</s:Form>
+
+</s:TitleWindow>

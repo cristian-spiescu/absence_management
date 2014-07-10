@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   close="PopUpManager.removePopUp(this)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var employee:Employee;
+			
+			
+			protected function addButton_clickHandler(event:MouseEvent):void {
+				// nu adaug aici. am un listener in EmployeeTable care adauga cand apas eu submit
+				// inchizi popup-ul
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<!--
+	<s:TextInput text="@{employee.firstName}"/>
+	am @ ca sa fie bidirectional bindingul
+	-->
+	<s:Form>
+		<s:Label text="First name: "/>
+		<s:TextInput text="@{employee.firstName}"/>
+		<s:Label text="Last name: "/>
+		<s:TextInput text="@{employee.lastName}"/>
+   		<s:Button id="addButton" label="Adauga" click="addButton_clickHandler(event)"/>
+	</s:Form>
+</s:TitleWindow>

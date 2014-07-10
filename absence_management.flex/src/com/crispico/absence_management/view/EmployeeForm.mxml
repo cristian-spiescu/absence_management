@@ -17,4 +17,7 @@
 		<s:VerticalLayout/>
 	</s:layout>
 	<s:TextInput text="@{employee.firstName}"/>
+	<!--
+	am @ ca sa fie bidirectional bindingul
+	-->
 </s:TitleWindow>

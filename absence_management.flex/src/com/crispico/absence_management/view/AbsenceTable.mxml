@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  creationComplete="creationCompleteHandler(event)">
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.events.FlexEvent;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		public var list:ArrayCollection = new ArrayCollection();
+		
+		protected function creationCompleteHandler(event:FlexEvent):void {
+			absenceService.getAllAbsences();
+		}
+		
+		private function getAllAbsencesResultHandler(event:ResultEvent):void {
+			list = ArrayCollection(event.result);
+			grid.dataProvider = list;	
+		}			
+
+		private function absenceServiceFaultHandler(event:FaultEvent):void{
+			Alert.show("Service invocation error: " + event.fault.faultString);				
+		}
+		
+		protected function refresh_clickHandler(event:MouseEvent):void{
+			absenceService.getAllAbsences();
+		}
+
+		private function formatData1(item:Object, column:DataGridColumn):String {
+			return formatData(item.startDate as Date); 
+		}
+
+		private function formatData2(item:Object, column:DataGridColumn):String {
+			return formatData(item.endDate as Date); 
+		}
+		
+		private function formatData(d:Date):String{
+			var s:String = (d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+			return s; 		
+		}
+
+		
+	]]>
+</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" channelSet="{channelSet}" destination="absenceService"
+						 fault="absenceServiceFaultHandler(event)">
+			<mx:method name="getAllAbsences" result="getAllAbsencesResultHandler(event)"/>			
+		</mx:RemoteObject>
+	</fx:Declarations>
+	<s:Button id="refresh" label="Refresh" click="refresh_clickHandler(event)"/>
+	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="false">
+		<mx:columns>
+			<mx:DataGridColumn dataField="ID" headerText="Id absenta"  width="70"/>
+			<mx:DataGridColumn dataField="startDate" headerText="Data inceput"
+							   labelFunction="formatData1"/>
+			<mx:DataGridColumn dataField="endDate" headerText="Data final"
+							   labelFunction="formatData2"/>
+			<mx:DataGridColumn dataField="employee.firstName" headerText="Nume"/>
+			<mx:DataGridColumn dataField="employee.lastName" headerText="Prenume"/>
+			<mx:DataGridColumn dataField="absenceType.type" headerText="Tip absenta"/>
+		</mx:columns>	
+	</mx:DataGrid>
+</s:VGroup>

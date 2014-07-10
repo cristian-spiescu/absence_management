@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   close="PopUpManager.removePopUp(this)"
+			   creationComplete="creationCompleteHandler(event)" title="Editare">
+<fx:Script>
+	<![CDATA[
+		import com.crispico.absence_management.model.Absence;
+		import com.crispico.absence_management.model.Employee;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.events.FlexEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		
+		
+		[Bindable]
+		public var employee:Employee;			
+		public var absence:Absence;			
+		[Bindable]
+		private var list:ArrayCollection = new ArrayCollection();
+
+		protected function creationCompleteHandler(event:FlexEvent):void {
+			// employeeService.getAllEmployees();
+			// employee.getAbsences();
+			// Alert.show("Employee " + employee.firstName);
+			employeeService.getAbsencesByEmployeeId(employee.ID);
+ 		}
+		
+		
+		private function getAbsencesResultHandler(event:ResultEvent):void {
+			list = ArrayCollection(event.result);
+			// Alert.show(""+list.length);
+			grid.dataProvider = list;	
+		}			
+		
+		private function employeeServiceFaultHandler(event:FaultEvent):void{
+			Alert.show("Service invocation error: " + event.fault.faultString);				
+		}
+
+		
+		protected function addAbsence_clickHandler(event:MouseEvent):void {	
+			var popup:AddAbsenceForm = PopUpManager.createPopUp(this, AddAbsenceForm, true) as AddAbsenceForm;
+			PopUpManager.centerPopUp(popup);				
+			popup.addAbsence.addEventListener(MouseEvent.CLICK, addAbsence);
+			// pun un listener pt cand ii zic sa adauge
+			popup.employee = employee;
+			absence = new Absence();
+			popup.absence = absence;
+		}
+		
+		protected function addAbsence(event:MouseEvent): void{
+			//Alert.show("adaug absenta "+ absence.startDate + " lui " + employee.firstName);
+			absenceService.addAbsenceForEmployee(absence, employee);
+		}
+
+		
+		protected function deleteAbsence_clickHandler(event:MouseEvent):void {
+			var absence:Absence = Absence(grid.selectedItem);
+			Alert.show("Sigur doriti sa stergeti acesta absenta (id=" + absence.ID + ")? <3", "Confirmare stergere", mx.controls.Alert.YES | mx.controls.Alert.CANCEL, null, reallyDelete);
+		}
+				
+		private function reallyDelete(event:CloseEvent): void{
+			if (event.detail == Alert.YES) {
+				var absence:Absence = Absence(grid.selectedItem);
+				absenceService.deleteAbsence(absence.ID);
+				//Alert.show("acum il sterg pe bune; " + absence.ID);
+			}			
+		}
+
+		
+		
+// EDIT
+		
+		protected function editAbsence_clickHandler(event:MouseEvent):void {	
+//			var popup:EditAbsenceForm = PopUpManager.createPopUp(this, EditAbsenceForm, true) as EditAbsenceForm;
+//			PopUpManager.centerPopUp(popup);				
+//			popup.editAbsence.addEventListener(MouseEvent.CLICK, editAbsence);
+//			// pun un listener pt cand ii zic sa editeze
+//			popup.employee = employee;
+//			absence = Absence(grid.selectedItem);
+//			popup.absence = absence;
+
+			var popup:EditAbsenceForm = new EditAbsenceForm();
+			popup.absence = Absence(grid.selectedItem);
+			PopUpManager.addPopUp(popup, this, true);
+			popup.editAbsence.addEventListener(MouseEvent.CLICK, editAbsence);
+			absence = popup.absence;
+			PopUpManager.centerPopUp(popup);				
+		}
+		
+		protected function editAbsence(event:MouseEvent): void{
+			absenceService.editAbsence(absence);
+		}
+
+		
+		protected function updateName_clickHandler(event:MouseEvent):void {
+			retrieveData();
+//			Alert.show("in popup: vrei sa-l modifici pe "+employee.ID +", acum sa-l cheme "+employee.firstName + " " + employee.lastName);
+		}
+
+		protected function retrieveData():void{
+		    employee.firstName = firstNameInput.text;
+			employee.lastName = lastNameInput.text;
+		}
+		
+		private function addAbsenceForEmployeeResultHandler(event:ResultEvent):void {
+			// oki, deci l-a adaugat; acum vreau sa stiu cu ce id, ca sa-l bag si in lista
+			var ID:Number = Number(event.result);
+			absence.ID = ID;
+			list.addItem(absence);
+			// Alert.show("Absenta a fost adaugata");				
+		}
+
+		
+		private function editAbsenceResultHandler(event:ResultEvent):void {
+			//list.addItem(absence);
+			Alert.show("Absenta a fost modificata");				
+		}
+
+		
+		private function deleteAbsenceResultHandler(event:ResultEvent):void {
+			list.removeItemAt(grid.selectedIndex);
+			//Alert.show("Absenta a fost stearsa");				
+		}
+
+		private function absenceServiceFaultHandler(event:FaultEvent):void {
+			Alert.show("Service invocation error (absence): " + event.fault.faultString);				
+		}
+		
+		private function formatData1(item:Object, column:DataGridColumn):String {
+			return formatData(item.startDate as Date); 
+		}
+		private function formatData2(item:Object, column:DataGridColumn):String {
+			return formatData(item.endDate as Date); 
+		}
+
+		private function formatData(d:Date):String{
+			var s:String = (d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear());
+			return s; 		
+		}
+		
+		protected function ok_clickHandler(event:MouseEvent):void {
+			PopUpManager.removePopUp(this);
+		}
+		
+	]]>
+</fx:Script>
+<fx:Declarations>
+	<s:ChannelSet id="channelSet">
+		<s:AMFChannel url="messagebroker/remoting-amf"/>
+	</s:ChannelSet>
+	<mx:RemoteObject id="employeeService" channelSet="{channelSet}" destination="employeeService"
+					 fault="employeeServiceFaultHandler(event)">
+		<mx:method name="getAbsencesByEmployeeId" result="getAbsencesResultHandler(event)"/>
+		
+	</mx:RemoteObject>
+	<mx:RemoteObject id="absenceService" channelSet="{channelSet}" destination="absenceService"
+					 fault="absenceServiceFaultHandler(event)">
+		<mx:method name="addAbsenceForEmployee" result="addAbsenceForEmployeeResultHandler(event)"/>
+		<mx:method name="deleteAbsence" result="deleteAbsenceResultHandler(event)"/>
+		<mx:method name="editAbsence" result="editAbsenceResultHandler(event)"/>
+	</mx:RemoteObject>
+
+</fx:Declarations>
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+
+	<s:Form>
+		<s:Label text="First name"/>
+		<s:TextInput id="firstNameInput" text="{employee.firstName}"/>
+	    <!-- 
+		    cu @ in fata ar fi binding bidirectional
+		-->
+		<s:Label text="Last name"/>
+		<s:TextInput id="lastNameInput" text="{employee.lastName}"/>
+		<s:Button id="updateName" label="Salveaza modificari nume"
+				  click="updateName_clickHandler(event)"/>
+	</s:Form>
+	
+	
+		
+	<!-- Lista de absente -->
+	<mx:DataGrid id="grid" width="500">
+		<mx:columns>
+			<mx:DataGridColumn dataField="ID" headerText="Id absenta" width="70"/>
+			<mx:DataGridColumn dataField="startDate" headerText="Data inceput"
+							   labelFunction="formatData1"/>
+			<mx:DataGridColumn dataField="endDate" headerText="Data final"
+							   labelFunction="formatData2"/>
+			<mx:DataGridColumn dataField="absenceType.type" headerText="Tip absenta" width="170"/>
+		</mx:columns>
+	</mx:DataGrid>
+
+	<s:Form>
+	<s:HGroup>
+		<s:Button id="add" label="Adauga Absenta"
+				  click="addAbsence_clickHandler(event); grid.selectedIndex = -1" />
+		<s:Button id="delete" label="Sterge absenta" click="deleteAbsence_clickHandler(event)"
+				  enabled="{grid.selectedItem != null}" />
+		<s:Button id="edit" label="Edit" click="editAbsence_clickHandler(event)"
+				  enabled="{grid.selectedItem != null}" />
+		<s:Button id="ok" label = "OK" click="ok_clickHandler(event)"/>
+	</s:HGroup>
+	</s:Form>
+	
+</s:TitleWindow>
