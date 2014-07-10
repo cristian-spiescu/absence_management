@@ -1,25 +1,20 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.crispico.absence_management.model">
 
-    <class name="Employee" table="EMPLOYEE">
+    <class name="AbsenceType" table="ABSENCETYPE">
         <id name="id" column="ID">
             <generator class="native"/>
         </id>
-        <property name="firstName"/>
-        <property name="lastName"/>
-	 	<set name="absences" table="absence" inverse="true" lazy="false" fetch="select" cascade="all">
+        <property name="absenceType"/>
+        <set name="absences" table="absencetype" inverse="true" lazy="false" fetch="select">
 	            <key>
-	                <column name="id_employee" not-null="true" />
+	                <column name="Type" not-null="true" />
 	            </key>
 	            <one-to-many class="Absence" />
 	     </set>     
-             
     </class>
-    
-    
-    
 
 </hibernate-mapping>

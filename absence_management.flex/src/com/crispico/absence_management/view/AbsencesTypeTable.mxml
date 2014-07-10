@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  creationComplete="creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			public function creationCompleteHandler(event:FlexEvent):void {
+				absenceTypeService.getAllAbsencesType();			
+			}
+			
+				
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAllAbsencesTypeResultHandler(event:ResultEvent):void {
+				//Alert.show("" + ArrayCollection(event.result));
+				grid.dataProvider = event.result;	
+			}			
+			
+			public function formatDate(item:Object,column:DataGridColumn):String {
+				return df.format(item[column.dataField]);} 
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceTypeService" channelSet="{channelSet}" destination="absenceTypeService"
+						 fault="absenceServiceFaultHandler(event)">
+			<mx:method name="getAllAbsencesType" result="getAllAbsencesTypeResultHandler(event)"/>			
+		</mx:RemoteObject>
+		<mx:DateFormatter id="df" formatString="MM.DD.YYYY"/>		
+	</fx:Declarations>
+	
+	
+	<s:HGroup>		
+	</s:HGroup>
+	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+		<mx:columns>
+			<mx:DataGridColumn dataField="id" headerText="ID"/>
+			<mx:DataGridColumn dataField="absenceType" headerText="Type"/>
+			
+		</mx:columns>
+	</mx:DataGrid>
+</s:VGroup>

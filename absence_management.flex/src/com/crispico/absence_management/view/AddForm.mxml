@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="350" height="200" close=" PopUpManager.removePopUp(this) " title="{'Add'}">
+		
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var employee:Employee;
+			
+			public function myRefresh():void{
+				ExternalInterface.call("document.location.reload", true);				
+			}
+			
+			public function functie():void{
+				
+				employeeService.addEmployee(employee);	
+			}
+			
+			
+			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAddEmployeesResultHandler(event:ResultEvent):void {
+				
+				myRefresh();
+			}
+				
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>		
+	</s:layout>
+
+	<s:Form id="AddEmployeeForm" >
+		<s:FormItem label="First Name:">
+			<s:TextInput text="@{employee.firstName}"/>
+		</s:FormItem>
+			<s:FormItem label="Last Name:">
+				<s:TextInput text="@{employee.lastName}"/>
+			</s:FormItem>
+		<mx:Button label="Save Employee"  click="functie()"/>
+	</s:Form>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+	<mx:RemoteObject id="employeeService" channelSet="{channelSet}" destination="employeeService"
+					 fault="employeeServiceFaultHandler(event)">
+		<mx:method name="addEmployee" result="getAddEmployeesResultHandler(event)"/>
+	</mx:RemoteObject>
+	</fx:Declarations>
+	
+	
+	
+	
+</s:TitleWindow>

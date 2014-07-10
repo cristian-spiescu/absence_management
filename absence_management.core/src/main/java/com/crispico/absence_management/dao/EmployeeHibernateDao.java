@@ -25,4 +25,29 @@ public class EmployeeHibernateDao {
         
         return result;
 	}
+	
+	public Employee getEmployeeById(long id) {
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        Employee result = (Employee) session.createQuery("from Employee where Id = " + id).uniqueResult();
+        session.getTransaction().commit();
+        return result;
+	}	
+	
+	public void delete(Employee employee) {
+	
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.delete(employee);
+        session.getTransaction().commit();
+	}
+
+	public void update(Employee employee) {
+		
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        session.beginTransaction();
+        session.update(employee);
+        session.getTransaction().commit();
+	}
+
 }

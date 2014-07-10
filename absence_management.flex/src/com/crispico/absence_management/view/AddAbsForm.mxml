@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="400" height="200" close=" PopUpManager.removePopUp(this) " title="{'Add Absence'}">
+		
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			
+			public var employee:Employee;
+			public var absence:Absence = new Absence;
+			public var d:Date;
+			
+			public function myRefresh():void{
+				ExternalInterface.call("document.location.reload", true);				
+			}
+			
+			public function functie():void{
+				
+				absence.startDate = df1.selectedDate;
+				absence.endDate = df2.selectedDate;
+				
+				absence.absenceType = new AbsenceType();
+				absence.absenceType.absenceType =  idType.selectedItem;
+				absence.employee = employee;
+				absenceService.addAbsenceFromEdit(absence);				
+			}	
+			
+			private function formatDateTime(date:Date):String {				
+				return dtf.format(date);
+			} 
+		
+			private function aServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAddAbsResultHandler(event:ResultEvent):void {
+				
+				myRefresh();
+			}				
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>		
+	</s:layout>
+	
+	<s:Form width="100%">
+		<s:FormItem label="Start Date:" width="100%">
+			<mx:DateField id="df1"></mx:DateField>	
+		</s:FormItem>
+		
+		<s:FormItem label="End Date:" width="100%">
+			<mx:DateField id="df2"></mx:DateField>	
+			<!--<mx:DateField id="df2" labelFunction="formatDateTime" parseFunction="{null}"/>-->		
+		</s:FormItem>
+		
+		<s:DropDownList	id="idType"
+						width="200"
+						prompt="Select a type"> 
+			<mx:ArrayCollection >				
+				<fx:String>MEDICAL</fx:String>
+				<fx:String>FREEDAY</fx:String>
+				<fx:String>PAIDDAY</fx:String>
+				<fx:String>NOTSPECIFIED</fx:String>
+			</mx:ArrayCollection>
+		</s:DropDownList>		
+		<mx:Button label="Save Absence" click="functie()"/>	
+	</s:Form>
+
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" channelSet="{channelSet}" destination="absenceService"
+						 fault="aServiceFaultHandler(event)">
+			<mx:method name="addAbsenceFromEdit" result="getAddAbsResultHandler(event)"/>			
+			<mx:method name="test" result="getAddAbsResultHandler(event)"/>
+		</mx:RemoteObject>
+		
+	<s:DateTimeFormatter id="dtf" dateTimePattern="MM-dd-yyyy"/>
+	</fx:Declarations>
+	
+	
+	
+</s:TitleWindow>

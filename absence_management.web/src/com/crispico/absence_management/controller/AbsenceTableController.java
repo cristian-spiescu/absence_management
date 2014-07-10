@@ -8,27 +8,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.crispico.absence_management.dao.EmployeeHibernateDao;
-import com.crispico.absence_management.model.Employee;
+import com.crispico.absence_management.dao.AbsenceHibernateDao;
+import com.crispico.absence_management.model.Absence;
 
-/**
- * Servlet implementation class EmployeeTableController
- */
-public class EmployeeTableController extends HttpServlet {
+public class AbsenceTableController extends HttpServlet {
+
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-		EmployeeHibernateDao dao = new EmployeeHibernateDao();
+		AbsenceHibernateDao dao = new AbsenceHibernateDao();
 		
-		List<Employee> list = dao.getAll();
+		List<Absence> list = dao.getAll();
 		
 		// BUG
 		//HibernateUtil.getSessionFactory().close();
 		
 		req.setAttribute("list", list);
-		req.getRequestDispatcher("views/employeeTable.jsp").forward(req, resp);
+		req.getRequestDispatcher("views/absenceTable.jsp").forward(req, resp);
 	}
-
 }

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  creationComplete="creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			public var user:Employee = new Employee;
+			//public var list:ArrayCollection = new ArrayCollection();
+
+			public function creationCompleteHandler(event:FlexEvent):void {
+				employeeService.getAllEmployees();			
+			}
+			
+			private function addClickHandler(event:MouseEvent):void {
+//				var employee:Employee = new Employee();
+//				employee.firstName = "New First";
+//				employee.lastName = "Last";
+//				
+//				var form:EmployeeForm = new EmployeeForm();
+//				form.title="Enter Employee first/last name:";
+//				form.employee = ;
+//				
+//				PopUpManager.addPopUp(form, this, true);
+//				PopUpManager.centerPopUp(form);
+//				
+//				var tw:TitleWindow = new TitleWindow();
+//				tw.title = "My Title";
+//				mx.managers.PopUpManager.addPopUp(tw, this, false);
+				
+				var form:AddForm = new AddForm();
+				form.employee = new Employee();
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);		
+			}		
+			
+			private function reverseClickHandler(event:MouseEvent):void {
+//				for each (var employee:Employee in grid.selectedItems) {
+//					var temp:String = employee.firstName;
+//					employee.firstName = employee.lastName;
+//					employee.lastName = temp;
+//				}
+				var employee:Employee = Employee(grid.selectedItem);
+				var temp:String = employee.firstName;
+				employee.firstName = employee.lastName;
+				employee.lastName = temp;
+			}
+			
+			private function editClickHandler(event:MouseEvent):void {
+				var form:EmployeeForm = new EmployeeForm();
+				form.employee = Employee(grid.selectedItem);
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);				
+			}
+			
+			private function deleteClickHandler(event:MouseEvent):void {
+				var form:DeleteForm = new DeleteForm();
+				form.employee = Employee(grid.selectedItem);
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+				
+			}
+			
+			private function sayHelloResultHandler(event:ResultEvent):void {
+//				Alert.show("" + event.result);
+			}
+			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAllEmployeesResultHandler(event:ResultEvent):void {
+				//Alert.show("" + ArrayCollection(event.result));
+				grid.dataProvider = event.result;	
+			}			
+			public function functie():void
+			{
+				user.firstName = String(firstname.text);
+				user.lastName = String(lastname.text);				
+				var form:SearchForm = new SearchForm();
+				form.employee = user;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" channelSet="{channelSet}" destination="employeeService"
+						 fault="employeeServiceFaultHandler(event)">
+			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
+			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>			
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+	<s:HGroup paddingTop="10" horizontalAlign="right">
+		<mx:Button label="Add" click="addClickHandler(event); grid.selectedIndex = -1"/>
+		<s:Button label="Reverse First/Last Name" click="reverseClickHandler(event)"
+				  enabled="{grid.selectedItem != null}"/>
+		<s:Button label="Edit" click="editClickHandler(event)"
+				  enabled="{grid.selectedItem != null}"/>
+		<s:Button label="Delete" click="deleteClickHandler(event)"/>
+		
+		
+		<s:HGroup paddingTop="-10" >
+			<s:FormItem label="First Name:">
+				<s:TextInput id="firstname"/></s:FormItem>
+			<s:FormItem label="Last Name:">
+				<s:TextInput id="lastname"/></s:FormItem>			
+		</s:HGroup>	
+		<mx:Button label="Search for Employee" click="functie()"/>
+		
+		<!--<s:Button label="Invoke test server method"
+				  click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>-->
+		<!--<s:Button label="Am modificat ceva!"/>-->
+	</s:HGroup>
+	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+		<mx:columns>
+			<mx:DataGridColumn dataField="id" headerText="ID"/>
+			<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
+			<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
+		</mx:columns>
+	</mx:DataGrid>
+</s:VGroup>

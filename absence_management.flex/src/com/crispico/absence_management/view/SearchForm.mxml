@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="350" height="200" close=" PopUpManager.removePopUp(this) "
+			   title="{'Absence for ' + employee.firstName + ' ' + employee.lastName}"
+			   creationComplete="functie()">
+		
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var employee:Employee;
+			
+			public function myRefresh():void{
+				ExternalInterface.call("document.location.reload", true);				
+			}
+			
+			public function functie():void{
+				employeeService.searchEmployee(employee);	
+			}			
+			
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAddEmployeesResultHandler(event:ResultEvent):void {			
+				grid3.dataProvider = event.result;
+			}
+			public function formatDate(item:Object,column:DataGridColumn):String {
+				return df.format(item[column.dataField]);
+			}
+				
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>		
+	</s:layout>
+
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+	<mx:RemoteObject id="employeeService" channelSet="{channelSet}" destination="employeeService"
+					 fault="employeeServiceFaultHandler(event)">
+		<mx:method name="searchEmployee" result="getAddEmployeesResultHandler(event)"/>
+	</mx:RemoteObject>
+		
+		<mx:DateFormatter id="df" formatString="MM.DD.YYYY"/>		
+	</fx:Declarations>
+	
+	<mx:DataGrid id="grid3" width="100%" height="100%" allowMultipleSelection="true">
+		<mx:columns>
+			<mx:DataGridColumn dataField="id" headerText="ID"/>
+			<mx:DataGridColumn dataField="startDate" labelFunction="formatDate" headerText="Start Date"/>
+			<mx:DataGridColumn dataField="endDate" labelFunction="formatDate" headerText="End Date"/>
+			<mx:DataGridColumn dataField="{'employee.lastName'}" headerText="Employee"/>
+			<mx:DataGridColumn dataField="{'absenceType.absenceType'}" headerText="Type"/>			
+		</mx:columns>
+	</mx:DataGrid>
+	
+	
+	
+</s:TitleWindow>

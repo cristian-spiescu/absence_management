@@ -41,6 +41,7 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  
   <servlet>
     <description></description>
     <display-name>EmployeeTableController</display-name>
@@ -52,5 +53,53 @@
     <url-pattern>/showEmployees.do</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <description></description>
+    <display-name>AbsenceTableController</display-name>
+    <servlet-name>AbsenceTableController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.AbsenceTableController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AbsenceTableController</servlet-name>
+    <url-pattern>/showAbsences.do</url-pattern>
+  </servlet-mapping>
   
+    
+  <servlet>
+    <description></description>
+    <display-name>AbsenceTypeTableController</display-name>
+    <servlet-name>AbsenceTypeTableController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.AbsenceTypeTableController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AbsenceTypeTableController</servlet-name>
+    <url-pattern>/showTypeAbsences.do</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>DeleteEmployeeController</display-name>
+    <servlet-name>DeleteEmployeeController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.DeleteEmployeeController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DeleteEmployeeController</servlet-name>
+    <url-pattern>/deleteEmployee.do</url-pattern>
+  </servlet-mapping>
+
+
+<servlet>
+    <description></description>
+    <display-name>addEmployeeController</display-name>
+    <servlet-name>addEmployeeController</servlet-name>
+    <servlet-class>com.crispico.absence_management.controller.addEmployeeController</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addEmployeeController</servlet-name>
+    <url-pattern>/addEmployee.do</url-pattern>
+  </servlet-mapping>
+
+  
+
+
 </web-app>

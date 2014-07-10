@@ -1,20 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)">
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   width="800" height="350" close="	PopUpManager.removePopUp(this)"
+			   creationComplete="creationCompleteHandler(event)" title="{'EDIT'}">
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.Employee;
 			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			
 			
 			[Bindable]
-			public var employee:Employee;			
+			public var employee:Employee;
+			
+			public function creationCompleteHandler(event:FlexEvent):void {
+				employeeService.getEmployeeAbsences(employee);
+				//employeeService.getAllAbsencesType();
+			}
+			
+			public function myRefresh():void{
+				ExternalInterface.call("document.location.reload", true);
+				//employeeService.getAllEmployees();				
+			}
+			private function addClickHandler(event:MouseEvent):void {						
+				var form:AddAbsForm = new AddAbsForm();
+				form.employee = employee;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);		
+			}	
+			
+			private function deleteClickHandler(event:MouseEvent):void {
+				var form:DelAbsForm = new DelAbsForm();				
+				form.absence = Absence(grid2.selectedItem);				
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);				
+			}	
+			
+			private function editClickHandler(event:MouseEvent):void {
+				var form:EditAbsForm = new EditAbsForm();				
+				form.absence = Absence(grid2.selectedItem);				
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);				
+			}	
+			
+			public function editeaza():void
+			{				
+				employeeService.editEmployee(employee);				
+			}
+			private function employeeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			private function getEditEmployeeEmployeesResultHandler(event:ResultEvent):void {
+				
+				myRefresh();			
+			} 
+			private function getDelEmployeesResultHandler(event:ResultEvent):void {
+				
+				PopUpManager.removePopUp(this);				
+//				myRefresh();			
+			} 
+			private function getAllAbsEmployeeResultHandler(event:ResultEvent):void {
+				grid2.dataProvider = ArrayCollection(event.result);				
+			}	
+			public function formatDate(item:Object,column:DataGridColumn):String {
+				return df.format(item[column.dataField]);}
+			
 		]]>
 	</fx:Script>
+	
 	<s:layout>
 		<s:VerticalLayout/>
 	</s:layout>
-	<s:TextInput text="@{employee.firstName}"/>
+	<s:Form id="AddEmployeeForm" width="450" height="125">
+		<s:FormItem label="First Name:">
+			<s:TextInput text="@{employee.firstName}"/>
+		</s:FormItem>
+		<s:FormItem label="Last Name:">
+			<s:TextInput text="@{employee.lastName}"/>
+		</s:FormItem>
+		<s:Button id="submitEditButton" label="Submit" click="editeaza()"/>			
+	</s:Form>
+	<mx:DataGrid id="grid2" width="100%" height="100%" allowMultipleSelection="true">
+		<mx:columns>
+			<mx:DataGridColumn dataField="id" headerText="ID"/>
+			<mx:DataGridColumn labelFunction="formatDate" dataField="startDate" headerText="Start Date"/>			
+			<mx:DataGridColumn labelFunction="formatDate" dataField="endDate" headerText="End Date"/>
+			<mx:DataGridColumn dataField="{'absenceType.absenceType'}" headerText="Type"/>
+			
+		</mx:columns>
+	</mx:DataGrid>
+	<s:HGroup paddingBottom="20" >
+			<mx:Button label="Add Absence" click="addClickHandler(event); "/>
+			<mx:Button label="Delete Absence" click="deleteClickHandler(event); "
+					   enabled="{grid2.selectedItem != null}"/>
+			<mx:Button label="Edit Absence" click="editClickHandler(event); "
+				   enabled="{grid2.selectedItem != null}"/>
+	</s:HGroup>
+		
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" channelSet="{channelSet}" destination="employeeService"
+						 fault="employeeServiceFaultHandler(event)">
+			<mx:method name="editEmployee" result="getEditEmployeeEmployeesResultHandler(event)"/>
+			<mx:method name="getEmployeeAbsences" result="getAllAbsEmployeeResultHandler(event)"/>
+			
+		</mx:RemoteObject>
+		<mx:DateFormatter id="df" formatString="MM.DD.YYYY"/> 
+	</fx:Declarations>
+
+
 </s:TitleWindow>

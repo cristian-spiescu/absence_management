@@ -1,12 +1,19 @@
 package com.crispico.absence_management.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Employee {
 
 	private long id;
-
 	private String firstName;
-
 	private String lastName;
+	private Set<Absence> absences = new HashSet<Absence>();
+	
+		
+	public void setAbsences(Set<Absence> absences) {
+		this.absences = absences;
+	}
 
 	public long getId() {
 		return id;
@@ -27,6 +34,11 @@ public class Employee {
 	public String getLastName() {
 		return lastName;
 	}
+
+	public Set<Absence> getAbsences() {
+		return absences;
+	}
+
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
@@ -58,5 +70,7 @@ public class Employee {
 			return false;
 		return true;
 	}
+
+
 
 }

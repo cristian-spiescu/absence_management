@@ -1,4 +1,5 @@
 <%@page import="com.crispico.absence_management.model.Employee"%>
+<%@page import="com.crispico.absence_management.model.Absence"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 
@@ -17,6 +18,8 @@
 
 </head>
 <body>
+
+	<%@include file = "navbar.jsp"%>
 	<div class="container theme-showcase" role="main">
 		<p>
 		<div class="panel panel-success">
@@ -28,6 +31,7 @@
 					<thead>
 						<th>First Name</th>
 						<th>Last Name</th>
+						<th>Absences</th>
 						<th>Commands</th>
 					</thead>
 					<%
@@ -36,8 +40,25 @@
 					<tr>
 						<td><%=employee.getFirstName()%></td>
 						<td><%=employee.getLastName()%></td>
+						<td>
+						<%
+							for (Absence abs : employee.getAbsences()) {
+						%>
+							<%=abs.getStartDate() + "->" + abs.getEndDate()%>
+							<p></p>
+						<%							
+							}
+						%>
+						
+						</td>
+						
 						<td><button class="btn btn-xs btn-warning" type="button">Edit</button>
-							<button class="btn btn-xs btn-danger" type="button">Delete</button></td>
+							<form action="deleteEmployee.do" method="post">
+								<button class="btn btn-xs btn-danger" type="submit">Delete</button>
+								<input type="hidden" name="employeeId" value = "<%=employee.getId() %>" >
+
+							</form>
+							</td>
 					</tr>
 					<%
 						}
@@ -45,6 +66,8 @@
 				</table>
 			</div>
 		</div>
-	</div>
+	</div>	
+	<%@include file = "addEmployee.jsp" %>
+	
 </body>
 </html>
