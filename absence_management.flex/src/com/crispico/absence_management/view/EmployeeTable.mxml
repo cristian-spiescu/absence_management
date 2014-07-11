@@ -14,7 +14,19 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 
-			private var list:ArrayCollection = new ArrayCollection();
+			public var list:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var pageSize:Number = 10;
+			[Bindable]
+			public var pageNumber:Number = 1;
+			[Bindable]
+			public var numberOfPages:Number;
+			[Bindable]
+			public var numberOfEmployees:Number;
+			[Bindable]
+			public var pageNumberString:String = "1";
+			[Bindable]
+			public var pageSizeString:String = "10";
 
 			private function creationCompleteHandler(event:FlexEvent):void {
 //				for (var i:int = 0; i < 10; i++) {
@@ -24,7 +36,9 @@
 //					list.addItem(employee);
 //				}
 				
-				employeeService.getAllEmployees();
+				//employeeService.getAllEmployees();
+				employeeService.getEmployeesByPage(pageSize,pageNumber);
+				employeeService.getNumberOfEmployees();
 				//grid.dataProvider = list;	
 			}
 			
@@ -34,16 +48,28 @@
 				employee.lastName = "Last Name";
 				var form:EmployeeAddForm = new EmployeeAddForm();
 				form.employee = employee;
+				form.employeeTable = this;
+				form.pageSize = pageSize;
+				form.pageNumber = pageNumber;
 				PopUpManager.addPopUp(form, this, true);
 				PopUpManager.centerPopUp(form);
 				//employeeService.addEmployee(employee);
-				list.addItem(employee);			
+				list.addItem(employee);
+				numberOfEmployees ++;
+				numberOfPages = int(numberOfEmployees - 1)/pageSize + 1;
+//				Alert.show("nr pagini " + numberOfPages +
+//							"\nnr emploizi " + numberOfEmployees);
 			}
 			
 			private function deleteClickHandler(event:MouseEvent):void{
 				var employee:Employee = Employee(grid.selectedItem);
 				list.removeItemAt(list.getItemIndex(employee));
 				employeeService.deleteEmployee(employee);
+				employeeService.getEmployeesByPage(pageSize,pageNumber);
+				numberOfEmployees --;
+				numberOfPages = int(numberOfEmployees - 1)/pageSize + 1;
+//				Alert.show("nr pagini " + numberOfPages +
+//					"\nnr emploizi " + numberOfEmployees);
 			}
 			
 			private function reverseClickHandler(event:MouseEvent):void {
@@ -91,6 +117,61 @@
 				PopUpManager.centerPopUp(form);
 			}
 			
+			private function getEmployeesByPageResultHandler(event:ResultEvent):void{
+				list = ArrayCollection(event.result);
+				grid.dataProvider = list;
+			}
+			
+			private function firstPageClickHandler(event:MouseEvent):void{
+				pageNumber = 1;
+				pageNumberString = "1";
+				employeeService.getEmployeesByPage(pageSize, pageNumber);
+			}
+			
+			private function previousPageClickHandler(event:MouseEvent):void{
+				pageNumber = Number(pageNumberString);
+				if(pageNumber>1){
+					pageNumber--;
+				}
+				pageNumberString = String(pageNumber);
+				employeeService.getEmployeesByPage(pageSize, pageNumber);
+			}
+			
+			private function nextPageClickHandler(event:MouseEvent):void{
+				pageNumber = Number(pageNumberString);
+				if(pageNumber < int(numberOfPages)){
+					pageNumber++;
+				}
+				pageNumberString = String(pageNumber);
+				employeeService.getEmployeesByPage(pageSize, pageNumber);
+			}
+			
+			private function lastPageClickHandler(event:MouseEvent):void{
+				pageNumber = int(numberOfPages);
+				pageNumberString = String(pageNumber);
+				employeeService.getEmployeesByPage(pageSize, pageNumber);
+			}
+			
+			private function getNumberOfEmployeesResultHandler(event:ResultEvent):void{
+				numberOfEmployees = Number(event.result) - 1;
+				numberOfPages = int((numberOfEmployees - 1)/pageSize + 1);
+			}
+			
+			private function textInputChangeHandler():void{
+				pageNumber = Number(pageNumberString);
+				//Alert.show("pagina " + pageNumber);
+				if(pageNumber > 0){
+					employeeService.getEmployeesByPage(pageSize, pageNumber);
+				}
+			}
+			
+			private function setPageSizeClickHandler():void{
+				pageSize = Number(pageSizeString);
+					if(pageSize > 10){
+						employeeService.getEmployeesByPage(pageSize, pageNumber);
+					}
+			}
+			
 		]]>
 	</fx:Script>
 	<fx:Declarations>
@@ -100,6 +181,17 @@
 		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
 			<mx:method name="sayHello" result="sayHelloResultHandler(event)"/>
 			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+			<mx:method name="getEmployeesByPage" result="getEmployeesByPageResultHandler(event)">
+				<mx:arguments>
+					<arg1>
+						{pageSize}
+					</arg1>
+					<arg2>
+						{pageNumber}
+					</arg2>
+				</mx:arguments>
+			</mx:method>
+			<mx:method name="getNumberOfEmployees" result="getNumberOfEmployeesResultHandler(event)"/>
 		</mx:RemoteObject> 
 	</fx:Declarations>
 	<s:HGroup paddingTop="10" paddingBottom="4">
@@ -107,9 +199,27 @@
 		<s:Button label="Delete" click="deleteClickHandler(event); grid.selectedIndex = -1" enabled="{grid.selectedItem != null}"/>
 		<s:Button label="Reverse First/Last Name" enabled="{grid.selectedItem != null}" click="reverseClickHandler(event)"/>
 		<s:Button label="Edit" click="editClickHandler(event)" enabled="{grid.selectedItem != null}"/>
-		<!--<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>-->
-		<s:Button label="Deselect" click="deselectClickHandler(event)" enabled="{grid.selectedItem != null}"/>
+		<!--<s:Button label="Invoke test server method" click="employeeService.sayHello('Cristi'); employeeService.getAllEmployees()"/>-->	
 		<s:Button label="Filter absences" click="filterAbsencesClickHandler(event)"/>
+		<s:HGroup paddingLeft="30">
+			<s:Button label="Deselect" click="deselectClickHandler(event)" enabled="{grid.selectedItem != null}"/>
+		</s:HGroup>
+		<s:HGroup paddingLeft="30">
+			<s:Button label="First page" click="firstPageClickHandler(event)"/>
+		</s:HGroup>
+		<s:HGroup paddingLeft="5">
+			<s:Button label="Previous page" click="previousPageClickHandler(event)"/>
+		</s:HGroup>
+		<s:HGroup paddingLeft="5">
+			<s:TextInput text="@{pageNumberString}" change="textInputChangeHandler()"/>
+		</s:HGroup>
+		<s:HGroup paddingLeft="5">
+			<s:Button label="Next page" click="nextPageClickHandler(event)"/>
+		</s:HGroup>
+		<s:HGroup paddingLeft="5">
+			<s:Button label="Last page" click="lastPageClickHandler(event)"/>
+		</s:HGroup>
+
 	</s:HGroup>
 	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
 		<mx:columns>

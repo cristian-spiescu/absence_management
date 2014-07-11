@@ -22,8 +22,16 @@ public class EmployeeService {
 		dao.delete(employee.getId());
 	}
 	
-	public void addEmployee(Employee employee){
-		dao.save(employee);
+	public long addEmployee(Employee employee){
+		return dao.save(employee);
+	}
+	
+	public List<Employee> getEmployeesByPage(int pageSize,int pageNumber){
+		return dao.getPage(pageSize, pageNumber);
+	}
+	
+	public int getNumberOfEmployees(){
+		return dao.getNumberOfEmployees();
 	}
 	
 }

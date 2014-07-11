@@ -172,7 +172,7 @@
 		<mx:DateChooser id="endDate"/>
 	</s:HGroup>
 	<s:HGroup paddingLeft="70">
-		<s:DropDownList id="dropDownList" labelField="type" />	
+		<s:DropDownList id="dropDownList" prompt="Choose type" labelField="type" />	
 	</s:HGroup>
 	 
 		

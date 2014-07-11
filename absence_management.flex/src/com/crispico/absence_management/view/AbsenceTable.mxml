@@ -84,7 +84,7 @@
 	</fx:Declarations>
 	<s:VGroup>
 		<s:HGroup paddingBottom="4">
-			<s:DropDownList id="dropDownList" labelField="type" />
+			<s:DropDownList id="dropDownList" prompt="Choose type" labelField="type" />
 			<s:Button label="Filter on" enabled="{dropDownList.selectedItem != null}" click="filterOnClickHandler(event)"/>
 			<s:Button label="Filter off" click="filterOffClickHandler(event)"/>
 		</s:HGroup>

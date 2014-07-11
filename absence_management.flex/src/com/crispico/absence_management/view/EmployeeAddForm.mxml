@@ -7,8 +7,8 @@
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
-			import com.crispico.absence_management.model.Employee;
 			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -22,6 +22,11 @@
 			private var list:ArrayCollection = new ArrayCollection();
 			private var abs:Absence;
 			private var abst:AbsenceType;
+			public var employeeTable:EmployeeTable;
+			[Bindable]
+			public var pageSize:Number;
+			[Bindable]
+			public var pageNumber:Number;
 			
 			private function creationCompleteHandler(event:FlexEvent):void {
 				
@@ -29,11 +34,29 @@
 			
 			private function saveClickHandler(event:MouseEvent):void{
 				employeeService.addEmployee(employee);
+				//employeeService.getAllEmployees();
+				employeeService.getEmployeesByPage(pageSize, pageNumber);
 				PopUpManager.removePopUp(this)
+			}
+			
+			private function addEmployeeResultHandler(event:ResultEvent):void{
+				employee.id = Number(event.result);
 			}
 			
 			private function employeeServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAllEmployeesResultHandler(event:ResultEvent):void{
+				list = ArrayCollection(event.result);
+				employeeTable.grid.dataProvider = list;
+				employeeTable.list = list;
+			}
+			
+			private function getEmployeesByPageResultHandler(event:ResultEvent):void{
+				list = ArrayCollection(event.result);
+				employeeTable.grid.dataProvider = list;
+				employeeTable.list = list;
 			}
 			
 		]]>
@@ -47,11 +70,22 @@
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
 		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
-			<mx:method name="addEmployee">
+			<mx:method name="addEmployee" result="addEmployeeResultHandler(event)">
 				<mx:arguments>
 					<arg1>
 						{employee}
 					</arg1>
+				</mx:arguments>
+			</mx:method>
+			<mx:method name="getAllEmployees" result="getAllEmployeesResultHandler(event)"/>
+			<mx:method name="getEmployeesByPage" result="getEmployeesByPageResultHandler(event)">
+				<mx:arguments>
+					<arg1>
+						{pageSize}
+					</arg1>
+					<arg2>
+						{pageNumber}
+					</arg2>
 				</mx:arguments>
 			</mx:method>
 		</mx:RemoteObject> 
