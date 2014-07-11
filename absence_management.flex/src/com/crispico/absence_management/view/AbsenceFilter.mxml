@@ -168,6 +168,10 @@
 		<s:DateTimeFormatter id="employeeDateFormatter" dateTimePattern="yyyy-MMM-dd"/>	
 	</fx:Declarations>
 	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
 	<s:Form>
 		
 		<s:FormItem>
@@ -207,7 +211,10 @@
 						<mx:DataGridColumn dataField="type.description" headerText="Type"
 										   width="250"/>
 					</mx:columns>
-				</mx:DataGrid>	
+				</mx:DataGrid>
+				<s:FormItem>
+					<mx:Label text="{list.length} results" fontWeight="bold" fontStyle="italic"/>
+				</s:FormItem>				
 			</s:Form>
 		</s:FormItem>
 		
