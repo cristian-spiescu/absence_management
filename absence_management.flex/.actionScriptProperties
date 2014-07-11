@@ -15,6 +15,7 @@
   <theme themeIsDefault="false" themeIsSDK="true" themeLocation="${SDK_THEMES_DIR}/samples/themes/spark_cobalt"/>
   <applications>
     <application path="Main.mxml"/>
+    <application path="ChartSample.mxml"/>
   </applications>
   <modules/>
   <workers/>
