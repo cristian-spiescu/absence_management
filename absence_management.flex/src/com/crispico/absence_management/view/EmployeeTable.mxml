@@ -108,13 +108,28 @@
 				}
 				
 				if(searchList.selectedIndex == 1){
-					
+					searchAbsenceType.visible = false;
+					var searchEmployeeForm:SearchEmployeeForm = new SearchEmployeeForm();
+					searchEmployeeForm.employeeTable = this;
+					searchEmployeeForm.width = this.width;
+					searchEmployeeForm.height = this.height;
+					PopUpManager.addPopUp(searchEmployeeForm, this, true);
+					PopUpManager.centerPopUp(searchEmployeeForm);		
 				}
 			}
 			
 			
 			protected function searchAbsenceTypeCreationCompleteHandler(event:FlexEvent):void {
 				absenceService.getAllAbsencesType();
+			}
+			
+			protected function searchAbsenceTypeChangeHandler(event:IndexChangeEvent):void {
+				var searchAbsenceTypeForm:SearchAbsenceType = new SearchAbsenceType();
+				searchAbsenceTypeForm.employeeTable = this;
+				searchAbsenceTypeForm.width = this.width;
+				searchAbsenceTypeForm.height = this.height;
+				PopUpManager.addPopUp(searchAbsenceTypeForm,this,true);
+				PopUpManager.centerPopUp(searchAbsenceTypeForm);
 			}
 			
 		]]>
@@ -131,12 +146,13 @@
 		</mx:RemoteObject>
 	</fx:Declarations>
 	
-	<s:HGroup gap="750" horizontalAlign="left">
+	<s:HGroup gap="750">
 		<s:HGroup>
 			<mx:Button label ="View all absences" click="viewAllAbsences(event)"  />
 			<mx:Button label ="Search" click="searchEmployee(event)" />
 			<s:DropDownList id="searchList" visible="false" change="searchListChangeHandler(event)" width="130"/>
-			<s:DropDownList id="searchAbsenceType" visible="false" creationComplete="searchAbsenceTypeCreationCompleteHandler(event)" />
+			<s:DropDownList id="searchAbsenceType" visible="false" creationComplete="searchAbsenceTypeCreationCompleteHandler(event)"
+							change="searchAbsenceTypeChangeHandler(event)" />
 		</s:HGroup>
 		
 		<s:HGroup horizontalAlign="right">
@@ -148,7 +164,7 @@
 	
 	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
 		<mx:columns>
-			<mx:DataGridColumn dataField="id" headerText="ID"/>
+			<mx:DataGridColumn dataField="id" headerText="ID" />
 			<mx:DataGridColumn dataField="firstName" headerText="First Name" />
 			<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
 		</mx:columns>

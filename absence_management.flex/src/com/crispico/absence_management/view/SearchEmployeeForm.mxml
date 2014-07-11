@@ -2,25 +2,68 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   title="Search" close="PopUpManager.removePopUp(this)">
+			   title="Search Employee" close="PopUpManager.removePopUp(this)">
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			
 			[Bindable]
 			public var employeeTable:EmployeeTable;
 			
 			
+			protected function searchEmployeeClickHandler(event:MouseEvent):void {
+				var searchName:String=searchEmployee.text;
+				var employeeSearchListwithAbs:ArrayCollection =  new ArrayCollection();
+				for each(var employeeSearch:Employee in employeeTable.list){
+					if(employeeSearch.firstName.toLowerCase() == searchName.toLowerCase()){
+						employeeSearchListwithAbs.addAll(employeeSearch.absenceList);
+					} 
+				}
+				if(employeeSearchListwithAbs.length == 0){
+					Alert.show("This employee doesn't exist!");
+				}
+				
+				
+				searchEmployeeGrid.dataProvider = employeeSearchListwithAbs;
+				
+			}
+			
+			protected function enterNameClickHandler(event:MouseEvent):void {
+				searchEmployee.text = "";
+			}
+			
 		]]>
 	</fx:Script>
 	
-	<s:VGroup>
-		<s:Form>
-			<s:FormItem label="Search:">
+	<s:layout>
+		<s:VerticalLayout >
+		</s:VerticalLayout>
+	</s:layout>
+	
+		<s:HGroup>
+			<s:FormItem label="First Name:"/>
+					<s:TextInput id="searchEmployee" text="Enter name" click="enterNameClickHandler(event)"/>
+			<s:FormItem>
+				<s:Button label="Search" click="searchEmployeeClickHandler(event)"/>
 			</s:FormItem>
-		</s:Form>
+		</s:HGroup>
 		
-	</s:VGroup>
+		<mx:DataGrid id="searchEmployeeGrid" width="100%" height="100%" allowMultipleSelection="true">
+			<mx:columns>
+				<mx:DataGridColumn dataField="emp.firstName" headerText="First Name" />
+				<mx:DataGridColumn dataField="emp.lastName" headerText="Last Name"/>
+				<mx:DataGridColumn dataField="date_start" headerText="Date Start" />
+				<mx:DataGridColumn dataField="date_end" headerText="Date Start" />
+				<mx:DataGridColumn dataField="typeAbs.typeAbsence" headerText="Absence Type" />
+			</mx:columns>
+		</mx:DataGrid>
+		
+
+
 	
 	
 </s:TitleWindow>

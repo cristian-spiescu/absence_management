@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   title="Absence Type: {employeeTable.searchAbsenceType.selectedItem}" close="PopUpManager.removePopUp(this)" >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var employeeTable:EmployeeTable;
+			
+			protected function searchAbsenceTypeGridCreationCompleteHandler(event:FlexEvent):void {
+				var searchAbsenceType:String = employeeTable.searchAbsenceType.selectedItem;
+				var employeeList:ArrayCollection = new ArrayCollection();
+				var searchAbsenceTypeList:ArrayCollection = new ArrayCollection();
+				for each(var employee:Employee in employeeTable.list){
+					for each(var absence:Absence in employee.absenceList){
+						if(absence.typeAbs.typeAbsence == searchAbsenceType){
+							searchAbsenceTypeList.addItem(absence);
+						}
+					}
+				}
+				
+				searchAbsenceTypeGrid.dataProvider = searchAbsenceTypeList;
+			}
+			
+		]]>
+	</fx:Script>
+
+	<mx:DataGrid id="searchAbsenceTypeGrid" width="100%" height="100%" allowMultipleSelection="true" creationComplete="searchAbsenceTypeGridCreationCompleteHandler(event)">
+		<mx:columns>
+			<mx:DataGridColumn dataField="emp.firstName" headerText="First Name" />
+			<mx:DataGridColumn dataField="emp.lastName" headerText="Last Name"/>
+			<mx:DataGridColumn dataField="date_start" headerText="Date Start" />
+			<mx:DataGridColumn dataField="date_end" headerText="Date Start" />
+			<mx:DataGridColumn dataField="typeAbs.typeAbsence" headerText="Absence Type" />
+		</mx:columns>
+	</mx:DataGrid>
+		
+	
+	
+</s:TitleWindow>
