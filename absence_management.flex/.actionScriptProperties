@@ -15,6 +15,7 @@
   <theme themeIsDefault="false" themeIsSDK="true" themeLocation="${SDK_THEMES_DIR}/frameworks/themes/Halo"/>
   <applications>
     <application path="Main.mxml"/>
+    <application path="ChartSample.mxml"/>
   </applications>
   <modules/>
   <workers/>
