@@ -4,6 +4,7 @@ package com.crispico.chart
 	{
 		public function Chart()
 		{
+			
 		}
 	}
 }
