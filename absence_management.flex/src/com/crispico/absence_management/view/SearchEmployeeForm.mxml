@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   title="Search Employee Form"
+			   close="PopUpManager.removePopUp(this)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="employeeDateFormatter"
+							 dateTimePattern="dd-MMM-yyyy"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+						
+			[Bindable]
+			public var employeeTable : EmployeeTable;
+			
+			[Bindable]
+			public var employeeListwithAbsences : ArrayCollection;
+			
+			private function searchEmployeeClickHandler(event:MouseEvent):void {
+				employeeListwithAbsences = new ArrayCollection();
+				var searchName : String = textInput.text;
+				
+				for each (var employee:Employee in employeeTable.list) {
+					if (employee.lastName.toLowerCase().search(searchName.toLowerCase()) != -1) {
+						employeeListwithAbsences.addItem(employee);
+					}
+				}
+				
+				if (employeeListwithAbsences.length == 0) {
+					Alert.show("No Employee with this Last Name!", "Search Employee Error");
+				}
+				
+				searchEmployeeGrid.dataProvider = employeeListwithAbsences;
+			}
+			
+			private function textInputChangeHandler():void {
+				textInput.text = "";
+				searchEmployeeButton.enabled = true;				
+			}
+			
+			/* Date Formatters */
+			private function startDateFormatter(item:Object, column:DataGridColumn):String { 
+				return employeeDateFormatter.format(item.startDate); 
+			}
+			
+			private function endDateFormatter(item:Object, column:DataGridColumn):String { 
+				return employeeDateFormatter.format(item.endDate); 
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout paddingTop="5" paddingBottom="5" paddingLeft="5" paddingRight="5" gap="5" 
+						  horizontalAlign="left" verticalAlign="top"/>
+	</s:layout>
+	
+	<s:HGroup>
+	
+		<s:FormItem label="Search Name">
+			<s:TextInput id="textInput"
+						 text="Enter name here" 
+						 click="textInputChangeHandler()"/>
+		</s:FormItem>
+		
+		<s:FormItem>
+			<mx:Button id="searchEmployeeButton" 
+					   label="Search" 
+					   enabled="false"
+					   click="searchEmployeeClickHandler(event)"/>
+		</s:FormItem>
+				
+	</s:HGroup>
+	
+	<mx:DataGrid id="searchEmployeeGrid" 
+				 width="100%" height="100%" 
+				 allowMultipleSelection="true">
+		
+		<mx:columns>
+			<mx:DataGridColumn dataField="id" headerText="Absence ID" />
+			<mx:DataGridColumn dataField="firstName" headerText="First Name" />
+			<mx:DataGridColumn dataField="lastName" headerText="Last Name" />
+			<!--<mx:DataGridColumn dataField="startDate" 
+							   headerText="Start Date"
+							   labelFunction="startDateFormatter"/>
+			<mx:DataGridColumn dataField="endDate" 
+							   headerText="End Date"
+							   labelFunction="endDateFormatter"/>
+			<mx:DataGridColumn dataField="absenceType.absenceName" 
+							   headerText="Absence Type"/>-->
+		</mx:columns>
+		
+	</mx:DataGrid>
+	
+</s:TitleWindow>

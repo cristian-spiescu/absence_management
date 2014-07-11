@@ -89,6 +89,19 @@
 			private function searchEmployeeDropDownListChangeHandler(event:IndexChangeEvent):void {
 				if (searchEmployeeDropDownList.selectedIndex == 1) {
 					absenceTypeDropDownList.visible = true;
+				} else {
+					
+					absenceTypeDropDownList.visible = false;
+					
+					/* search by employee */
+					var searchEmployeeForm: SearchEmployeeForm = new SearchEmployeeForm();
+					searchEmployeeForm.employeeTable = this;
+					
+					searchEmployeeForm.width = 0.7 * this.width;
+					searchEmployeeForm.height = 0.7 * this.height;
+					
+					PopUpManager.addPopUp(searchEmployeeForm, this, true);
+					PopUpManager.centerPopUp(searchEmployeeForm);
 				}
 			}
 			
@@ -107,8 +120,17 @@
 			private function absenceTypeDropDownListCreationCompleteHandler(event:FlexEvent):void {
 				absenceService.getAllAbsenceType();		
 			}
-			
-
+						
+			private function absenceTypeDropDownListChangeHandler(event:IndexChangeEvent):void {
+				var absenceTypeForm : SearchAbsenceTypeForm = new SearchAbsenceTypeForm();
+				absenceTypeForm.employeeTable = this;
+				
+				absenceTypeForm.width = 0.7 * this.width;
+				absenceTypeForm.height = 0.7 * this.height;
+				
+				PopUpManager.addPopUp(absenceTypeForm, this, true);
+				PopUpManager.centerPopUp(absenceTypeForm);
+			}
 			
 		]]>
 	</fx:Script>
@@ -125,7 +147,7 @@
 		</mx:RemoteObject>
 	</fx:Declarations>
 	
-	<s:HGroup gap="600">
+	<s:HGroup gap="682">
 
 		<s:HGroup horizontalAlign="right">
 			<mx:Button label="View All Absences" 
@@ -144,7 +166,8 @@
 							prompt="Select Absence Type"
 							visible="false"
 							width="140"
-							creationComplete="absenceTypeDropDownListCreationCompleteHandler(event)"/>
+							creationComplete="absenceTypeDropDownListCreationCompleteHandler(event)"
+							change="absenceTypeDropDownListChangeHandler(event)"/>
 		</s:HGroup>
 		
 		<s:HGroup fontWeight="bold"
@@ -156,7 +179,9 @@
 	
 	</s:HGroup>
 		
-	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+	<mx:DataGrid id="grid" 
+				 width="100%" height="100%" 
+				 allowMultipleSelection="true">
 			
 		<mx:columns>
 			<mx:DataGridColumn dataField="id" headerText="ID" />

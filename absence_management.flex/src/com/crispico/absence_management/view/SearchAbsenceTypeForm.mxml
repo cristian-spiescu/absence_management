@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   title="Absence Type: {employeeTable.absenceTypeDropDownList.selectedItem}"
+			   close="PopUpManager.removePopUp(this)">
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="employeeDateFormatter"
+							 dateTimePattern="dd-MMM-yyyy"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			[Bindable]
+			public var employeeTable : EmployeeTable;
+			
+			/* Date Formatters */
+			private function startDateFormatter(item:Object, column:DataGridColumn):String { 
+				return employeeDateFormatter.format(item.startDate); 
+			}
+			
+			private function endDateFormatter(item:Object, column:DataGridColumn):String { 
+				return employeeDateFormatter.format(item.endDate); 
+			}
+			
+			private function searchAbsenceTypeCreationCompleteHandler(event:FlexEvent):void {
+				var searchEmployeeByAbsenceType : ArrayCollection = new ArrayCollection();
+				var selectedAbsenceType : String = employeeTable.absenceTypeDropDownList.selectedItem;
+				var employeeList : ArrayCollection = employeeTable.list;
+								
+				for each (var employee:Employee in employeeList) {
+					for each (var absence:Absence in employee.absences) {
+						if (absence.absenceType.absenceName == selectedAbsenceType) {
+							searchEmployeeByAbsenceType.addItem(absence);
+						}
+					}
+				}
+				
+				searchAbsenceTypeGrid.dataProvider = searchEmployeeByAbsenceType;
+			}
+			
+		]]>
+	</fx:Script>
+
+	<s:FormItem label="Absence Type: {employeeTable.absenceTypeDropDownList.selectedItem}"/>
+	
+	<mx:DataGrid id="searchAbsenceTypeGrid" 
+				 width="100%" height="100%" 
+				 allowMultipleSelection="true"
+				 creationComplete="searchAbsenceTypeCreationCompleteHandler(event)">
+		
+		<mx:columns>
+			<mx:DataGridColumn dataField="id" headerText="Absence ID" />
+			<mx:DataGridColumn dataField="employee.firstName" headerText="First Name" />
+			<mx:DataGridColumn dataField="employee.lastName" headerText="Last Name" />
+			<mx:DataGridColumn dataField="startDate" 
+							   headerText="Start Date"
+							   labelFunction="startDateFormatter"/>
+			<mx:DataGridColumn dataField="endDate" 
+							   headerText="End Date"
+							   labelFunction="endDateFormatter"/>
+		</mx:columns>
+		
+	</mx:DataGrid>
+	
+</s:TitleWindow>
