@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="400" height="300" 
+		 xmlns:layout="org.osmf.layout.*"
+		 creationComplete="creationCompleteHandler(event)">
+	
+	<s:layout>
+		<s:HorizontalLayout paddingBottom="20" paddingTop="20" paddingRight="20" paddingLeft="20" gap="2">
+			
+		</s:HorizontalLayout>	
+		
+	</s:layout>
+	
+	<fx:Declarations>
+		<s:ArrayCollection id="lista">
+			<fx:Object>
+				<fx:color>0x4b9484</fx:color>
+				<fx:value>2</fx:value>
+			</fx:Object>
+			<fx:Object>
+				<fx:color>0xca4c4d</fx:color>
+				<fx:value>10</fx:value>
+			</fx:Object>
+			<fx:Object>
+				<fx:color>0xffa500</fx:color>
+				<fx:value>5</fx:value>
+			</fx:Object>
+		</s:ArrayCollection>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import com.crispico.chart.IntervalData;
+			
+			public var datele:ArrayCollection;
+			public var total:Number;
+			public var pixeliPerUnitate:Number;
+			public var unitati:Number;
+			
+			public function creationCompleteHandler(event:FlexEvent):void {
+				
+				pixeliPerUnitate = total/unitati;
+//				Alert.show(lista+" "+lista.length);
+				for (var i:Number=0; i<lista.length;i++) {
+//					Alert.show(lista.getItemAt(i).value+" "+lista.getItemAt(i).color);
+					var idata:IntervalData = new IntervalData();
+//					Alert.show(idata+"");
+					idata.value = Number(lista.getItemAt(i).value);
+					idata.color = uint(lista.getItemAt(i).color);
+//					Alert.show(idata.value+" "+idata.color);
+					this.addElement(idata);
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	
+<!--	
+	<s:Rect id="chartContainer">
+		<s:fill>
+			<s:SolidColor color="#CFCFCF"></s:SolidColor>
+		</s:fill>
+	</s:Rect>
+-->
+	
+</s:Group>
