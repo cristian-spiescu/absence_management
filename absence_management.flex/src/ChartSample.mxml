@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<s:layout>
+		<s:VerticalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2"/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Panel title="Commands" width="100%" height="60">
+		<s:layout>
+			<s:HorizontalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2" verticalAlign="middle"/>
+		</s:layout>
+		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals"/>
+		<s:Label text="Value of selected interval" toolTip="On change => the value in the model is updated"/>
+		<s:TextInput/>
+		<s:Button label="Add" toolTip="Adds a new interval with value = 2"/>
+		<s:Button label="Delete" toolTip="Deletes the selected interval"/>
+		<s:Label text="Interval" toolTip="On change => the chart is updated"/>
+		<s:TextInput/>
+		
+	</s:Panel>
+	<s:Panel title="Chart" width="100%">
+		
+	</s:Panel>
+</s:Application>
