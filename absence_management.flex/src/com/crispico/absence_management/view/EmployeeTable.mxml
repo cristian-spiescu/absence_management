@@ -34,6 +34,7 @@
 			public var df:DateFormatter = new DateFormatter();
 			
 			var addForm:NewEmployeeForm ;
+//			var chartForm:AbsencesCharts = new AbsencesCharts();
 			var editForm:EmployeeForm = new EmployeeForm();
 			
 			var loc:Number;
@@ -115,6 +116,13 @@
 				PopUpManager.addPopUp(editForm, this, true);
 				PopUpManager.centerPopUp(editForm);
 			}
+			
+//			// opening edit form
+//			private function chartClickHandler(event:MouseEvent):void {
+//				
+//				PopUpManager.addPopUp(chartForm, this, true);
+//				PopUpManager.centerPopUp(chartForm);
+//			}
 			
 			
 			// error handler

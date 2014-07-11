@@ -3,7 +3,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 width="500"
-		 height="450"
+		 height="650"
 		 
 		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)"
 		 creationComplete="creationCompleteHandler(event)"
@@ -149,7 +149,7 @@
 					list.addItem(Absence(event.result));
 					
 //					PopUpManager.removePopUp(this);
-					addAbsenceAnchor.displayPopUp = false;
+					addAbsenceAnchor.visible = false;
 				}
 				else {
 					Alert.show("Error adding absence.");
@@ -247,10 +247,12 @@
 					absence = Absence(event.result);
 					list.removeItemAt(loc);
 					list.addItem(absence);
+					editAbsenceAnchor.visible = false;
 				}
 				else {
 					Alert.show("Error editing absence.","Error");
 				}
+				
 				
 			}
 			
@@ -307,9 +309,9 @@
 		</s:VGroup>
 						
 		<s:HGroup>
-			<s:Button label="Add absence" click="editAbsenceAnchor.displayPopUp = false;addAbsenceAnchor.displayPopUp = true; " />	
+			<s:Button label="Add absence" click="editAbsenceAnchor.visible = false;addAbsenceAnchor.visible = true; " />	
 			<s:Button label="Delete absence" enabled="{absences_grid.selectedItem != null}" click="deleteAbsenceClickHandler(event)" />
-			<s:Button label="Edit absence" enabled="{absences_grid.selectedItem != null}" click="addAbsenceAnchor.displayPopUp = false;editAbsenceAnchor.displayPopUp = true;editAbsenceClickHandler(event);" />
+			<s:Button label="Edit absence" enabled="{absences_grid.selectedItem != null}" click="addAbsenceAnchor.visible = false;editAbsenceAnchor.visible = true;editAbsenceClickHandler(event);" />
 		</s:HGroup>
 		
 		<s:HGroup width="100%">
@@ -323,8 +325,7 @@
 			</mx:DataGrid>
 		</s:HGroup>
 			
-		<s:PopUpAnchor id="addAbsenceAnchor">
-			<s:VGroup>
+		<s:VGroup id="addAbsenceAnchor" visible="false">
 				<s:HGroup>
 					<s:VGroup>
 						<s:Label>Type:</s:Label>
@@ -359,15 +360,12 @@
 				</s:HGroup>
 				<s:HGroup>
 					<s:Button label="Add" click="addAbsenceClickHandler(event);"/>
-					<s:Button label="Cancel" click="addAbsenceAnchor.displayPopUp = false;"/>
+					<s:Button label="Cancel" click="addAbsenceAnchor.visible = false;"/>
 				</s:HGroup>
 				
 			</s:VGroup>
 			
-		</s:PopUpAnchor>
-		
-		<s:PopUpAnchor id="editAbsenceAnchor">
-			<s:VGroup>
+		<s:VGroup id="editAbsenceAnchor" visible="false">
 				<s:HGroup>
 					<s:VGroup>
 						<s:Label>Type:</s:Label>
@@ -400,12 +398,11 @@
 				</s:HGroup>
 				<s:HGroup>
 					<s:Button label="Save" click="doneEditingAbsenceclickHandler(event)"/>
-					<s:Button label="Cancel" click="editAbsenceAnchor.displayPopUp = false;"/>
+					<s:Button label="Cancel" click="editAbsenceAnchor.visible = false;"/>
 				</s:HGroup>
 				
 			</s:VGroup>
 			
-		</s:PopUpAnchor>
 	</s:VGroup>
 	
 	
