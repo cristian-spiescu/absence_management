@@ -18,12 +18,8 @@ public class EmployeeService {
 		return dao.getAll();
 	}
 
-	public List<Employee> getEmployeesByName(String snippet) {
-		return dao.getEmployeesByName(snippet);
-	}
-
-	public List<Employee> getEmployeesByPage(int page) {
-		return dao.getEmployeesByPage(page);
+	public List<Employee> getEmployeesByName(String nameSnippet, int page) {
+		return dao.getEmployeesByName(nameSnippet, page);
 	}
 
 	public void deleteEmployee(Employee employee) {

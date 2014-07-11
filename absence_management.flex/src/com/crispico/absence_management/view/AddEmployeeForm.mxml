@@ -12,7 +12,9 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 
-			public var grid:mx.controls.DataGrid;		
+			public var employeeGrid:mx.controls.DataGrid;
+			public var nextPageButton:Button;
+			public var pageNumber:Button;
 			
 			protected function addEmployee(event:MouseEvent):void {			
 				var emp:Employee = new Employee();
@@ -24,11 +26,18 @@
 			
 			private function addEmployeeHandler(event:ResultEvent):void {
 				var newEmp:Employee = Employee(event.result);
-				if(ArrayCollection(grid.dataProvider).length<10){
-					ArrayCollection(grid.dataProvider).addItem(newEmp);
-				}
+
+				employeeService.getEmployeesByName("",Number(pageNumber));
 				PopUpManager.removePopUp(this);
 			}
+			
+			private function getEmployeesByNameResultHandler(event:ResultEvent):void {
+				employeeGrid.dataProvider = ArrayCollection(event.result);	
+				nextPageButton.enabled = true;
+				if(employeeGrid.dataProvider.length<10){
+					nextPageButton.enabled = false;
+				}
+			}	
 			
 		]]>
 	</fx:Script>
@@ -38,6 +47,8 @@
 		</s:ChannelSet>
 		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" >
 			<mx:method name="addEmployee" result="addEmployeeHandler(event)"/>
+			<mx:method name="getEmployeesByName" result="getEmployeesByNameResultHandler(event)"/>
+
 		</mx:RemoteObject>
 	</fx:Declarations>
 	<s:layout>

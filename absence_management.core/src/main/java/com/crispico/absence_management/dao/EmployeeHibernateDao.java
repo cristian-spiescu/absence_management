@@ -66,24 +66,6 @@ public class EmployeeHibernateDao {
 		return result;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<Employee> getEmployeesByPage(int page) {
-		int leftLimit = (page-1)*10+1;
-		int rightLimit = (page*10);
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		List<Employee> result = new ArrayList<Employee>();
-		try {
-			session.beginTransaction();
-			result = (List<Employee>) session.createQuery(
-					"from Employee e order by e.lastName").setFirstResult(leftLimit).setMaxResults(rightLimit).list();
-			session.getTransaction().commit();
-		} catch (Exception ex) {
-			session.getTransaction().rollback();
-			ex.printStackTrace();
-		}
-
-		return result;
-	}
 
 	public Employee getEmployeeById(Long id) {
 
@@ -102,14 +84,16 @@ public class EmployeeHibernateDao {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Employee> getEmployeesByName(String snippet) {
-
+	public List<Employee> getEmployeesByName(String nameSnippet, int page) {
+		int leftLimit = (page-1)*10+1;
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		List<Employee> result = null;
 		try {
 			session.beginTransaction();
-			Query query = session.createQuery("from Employee e where lower(e.lastName) like lower(:searchKeyword) or lower(e.firstName) like lower(:searchKeyword)");
-			result = (List<Employee>) query.setParameter("searchKeyword", "%" + snippet + "%").list();
+			Query query = session.createQuery("from Employee e where lower(e.lastName) like lower(:searchKeyword)"
+					+ " or lower(e.firstName) like lower(:searchKeyword) order by e.lastName");
+			result = (List<Employee>) query.setParameter("searchKeyword", nameSnippet + "%")
+					.setFirstResult(leftLimit).setMaxResults(10).list();
 			session.getTransaction().commit();
 		} catch (Exception ex) {
 			session.getTransaction().rollback();

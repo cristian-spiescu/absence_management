@@ -31,7 +31,7 @@
 		<s:VerticalLayout horizontalAlign="center"/>
 	</s:layout>
 	<s:Form>
-		<s:FormItem label="type">
+		<s:FormItem label="type"> 
 			<s:TextInput text="@{absenceType.type}"  />
 		</s:FormItem>
 

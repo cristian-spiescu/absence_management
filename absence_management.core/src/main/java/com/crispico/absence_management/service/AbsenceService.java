@@ -1,8 +1,5 @@
 package com.crispico.absence_management.service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import com.crispico.absence_management.dao.AbsenceHibernateDao;
@@ -27,5 +24,9 @@ public class AbsenceService {
 	public Absence addAbsence(Absence absence) {
 		dao.save(absence);
 		return absence;
+	}
+	
+	public List<Absence> getAbsencesByPage(int page) {
+		return dao.getAbsencesByPage(page);
 	}
 }

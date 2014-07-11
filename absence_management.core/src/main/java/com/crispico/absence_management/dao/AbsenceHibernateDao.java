@@ -61,6 +61,24 @@ public class AbsenceHibernateDao {
 
 		return result;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Absence> getAbsencesByPage(int page) {
+		int leftLimit = (page-1)*10+1;
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		List<Absence> result = new ArrayList<Absence>();
+		try {
+			session.beginTransaction();
+			result = (List<Absence>) session.createQuery("from Absence")
+					.setFirstResult(leftLimit).setMaxResults(10).list();
+			session.getTransaction().commit();
+		} catch (Exception ex) {
+			session.getTransaction().rollback();
+			ex.printStackTrace();
+		}
+
+		return result;
+	}
 
 	public Absence getAbsenceById(long id) {
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();

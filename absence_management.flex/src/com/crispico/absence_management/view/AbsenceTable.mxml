@@ -10,11 +10,15 @@
 			import mx.events.FlexEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			import spark.events.TextOperationEvent;
 
 			private var list:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var searchInput:String;
 
 			private function creationCompleteHandler(event:FlexEvent):void {
-				absenceService.getAllAbsences();
+				absenceService.getAbsencesByPage(1);
 			}
 			
 			private function absenceServiceFaultHandler(event:FaultEvent):void {
@@ -22,11 +26,37 @@
 			}
 					
 			private function getAllAbsencesResultHandler(event:ResultEvent):void {
-				grid.dataProvider = ArrayCollection(event.result);	
+				absencesGrid.dataProvider = ArrayCollection(event.result);	
+			}	
+			
+			private function getAbsencesByPageResultHandler(event:ResultEvent):void {
+				absencesGrid.dataProvider = ArrayCollection(event.result);	
+				nextPageButton.enabled = true;
+				if(absencesGrid.dataProvider.length<10){
+					nextPageButton.enabled = false;
+				}
 			}	
 			
 			private function formatDate(item:Object, column:DataGridColumn):String{
 				return (item[column.dataField] as Date).date+"/"+((item[column.dataField] as Date).month+1)+"/"+(item[column.dataField] as Date).fullYear;
+			}
+			
+			protected function changeSearchBox(event:TextOperationEvent):void {
+				pageNumber.label = "1";
+				absenceService.getAbsencesByPage(1);
+			}
+			
+			protected function getAbsencesByPageL(event:MouseEvent):void {
+				var previousPage:Number = Number(pageNumber.label)-1;
+				pageNumber.label = previousPage.toString(); 
+				absenceService.getAbsencesByPage(previousPage);
+			}
+			
+			protected function getAbsencesByPageR(event:MouseEvent):void {
+				var nextPage:Number = Number(pageNumber.label)+1;
+				pageNumber.label = nextPage.toString(); 
+				absenceService.getAbsencesByPage(nextPage);
+				
 			}
 			
 		]]>
@@ -37,12 +67,15 @@
 		</s:ChannelSet>
 		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
 			<mx:method name="getAllAbsences" result="getAllAbsencesResultHandler(event)"/>
+			<mx:method name="getAbsencesByPage" result="getAbsencesByPageResultHandler(event)"/>
 		</mx:RemoteObject>
 	</fx:Declarations>
 	<s:HGroup>
-
+		<s:Button label="&lt;" click="getAbsencesByPageL(event)" enabled="{Number(pageNumber.label)>1}"/>
+		<s:Button label="1" id="pageNumber"/>
+		<s:Button label="&gt;" click="getAbsencesByPageR(event)" id="nextPageButton"/>
 	</s:HGroup>
-	<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
+	<mx:DataGrid id="absencesGrid" width="100%" height="100%" allowMultipleSelection="true">
 		<mx:columns>
 			<mx:DataGridColumn dataField="id" headerText="ID"/>
 			<mx:DataGridColumn dataField="startDate" headerText="start date" labelFunction="formatDate"/>

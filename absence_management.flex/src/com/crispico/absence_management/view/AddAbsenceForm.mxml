@@ -2,7 +2,7 @@
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 close="PopUpManager.removePopUp(this)" width="600" height="250" creationComplete="getAllAbsenceTypes(event)">
+		 close="PopUpManager.removePopUp(this)" width="600" height="320" creationComplete="getAllAbsenceTypes(event)">
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
@@ -14,6 +14,7 @@
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			
 			
 			
 			[Bindable]
@@ -36,7 +37,7 @@
 			private function getAbsenceTypeByIdResultHandler(event:ResultEvent):void {
 				var absenceType:AbsenceType = AbsenceType(event.result);
 				var absence:Absence = new Absence();
-				absence.startDate = new Date(startDate.text)
+				absence.startDate = new Date(startDate.text);
 				absence.endDate = new Date(endDate.text);
 				absence.employee = employee;
 				absence.type = absenceType;
@@ -73,12 +74,22 @@
 		<s:FormItem label="end date">
 			<mx:DateField id="endDate"></mx:DateField>
 		</s:FormItem>
+
+
 		<s:FormItem label="type">
 			<s:DropDownList id="typeList" prompt="Select type" width="200"  labelField="type" />
 		</s:FormItem>
 		<s:FormItem >
-			<s:Button label="Save" click="addAbsence(event)" enabled="{typeList.selectedItem!=null &amp;&amp; startDate.text!='' &amp;&amp; endDate.text!=''}"></s:Button>
+			<s:Button label="Save" click="addAbsence(event)"
+					  enabled="{typeList.selectedItem!=null &amp;&amp; startDate.text!=''
+					  &amp;&amp; endDate.text!='' &amp;&amp;
+					  new Date(startDate.text).getTime() &lt; new Date(endDate.text).getTime()}"></s:Button>
 		</s:FormItem>
+		<s:FormItem>
+			<s:Label color="red" fontSize="14" visible="{new Date(startDate.text).getTime() &gt; new Date(endDate.text).getTime() }" text="Wrong interval">		
+			</s:Label>
+		</s:FormItem>
+
 	</s:Form>
 
 

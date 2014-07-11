@@ -85,8 +85,8 @@
 </s:Form>
 
 	<s:HGroup>
-		<s:Button label="Update" click="updateEmployee(event)"></s:Button>
-		<s:Button label="Delete" click="deleteEmployeeAbsence(event)" enabled="{absencesGrid.selectedItem != null}"></s:Button>
+		<s:Button label="Update info" click="updateEmployee(event)"></s:Button>
+		<s:Button label="Delete absence" click="deleteEmployeeAbsence(event)" enabled="{absencesGrid.selectedItem != null}"></s:Button>
 		<s:Button label="Add absence" click="addAbsenceModal(event); grid.selectedIndex = -1"/>
 		<s:Button label="Edit absence" click="editAbsenceModal(event);" enabled="{absencesGrid.selectedItem !=null}"/>
 	</s:HGroup>
