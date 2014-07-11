@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Form xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		xmlns:s="library://ns.adobe.com/flex/spark" 
-		xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300">
+		xmlns:mx="library://ns.adobe.com/flex/mx" 
+		width="400" 
+		height="300"
+		title="Edit Absence">
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.Employee;
-			
 			import mx.controls.Alert;
 			import mx.controls.DataGrid;
 			import mx.managers.PopUpManager;
@@ -34,11 +36,8 @@
 			
 			public function parseDate( str : String ) : Date {
 				var matches : Array = str.match(/(\d\d)-(\d\d)-(\d\d\d\d)/);
-				
 				var d : Date = new Date();
-				
 				d.setUTCFullYear(int(matches[3]), int(matches[2]) - 1, int(matches[1]));
-				
 				return d;
 			}
 			public function checkEmployeeNewAbsence(date1:Date, date2:Date):Number{
@@ -94,58 +93,76 @@
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+		<mx:RemoteObject id="absenceService" 
+						 destination="absenceService" 
+						 channelSet="{channelSet}" 
+						 fault="absenceServiceFaultHandler(event)">
 			<mx:method name="editAbsence"/>
 		</mx:RemoteObject>
-		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" fault="employeeServiceFaultHandler(event)">
-			<mx:method name="getEmployeeAbsences" result="getEmployeeAbsencesResultHandler(event)"/>
+		<mx:RemoteObject id="employeeService" 
+						 destination="employeeService" 
+						 channelSet="{channelSet}" 
+						 fault="employeeServiceFaultHandler(event)">
+			<mx:method name="getEmployeeAbsences" 
+					   result="getEmployeeAbsencesResultHandler(event)"/>
 		</mx:RemoteObject>
 		
 	</fx:Declarations>
 	
-	<s:Panel id="myPanel" title="Add Absence" >
-		<s:Form id="myForm" width="400">
-			<s:VGroup>
-				<s:Label text="Button Save inactiv atunci cand intervalul este deja ocupat{'\n'}de alt concediu sau End Date este mai mic decat Start Date" >    
-				</s:Label>
-				<s:FormItem label="New Start Date">
-					<mx:DateField id="start">
-					</mx:DateField>     
-				</s:FormItem>
-				
-				<s:FormItem label="New End Date">
-					<mx:DateField id="end"> 
-					</mx:DateField> 
-				</s:FormItem>
-				
-				<s:FormItem label="New Type">
-					<s:DropDownList id="type" 
-									width="200"
-									selectedIndex="-1"
-									prompt="Select a type"> 
-						<mx:ArrayCollection>
-							<fx:String>Concediu Odihna</fx:String>
-							<fx:String>Concediu Medical</fx:String>
-							<fx:String>Concediu fara plata</fx:String>
-							<fx:String>Concediu pentru formare profesionala</fx:String>
-							<fx:String>Concediu de maternitate</fx:String>
-							<fx:String>Concediu de risc maternal</fx:String>
-							<fx:String>Concediu pentru carantina</fx:String>
-							<fx:String>Concediu pentru ingrijirea copilului bolnav</fx:String>
-							<fx:String>Concediu paternal</fx:String>
-							<fx:String>Concediu platit pentru evenimente familiale deosebite</fx:String>
-						</mx:ArrayCollection>
-					</s:DropDownList>
-				</s:FormItem>
-				
-				<s:FormItem>
-					<mx:HRule width="200" height="1"/>
-					<s:HGroup>
-						<mx:Button id="btn" label="Save" enabled="{start.text!='' &amp;&amp; end.text!='' &amp;&amp; type.selectedItem.toString()!='' &amp;&amp; compare(start.selectedDate,end.selectedDate)==0 &amp;&amp; checkEmployeeNewAbsence(start.selectedDate,end.selectedDate)==0}" click="absenceService.editAbsence(absence,start.text,end.text,type.selectedItem.toString()),employeeService.getEmployeeAbsences(idEdit),closePopUp(event)"/>
-						<mx:Button id="Cancel" label="Cancel" click="closePopUp(event)"/>
-					</s:HGroup>
-				</s:FormItem>
-			</s:VGroup>
-		</s:Form>
-	</s:Panel>
-</s:Form>
+		<s:VGroup horizontalAlign="center" 
+				  verticalAlign="top" 
+				  paddingTop="10">
+			<s:Label paddingLeft="15" 
+					 text="Button Save inactiv atunci cand intervalul este deja ocupat{'\n'}de alt concediu sau End Date este mai mic decat Start Date" >    
+			</s:Label>
+			<s:FormItem label="New Start Date">
+				<mx:DateField id="start">
+				</mx:DateField>     
+			</s:FormItem>
+			
+			<s:FormItem label="New End Date">
+				<mx:DateField id="end"> 
+				</mx:DateField> 
+			</s:FormItem>
+			
+			<s:FormItem label="New Type">
+				<s:DropDownList id="type" 
+								width="200"
+								selectedIndex="-1"
+								prompt="Select a type"> 
+					<mx:ArrayCollection>
+						<fx:String>Concediu Odihna</fx:String>
+						<fx:String>Concediu Medical</fx:String>
+						<fx:String>Concediu fara plata</fx:String>
+						<fx:String>Concediu pentru formare profesionala</fx:String>
+						<fx:String>Concediu de maternitate</fx:String>
+						<fx:String>Concediu de risc maternal</fx:String>
+						<fx:String>Concediu pentru carantina</fx:String>
+						<fx:String>Concediu pentru ingrijirea copilului bolnav</fx:String>
+						<fx:String>Concediu paternal</fx:String>
+						<fx:String>Concediu platit pentru evenimente familiale deosebite</fx:String>
+					</mx:ArrayCollection>
+				</s:DropDownList>
+			</s:FormItem>
+			
+			<s:FormItem>
+				<mx:HRule width="100%"
+						  height="1"/>
+				<s:HGroup>
+					<mx:Button id="btn" 
+							   label="Save" 
+							   opaqueBackground="0xC6D3CF" 
+							   fontWeight="bold"  
+							   color="0x3211C9" 
+							   enabled="{start.text!='' &amp;&amp; end.text!='' &amp;&amp; type.selectedItem.toString()!='' &amp;&amp; compare(start.selectedDate,end.selectedDate)==0 &amp;&amp; checkEmployeeNewAbsence(start.selectedDate,end.selectedDate)==0}" 
+							   click="absenceService.editAbsence(absence,start.text,end.text,type.selectedItem.toString()),employeeService.getEmployeeAbsences(idEdit),closePopUp(event)"/>
+					<mx:Button id="Cancel" 
+							   label="Cancel" 
+							   opaqueBackground="0xC6D3CF"
+							   fontWeight="bold"  
+							   color="0x3211C9" 
+							   click="closePopUp(event)"/>
+				</s:HGroup>
+			</s:FormItem>
+	  </s:VGroup>
+</s:TitleWindow>

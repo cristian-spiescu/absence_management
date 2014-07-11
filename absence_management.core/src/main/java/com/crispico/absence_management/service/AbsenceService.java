@@ -18,6 +18,8 @@ public class AbsenceService {
 	AbsenceHibernateDao dao = new AbsenceHibernateDao();
 	EmployeeHibernateDao daoEmp = new EmployeeHibernateDao();
 	AbsenceTypeHibernateDao absTypeDao = new AbsenceTypeHibernateDao();
+	DateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy");
+	DateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy");
 	
 	public void addAbsence(long id, String startDate, String endDate, String description) throws ParseException{
 		List<Employee> employees = new ArrayList<Employee>();
@@ -26,8 +28,6 @@ public class AbsenceService {
 			if(e.getId()==id){
 				startDate = startDate.replaceAll("/","-");
 				endDate = endDate.replaceAll("/","-");
-				DateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy");
-				DateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy");
 				Date sdate = inputFormat.parse(startDate);
 				Date edate = inputFormat.parse(endDate);
 				Absence a = new Absence();
@@ -42,18 +42,15 @@ public class AbsenceService {
 				dao.save(a);
 			}
 	}
-	
 	public void editAbsence(Absence absence, String sDate, String eDate, String description) throws ParseException{
 		sDate = sDate.replaceAll("/","-");
 		eDate = eDate.replaceAll("/","-");
-		DateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy");
-		DateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy");
 		Date sdate = inputFormat.parse(sDate);
 		Date edate = inputFormat.parse(eDate);
 		dao.update(absence, outputFormat.format(sdate), outputFormat.format(edate));
 		absTypeDao.update(absence, description);
 	}
-	
+	//absenta nu vine din client  decat cu startdate si end date.
 	public void deleteAbsence(Absence absence){
 		List<Absence> absences = new ArrayList<Absence>();
         absences = dao.getAll();
