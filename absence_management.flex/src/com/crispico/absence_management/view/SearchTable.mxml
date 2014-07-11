@@ -1,34 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="500" height="400"
 		 close="PopUpManager.removePopUp(this)"
-		 creationComplete="creationCompleteHandler(event)">
+		 creationComplete="creationCompleteHandler(event)"
+		 title="Employee search">
 	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}" >
+			<mx:method name="deleteEmployee" result="deleteEmployeeResultHandler(event)">
+				<mx:arguments>
+					<arg1>
+						{selectedEmployee}
+					</arg1>
+				</mx:arguments>
+			</mx:method>
+		</mx:RemoteObject>
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.Employee;
+			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
 			public var list:ArrayCollection;
 			public var father:EmployeeTable = new EmployeeTable();
+			[Bindable]
+			public var selectedEmployee:Employee;
 			
 			private function creationCompleteHandler(event:FlexEvent):void {
 				grid.dataProvider = list;
 			}
+			
+			private function searchEditEventHandler(event:MouseEvent):void {
+				var form:EmployeeForm = new EmployeeForm();
+				form.employee = Employee(grid.selectedItem);
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+			}
+			
+			private function deleteEventHandler(event:MouseEvent):void {
+				selectedEmployee = Employee(grid.selectedItem);
+				father.list.removeItemAt(father.list.getItemIndex(selectedEmployee));
+				employeeService.deleteEmployee(selectedEmployee);
+			}
+			
+			private function deleteEmployeeResultHandler(event:ResultEvent):void {
+				Alert.show("Employee deleted!");
+			}
 		]]>
 	</fx:Script>
 	
-		<mx:DataGrid id="grid"  allowMultipleSelection="true" height="100%" width="100%"
-					 paddingLeft="3" paddingRight="3" paddingBottom="5">
-			<mx:columns>
-				<mx:DataGridColumn dataField="id" headerText="ID"/>
-				<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
-				<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
-			</mx:columns>
-		</mx:DataGrid>
+	<s:VGroup>
+		<s:HGroup paddingLeft="40" paddingRight="3" paddingBottom="5" paddingTop="5">
+			<mx:DataGrid id="grid"  allowMultipleSelection="false" height="300" width="400">
+				<mx:columns>
+					<mx:DataGridColumn dataField="id" headerText="ID"/>
+					<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
+					<mx:DataGridColumn dataField="lastName" headerText="Last Name"/>
+				</mx:columns>
+			</mx:DataGrid>
+		</s:HGroup>
+		
+		<s:HGroup paddingLeft="20" paddingTop="5">
+			<s:Button label = "Edit" click="searchEditEventHandler(event)"
+					  enabled = "{grid.selectedItem != null}"/>
+			<s:Button label = "Delete" click = "deleteEventHandler(event)"
+					  enabled = "{grid.selectedItem != null}"/>
+		</s:HGroup>
+	</s:VGroup>
+		
 	
 </s:TitleWindow>

@@ -49,8 +49,8 @@
 	</fx:Script>
 	
 	<s:HGroup paddingLeft="5" paddingTop="10" paddingBottom="10">
-		<s:Button label="Add" click="addTypeClickHandler(event)" scaleX="1.5" scaleY="1.5"/>
-		<s:Button label="Delete" scaleX="1.5" scaleY="1.5"/> 
+		<s:Button label="Add absence type" click="addTypeClickHandler(event)" scaleX="1.5" scaleY="1.5"/>
+		<s:Button label="Delete" scaleX="1.5" scaleY="1.5" visible="false"/> 
 	</s:HGroup>
 	
 	<mx:DataGrid paddingLeft="5" id = "typegrid" width="100%" height="100%">

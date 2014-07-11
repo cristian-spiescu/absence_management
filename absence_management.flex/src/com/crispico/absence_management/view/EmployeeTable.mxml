@@ -67,14 +67,21 @@
 			private function searchClickHandler(event:MouseEvent):void {
 				var result:ArrayCollection = new ArrayCollection();
 				for each(var e:Employee in list){
-					if(e.lastName.indexOf(searchInputText.text) >= 0)
+					if(e.lastName.toLowerCase().indexOf(searchInputText.text.toLowerCase()) == 0)
+						result.addItem(e);
+					else if(e.firstName.toLowerCase().indexOf(searchInputText.text.toLowerCase()) == 0)
 						result.addItem(e);
 				}
 				var newTable:SearchTable = new SearchTable();
 				newTable.list = result;
 				newTable.father = this;
-				PopUpManager.addPopUp(newTable,this,true);
-				PopUpManager.centerPopUp(newTable);
+				if(result.length == 0){
+					Alert.show("No employee found!");
+				}
+				else {
+					PopUpManager.addPopUp(newTable,this,true);
+					PopUpManager.centerPopUp(newTable);
+				}
 			}
 		]]>
 	</fx:Script>
@@ -114,7 +121,7 @@
 		
 	</s:HGroup>
 	
-		<mx:DataGrid id="grid"  allowMultipleSelection="true" height="100%" width="100%">
+		<mx:DataGrid id="grid"  allowMultipleSelection="false" height="100%" width="100%">
 			<mx:columns>
 				<mx:DataGridColumn dataField="id" headerText="ID"/>
 				<mx:DataGridColumn dataField="firstName" headerText="First Name"/>
