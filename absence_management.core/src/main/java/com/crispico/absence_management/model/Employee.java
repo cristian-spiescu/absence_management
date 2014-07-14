@@ -1,5 +1,9 @@
 package com.crispico.absence_management.model;
 
+/**
+ * @author Cristi
+ *
+ */
 public class Employee {
 
 	private long id;
