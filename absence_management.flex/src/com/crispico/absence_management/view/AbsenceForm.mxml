@@ -9,6 +9,12 @@
 		</s:VerticalLayout>
 		
 	</s:layout>
+	
+	<fx:Metadata>
+		[Event(name="clicked",type="flash.events.Event")]
+		
+	</fx:Metadata>
+	
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
@@ -31,30 +37,37 @@
 			public function creationCompleteHandler(event:FlexEvent):void {
 				textChanged = false;
 				if (okText == null) {
-					okText = "OK";
-					textChanged = true;
-					setText();
-//					invalidateProperties();
+					text = "OK";
+					
 				}
 				absence_typeService.getAllAbsenceTypes();
 			}
 			
-			public function setText():void {
-				okAbsButton.label = okText;
+			public function set text(s:String):void {
+				okText = s;
+				textChanged = true;
+				invalidateProperties();
 			}
-//			override protected function commitProperties():void {
-//				if (textChanged) {
-//					textChanged = false;
-//					invalidateDisplayList();
-//				}
-//			}
+			override protected function commitProperties():void {
+				if (textChanged) {
+					textChanged = false;
+					okAbsButton.label = okText;
+					invalidateDisplayList();
+				}
+			}
 			
 			public function okAbsenceClickHandler(event:MouseEvent):void {
 				aty = AbsenceType(types.selectedItem);
 				start = sdate.text;
 				finish = fdate.text;
+				var ev:Event = new Event("clicked");
+				dispatchEvent(ev);
 			}
 			
+			
+			private function myClickHandler(e:Event):void {
+				Alert.show("The event dispatched by the MOUSE_OVER was of type '" + e.type + "'.");
+			}
 			private function absenceServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}

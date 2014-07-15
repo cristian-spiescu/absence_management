@@ -65,7 +65,7 @@ package com.crispico.chart
 		}
 		
 		public function handleHoverEvent(event:MouseEvent):void {
-			tips = ToolTip(ToolTipManager.createToolTip("Colour: " + color.toString() + "\n Value: " + value ,10,20));
+			tips = ToolTip(ToolTipManager.createToolTip(info ,10,20));
 			this.addElement(tips);
 		}
 		public function handleDeHoverEvent(event:MouseEvent):void {

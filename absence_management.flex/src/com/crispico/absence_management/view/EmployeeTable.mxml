@@ -47,23 +47,13 @@
 //			public var sortare:String;
 
 			private function creationCompleteHandler(event:FlexEvent):void {
-//				for (var i:int = 0; i < 10; i++) {
-//					var employee:Employee = new Employee();
-//					employee.firstName = "First " + i;
-//					employee.lastName = "Last " + i;
-//					list.addItem(employee);
-//				}
-//				grid.dataProvider = list;	
-				df.formatString = "DD-MMM-YYYY";
 				if (searchBox.text.length <1 ) {
 					criteriu = "%";
 				}
 				else {
 					criteriu = searchBox.text; 
 				}
-//				Alert.show(criteriu);
 				employeeService.howMany(criteriu);
-//				employeeService.getAllEmployees();
 			}
 			
 			private function howManyResultHandler(event:ResultEvent):void {
@@ -83,11 +73,7 @@
 			
 			// add employee form opening and objects binding
 			private function addClickHandler(event:MouseEvent):void {
-//				var employee:Employee = new Employee();
-//				employee.firstName = "New First";
-//				employee.lastName = "Last";
-//				list.addItem(employee);	
-				
+//				
 				addForm = PopUpManager.createPopUp(this,NewEmployeeForm, true) as NewEmployeeForm;
 				PopUpManager.centerPopUp(addForm);
 				employee = addForm.emp ;
@@ -98,11 +84,6 @@
 			}
 			
 			private function reverseClickHandler(event:MouseEvent):void {
-//				for each (var employee:Employee in grid.selectedItems) {
-//					var temp:String = employee.firstName;
-//					employee.firstName = employee.lastName;
-//					employee.lastName = temp;
-//				}
 				var employee:Employee = Employee(grid.selectedItem);
 				var temp:String = employee.firstName;
 				employee.firstName = employee.lastName;
