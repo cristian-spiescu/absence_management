@@ -56,15 +56,12 @@ package com.crispico.chart
 		}
 		
 		public function handleClickEvent(event:MouseEvent):void {
-			//			this.color = 0xCFCFCF;
-			//			Alert.show("click!");
 			colorChanged = true;
 			selected = true;
 			invalidateProperties();
 			parentDocument.changedInterval = true;
 			parentDocument.invalidateProperties();
 			parentDocument.selectedInterval = this; //selectedInterval e un ob de tip IntervalData din container
-			//			Alert.show("in clasa de jos");
 		}
 		
 		public function handleHoverEvent(event:MouseEvent):void {
@@ -115,6 +112,7 @@ package com.crispico.chart
 			if (colorChanged) {
 				colorChanged = false;
 				colorObject.color = 0xCFCFCF;
+//				colorObject.color = -color;
 				for each(var i:IntervalData in parentDocument.intervale) {
 					if (i.selected && i!=this) {
 						i.selected=false;
@@ -129,10 +127,12 @@ package com.crispico.chart
 				myInterval.fill = colorObject;
 				invalidateDisplayList();
 			}
-			if(valueChanged) {
+			if(valueChanged || parentDocument.changedLength) {
 				myInterval.width = makeWidth();
+				this.width = myInterval.width;
 				invalidateDisplayList();
 			}
+			
 		}
 		
 		override protected function measure():void {

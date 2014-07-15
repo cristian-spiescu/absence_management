@@ -11,7 +11,10 @@
 		<![CDATA[
 			import com.crispico.chart.IntervalData;
 			
+			import mx.controls.Alert;
+			
 			import spark.events.TextOperationEvent;
+			
 			
 			public var selectedInterval:IntervalData;
 			
@@ -28,8 +31,13 @@
 			}
 			
 			public function changeValueHandler(event:TextOperationEvent):void {
-				trace("se schimba textul");
 				rend.selectedInterval.value = Number(newVal.text);
+			}
+			
+			public function changeLengthHandler(event:TextOperationEvent):void {
+				rend.unitati = Number(maxLength.text);
+				rend.changedLength = true;
+				rend.invalidateProperties();
 			}
 			
 		]]>
@@ -49,11 +57,11 @@
 		<s:Button label="Add" toolTip="Adds a new interval with value = 2" click="addIntervalHandler(event)"/>
 		<s:Button label="Delete" toolTip="Deletes the selected interval" click="rend.removeElement(rend.selectedInterval);"/>
 		<s:Label text="Interval" toolTip="On change => the chart is updated"/>
-		<s:TextInput/>
+		<s:TextInput id="maxLength" change="changeLengthHandler(event)"/>
 		
 	</s:Panel>
 	<s:Panel title="Chart" width="100%">
-		<custom:ChartRenderer id="rend" total="500" unitati="21">
+		<custom:ChartRenderer id="rend" total="500" unitati="21" clipAndEnableScrolling="true" >
 			
 		</custom:ChartRenderer>
 	</s:Panel>

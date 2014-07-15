@@ -2,7 +2,7 @@
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 width="400" height="300" 
+		 width="1000" height="100%" 
 		 xmlns:layout="org.osmf.layout.*"
 		 creationComplete="creationCompleteHandler(event)">
 	
@@ -47,9 +47,11 @@
 			public var selectedInterval:IntervalData;
 			public var intervale:ArrayCollection;
 			public var changedInterval:Boolean;
+			public var changedLength:Boolean;
 			
 			public function creationCompleteHandler(event:FlexEvent):void {
 				changedInterval = false;
+				changedLength = false;
 				makeIntervals();
 			}
 			
@@ -83,11 +85,14 @@
 			
 			override protected function commitProperties():void { 
 				super.commitProperties(); 
-				if (changedInterval) {
-					changedInterval = true;
-					for each(var itv:IntervalData in intervale) {
-						itv.invalidateDisplayList();
+				if (changedLength) {
+					if (unitati>0) {
+						pixeliPerUnitate = total/unitati;
+						for each(var itv:IntervalData in intervale) {
+							itv.invalidateProperties();
+						}
 					}
+					changedLength = false;
 				}
 			}
 			
