@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		 creationComplete="creationCompleteHandler(event)">
+	<s:layout>
+		<s:VerticalLayout paddingBottom="10" paddingTop="10" paddingRight="10" paddingLeft="10" verticalAlign="middle">
+			
+		</s:VerticalLayout>
+		
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.absence_management.model.AbsenceType;
+			import com.crispico.absence_management.model.Employee;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			public var okText:String;
+			public var textChanged:Boolean;
+			public var aty:AbsenceType;
+			public var start:String;
+			public var finish:String;
+			
+			public function creationCompleteHandler(event:FlexEvent):void {
+				textChanged = false;
+				if (okText == null) {
+					okText = "OK";
+					textChanged = true;
+					setText();
+//					invalidateProperties();
+				}
+				absence_typeService.getAllAbsenceTypes();
+			}
+			
+			public function setText():void {
+				okAbsButton.label = okText;
+			}
+//			override protected function commitProperties():void {
+//				if (textChanged) {
+//					textChanged = false;
+//					invalidateDisplayList();
+//				}
+//			}
+			
+			public function okAbsenceClickHandler(event:MouseEvent):void {
+				aty = AbsenceType(types.selectedItem);
+				start = sdate.text;
+				finish = fdate.text;
+			}
+			
+			private function absenceServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function editAbsenceResultHandler(event:ResultEvent):void {
+//				// Alert.show("" + ArrayCollection(event.result));
+//				if (event.result != null) {
+//					Alert.show("Absence succesfully edited.","Success",Alert.OK ,this);
+//					absence = Absence(event.result);
+//					list.removeItemAt(loc);
+//					list.addItem(absence);
+//					editAbsenceAnchor.visible = false;
+//				}
+//				else {
+//					Alert.show("Error editing absence.","Error");
+//				}
+//				
+				
+			}
+			
+			private function absence_typeServiceFaultHandler(event:FaultEvent):void {
+				Alert.show("Service invocation error: " + event.fault.faultString);				
+			}
+			
+			private function getAllAbsenceTypesResultHandler(event:ResultEvent):void {
+				trace(ArrayCollection(event.result));
+				types.dataProvider = ArrayCollection(event.result);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
+			<mx:method name="editAbsence" result="editAbsenceResultHandler(event)"/>
+		</mx:RemoteObject>
+		
+		<mx:RemoteObject id="absence_typeService" destination="absence_typeService" channelSet="{channelSet}" fault="absence_typeServiceFaultHandler(event)">
+			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypesResultHandler(event)"/>
+		</mx:RemoteObject>
+	</fx:Declarations>
+	
+		<s:HGroup>
+			<s:VGroup>
+				<s:Label>Type:</s:Label>
+				<s:DropDownList id="types" labelField="type">
+					
+				</s:DropDownList>
+			</s:VGroup>
+			<s:VGroup>
+				<s:Label>Start date:</s:Label>
+				<mx:DateField id="sdate" 
+							  editable="true" 
+							  width="100" 
+							  formatString="YYYY-MM-DD"
+							  selectableRange="{{rangeStart : new Date()}}"
+							  firstDayOfWeek="1"
+							  dayNames="['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+							  disabledDays="[0,6]" />
+				
+			</s:VGroup>
+			<s:VGroup>
+				<s:Label>End date:</s:Label>
+				<mx:DateField id="fdate" 
+							  editable="true" 
+							  width="100" 
+							  formatString="YYYY-MM-DD"
+							  selectableRange="{{rangeStart : new Date()}}"
+							  firstDayOfWeek="1"
+							  dayNames="['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+							  disabledDays="[0,6]" />
+				
+			</s:VGroup>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Button id="okAbsButton"  click="okAbsenceClickHandler(event);"/>
+			<s:Button label="Cancel" click="this.visible = false;"/>
+		</s:HGroup>
+	
+</s:Group>

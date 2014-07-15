@@ -32,29 +32,67 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.chart.IntervalData;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.controls.Label;
 			import mx.events.FlexEvent;
-			import com.crispico.chart.IntervalData;
 			
 			public var datele:ArrayCollection;
 			public var total:Number;
 			public var pixeliPerUnitate:Number;
 			public var unitati:Number;
 			
+			public var selectedInterval:IntervalData;
+			public var intervale:ArrayCollection;
+			public var changedInterval:Boolean;
+			
 			public function creationCompleteHandler(event:FlexEvent):void {
-				
-				pixeliPerUnitate = total/unitati;
-//				Alert.show(lista+" "+lista.length);
-				for (var i:Number=0; i<lista.length;i++) {
-//					Alert.show(lista.getItemAt(i).value+" "+lista.getItemAt(i).color);
-					var idata:IntervalData = new IntervalData();
-//					Alert.show(idata+"");
-					idata.value = Number(lista.getItemAt(i).value);
-					idata.color = uint(lista.getItemAt(i).color);
-//					Alert.show(idata.value+" "+idata.color);
-					this.addElement(idata);
+				changedInterval = false;
+				makeIntervals();
+			}
+			
+			public function makeIntervals():void {
+				if (intervale!=null ) {
+					this.removeAllElements();
+					intervale.removeAll();
 				}
+				intervale = new ArrayCollection();
+				pixeliPerUnitate = total/unitati;
+				for (var i:Number=0; i<7;i++) {
+					var idata:IntervalData = new IntervalData();
+					idata.value = makeValue();
+					idata.color = makeColor(); 
+					this.addElement(idata);
+					intervale.addItem(idata);
+				}
+			}
+			
+			public function onClickHandler(event:MouseEvent):void {
+				parentDocument.selectedInterval = selectedInterval;
+			}
+			
+			public function makeColor():uint {
+				return 0xffffff * Math.random();
+			}
+			
+			public function makeValue():Number {
+				return Math.round(Math.random()*10);
+			}
+			
+			override protected function commitProperties():void { 
+				super.commitProperties(); 
+				if (changedInterval) {
+					changedInterval = true;
+					for each(var itv:IntervalData in intervale) {
+						itv.invalidateDisplayList();
+					}
+				}
+			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
+				super.updateDisplayList(unscaledWidth, unscaledHeight);
 			}
 		]]>
 	</fx:Script>

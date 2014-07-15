@@ -11,8 +11,26 @@
 		<![CDATA[
 			import com.crispico.chart.IntervalData;
 			
+			import spark.events.TextOperationEvent;
+			
 			public var selectedInterval:IntervalData;
 			
+			public function addIntervalHandler(event:MouseEvent):void {
+				var idt:IntervalData = new IntervalData();
+				idt.value = 2;
+				idt.color = rend.makeColor();
+				rend.lista.addItem(idt);
+				rend.addElement(idt);
+			}
+			
+			public function populateClickHandler(event:MouseEvent):void {
+				rend.makeIntervals();
+			}
+			
+			public function changeValueHandler(event:TextOperationEvent):void {
+				trace("se schimba textul");
+				rend.selectedInterval.value = Number(newVal.text);
+			}
 			
 		]]>
 	</fx:Script>
@@ -25,17 +43,17 @@
 		<s:layout>
 			<s:HorizontalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2" verticalAlign="middle"/>
 		</s:layout>
-		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals"/>
+		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals" click="populateClickHandler(event)"/>
 		<s:Label text="Value of selected interval" toolTip="On change => the value in the model is updated"/>
-		<s:TextInput/>
-		<s:Button label="Add" toolTip="Adds a new interval with value = 2"/>
-		<s:Button label="Delete" toolTip="Deletes the selected interval"/>
+		<s:TextInput id="newVal" change="changeValueHandler(event)"/>
+		<s:Button label="Add" toolTip="Adds a new interval with value = 2" click="addIntervalHandler(event)"/>
+		<s:Button label="Delete" toolTip="Deletes the selected interval" click="rend.removeElement(rend.selectedInterval);"/>
 		<s:Label text="Interval" toolTip="On change => the chart is updated"/>
 		<s:TextInput/>
 		
 	</s:Panel>
 	<s:Panel title="Chart" width="100%">
-		<custom:ChartRenderer id="test" total="500" unitati="21">
+		<custom:ChartRenderer id="rend" total="500" unitati="21">
 			
 		</custom:ChartRenderer>
 	</s:Panel>
