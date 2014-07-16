@@ -9,7 +9,9 @@
 		 paddingBottom="20" paddingTop="20" paddingRight="20" paddingLeft="20"
 		 creationComplete="creationCompleteHandler(event)"
 		 >
-	
+	<fx:Metadata>
+		[Event(name="absencesChanged",type="flash.events.Event")]
+	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
@@ -40,9 +42,8 @@
 			[Bindable]
 			public var selectedInterval:IntervalData;
 			[Bindable]
-			public var list:ArrayCollection;
+			public var employee_chart_list:ArrayCollection;
 			
-			public var al:Alert;
 			
 			public var employeeCounter:Number;
 			public var howManyEmps:Number;
@@ -51,6 +52,7 @@
 			private const MS_PER_DAY:uint = 1000 * 60 * 60 * 24;
 			
 			public function creationCompleteHandler(event:FlexEvent):void {
+				employeeCounter = -1;
 				df = new DateFormatter();
 				df.formatString = "DD-MM-YYYY";
 				employeeService.getAllEmployees();
@@ -64,21 +66,12 @@
 			
 			// populating chart 
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
-				list = ArrayCollection(event.result);
-				howManyEmps = list.length;
-				employeeCounter = 0;
-//				rend = new ChartRenderer();
-//				rend.total = 500;
-//				rend.unitati = 21;
+				employee_chart_list = ArrayCollection(event.result);
+				howManyEmps = employee_chart_list.length;
+				if (employeeCounter==-1) {
+					employeeCounter = 0;	
+				}
 				rend.dataProvider = getNewProvider();
-////				selectedInterval = rend.selectedInterval;
-//				rend.addEventListener("click", groupClickHandler);
-//				chartPane.addElement(rend);
-//				absForm = new AbsenceForm();
-//				absForm.visible = false;
-//				absForm.okAbsButton.addEventListener("click",doneAbsenceHandler);
-//				chartPane.addElement(absForm);
-//				trace(chartPane.getElementIndex(absForm));
 				enableButtons();
 			}	
 			
@@ -91,10 +84,10 @@
 			}
 			
 			public function getNewProvider():ArrayCollection {
-				nume.text = Employee(list.getItemAt(employeeCounter)).firstName+" " +Employee(list.getItemAt(0)).lastName;
+				nume.text = Employee(employee_chart_list.getItemAt(employeeCounter)).firstName+" " +Employee(employee_chart_list.getItemAt(employeeCounter)).lastName;
 				
 				var temp:ArrayCollection = new ArrayCollection();
-				for each (var a:Absence in ArrayCollection(Employee(list.getItemAt(employeeCounter)).absences)) {
+				for each (var a:Absence in ArrayCollection(Employee(employee_chart_list.getItemAt(employeeCounter)).absences)) {
 					var itv:IntervalData = new IntervalData();
 					var tempDate:Date = new Date(a.finish.valueOf() - a.start.valueOf());
 					
@@ -163,40 +156,45 @@
 			
 			//delete button
 			private function deleteClickHandler(event:MouseEvent):void {
-//				al = Alert.show("Do you really wish to delete absence?","Notification",Alert.OK | Alert.CANCEL,this,deleteAlertListener);
-				var abs_id:Number = selectedInterval.idul;
-				absenceService.deleteAbsence(abs_id);
+				Alert.show("Do you really wish to delete absence?"+rend.selectedInterval.info,"Notification",Alert.OK | Alert.CANCEL,this,deleteAlertListener);
+//				var abs_id:Number = selectedInterval.idul;
+//				absenceService.deleteAbsence(abs_id);
 			}
 			
 			private function deleteAlertListener(eventObj:CloseEvent):void {
 				if (eventObj.detail==Alert.OK) {
-					var abs_id:Number = selectedInterval.idul;
+					var abs_id:Number = rend.selectedInterval.idul;
 					absenceService.deleteAbsence(abs_id);
 				}
 				
 			}
 			
 			private function deleteAbsenceResultHandler(event:ResultEvent):void {
-				// Alert.show("" + ArrayCollection(event.result));
 				if (event.result == true) {
-					rend.removeElement(selectedInterval);
-//					Alert.show("Absence succesfully deleted.","Success",Alert.OK ,this);
+					if (rend.deleteInterval(rend.selectedInterval)) {
+						Alert.show("Absence succesfully deleted","Success");
+						var ev:Event = new Event("absencesChanged");
+						dispatchEvent(ev);
+					}
+					else {
+						Alert.show("Error deleting absence","Error");
+					}
 				}
-				else {
-//					Alert.show("Error deleting absence.","Error");
-				}
-				
 			}
 			
 			//add absence
 			public function addClickHandler(event:MouseEvent):void {
 				absForm.okText = "Add";
-				absForm.visible = true;
+				absForm.visible = true;					
 			}
 			
 			public function doneAbsenceHandler(event:Event):void {
-//				absenceService.addAbsenceToEmployee(list.getItemAt(employeeCounter),absForm.start,absForm.finish,absForm.aty);
-				trace("s-a transmis");
+				absenceService.addAbsenceToEmployee(employee_chart_list.getItemAt(employeeCounter),absForm.start,absForm.finish,absForm.aty);
+				employeeService.getAllEmployees();
+				var ev:Event = new Event("absencesChanged");
+				dispatchEvent(ev);
+//				trace("s-a transmis");
+//				Alert.show("s-a transmis");
 			}
 			
 			private function addAbsenceToEmployeeResultHandler(event:ResultEvent):void {
@@ -247,30 +245,29 @@
 		
 	</s:Panel>
 
-	<s:Panel id="chartPane" title="Chart" width="100%">
+	<s:Group id="chartPane"  width="100%" height="100%">
 		<s:layout>
-			<s:VerticalLayout paddingBottom="10" paddingTop="10" paddingRight="10" paddingLeft="10" verticalAlign="middle">
-				
+			<s:VerticalLayout paddingBottom="20" paddingTop="20" paddingRight="20" paddingLeft="20" verticalAlign="middle">
 			</s:VerticalLayout>
 			
 		</s:layout>
+		
 		<s:Label id="nume">
-			
 		</s:Label>
-		<custom:ChartRenderer id="rend" total="500" unitati="21" click="groupClickHandler(event)" visible="true">
-			
+		
+		
+		<custom:ChartRenderer id="rend" height="20%" total="500" unitati="21" click="groupClickHandler(event)" visible="true">
 		</custom:ChartRenderer>
 		
-		<forms:AbsenceForm text="Add" id="absForm" visible="false" clicked="doneAbsenceHandler(event)">
-			
+		<forms:AbsenceForm text="Add absence" id="absForm" visible="false"  clicked="doneAbsenceHandler(event)">
 		</forms:AbsenceForm>
-			
-	</s:Panel>
-
+		
+	</s:Group>
+	
 	<!--	
 	<s:VGroup id="chartPane" width="100%">
 		<s:Label text="Chart">
-			
+	
 		</s:Label>
 		
 	</s:VGroup>

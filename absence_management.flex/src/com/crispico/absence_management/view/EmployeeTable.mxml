@@ -3,7 +3,8 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 paddingBottom="30" paddingLeft="30" paddingRight="30" paddingTop="30"
-		 creationComplete="creationCompleteHandler(event)">
+		 creationComplete="creationCompleteHandler(event)"
+		 >
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
@@ -42,11 +43,13 @@
 			public var currentPage:Number;
 			var total:Number;
 			public var howManyPages:Number;
+			public var absenceListChanged:Boolean;
 			
 			public var criteriu:String;
 //			public var sortare:String;
 
 			private function creationCompleteHandler(event:FlexEvent):void {
+				absenceListChanged = false;
 				if (searchBox.text.length <1 ) {
 					criteriu = "%";
 				}
@@ -246,7 +249,14 @@
 //					employeeService.searchEmployee(criteriu,(currentPage-1) * 10,sortare);	
 //				}
 //			}		
-					
+				
+			override protected function commitProperties():void {
+				if (absenceListChanged) {
+					Alert("schimba");
+					absenceListChanged = false;
+					invalidateDisplayList();
+				}
+			}					
 			
 		]]>
 	</fx:Script>

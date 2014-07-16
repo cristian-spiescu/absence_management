@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="100%" height="100%"
+		 xmlns:layout="org.osmf.layout.*"
 		 creationComplete="creationCompleteHandler(event)">
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10" paddingTop="10" paddingRight="10" paddingLeft="10" verticalAlign="middle">
@@ -45,56 +47,40 @@
 			
 			public function set text(s:String):void {
 				okText = s;
-				textChanged = true;
-				invalidateProperties();
+				okAbsButton.label = okText;
 			}
-			override protected function commitProperties():void {
-				if (textChanged) {
-					textChanged = false;
-					okAbsButton.label = okText;
-					invalidateDisplayList();
-				}
-			}
+			
+//			override protected function commitProperties():void {
+//				if (textChanged) {
+//					textChanged = false;
+//					okAbsButton.label = okText;
+//					invalidateDisplayList();
+//				}
+//			}
 			
 			public function okAbsenceClickHandler(event:MouseEvent):void {
-				aty = AbsenceType(types.selectedItem);
-				start = sdate.text;
-				finish = fdate.text;
+				aty = AbsenceType(abs_types_list.selectedItem);
+				start = stdate.text;
+				finish = fsdate.text;
 				var ev:Event = new Event("clicked");
 				dispatchEvent(ev);
+//				Alert.show("done","msg");
 			}
-			
-			
-			private function myClickHandler(e:Event):void {
-				Alert.show("The event dispatched by the MOUSE_OVER was of type '" + e.type + "'.");
-			}
+						
 			private function absenceServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
-			
-			private function editAbsenceResultHandler(event:ResultEvent):void {
-//				// Alert.show("" + ArrayCollection(event.result));
-//				if (event.result != null) {
-//					Alert.show("Absence succesfully edited.","Success",Alert.OK ,this);
-//					absence = Absence(event.result);
-//					list.removeItemAt(loc);
-//					list.addItem(absence);
-//					editAbsenceAnchor.visible = false;
-//				}
-//				else {
-//					Alert.show("Error editing absence.","Error");
-//				}
-//				
-				
-			}
-			
+						
 			private function absence_typeServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
 			
 			private function getAllAbsenceTypesResultHandler(event:ResultEvent):void {
-				trace(ArrayCollection(event.result));
-				types.dataProvider = ArrayCollection(event.result);
+//				trace(ArrayCollection(event.result));
+				if (abs_types_list.dataProvider!=null) {
+					abs_types_list.dataProvider.removeAll();
+				}
+				abs_types_list.dataProvider = ArrayCollection(event.result);
 			}
 			
 		]]>
@@ -104,25 +90,31 @@
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="absenceService" destination="absenceService" channelSet="{channelSet}" fault="absenceServiceFaultHandler(event)">
-			<mx:method name="editAbsence" result="editAbsenceResultHandler(event)"/>
-		</mx:RemoteObject>
 		
 		<mx:RemoteObject id="absence_typeService" destination="absence_typeService" channelSet="{channelSet}" fault="absence_typeServiceFaultHandler(event)">
 			<mx:method name="getAllAbsenceTypes" result="getAllAbsenceTypesResultHandler(event)"/>
 		</mx:RemoteObject>
 	</fx:Declarations>
 	
+	
 		<s:HGroup>
 			<s:VGroup>
 				<s:Label>Type:</s:Label>
-				<s:DropDownList id="types" labelField="type">
+				
+				<s:DropDownList id="abs_types_list" labelField="type">
 					
 				</s:DropDownList>
+				<!--
+				<s:DropDownList id="abs_types_list" >
+					<s:dataProvider>
+						<s:ArrayList source="[One,Two,Three,Four,Five,Six,Seven,Eight,Nine,Ten]" />
+					</s:dataProvider>
+				</s:DropDownList>
+				-->
 			</s:VGroup>
 			<s:VGroup>
 				<s:Label>Start date:</s:Label>
-				<mx:DateField id="sdate" 
+				<mx:DateField id="stdate" 
 							  editable="true" 
 							  width="100" 
 							  formatString="YYYY-MM-DD"
@@ -134,7 +126,7 @@
 			</s:VGroup>
 			<s:VGroup>
 				<s:Label>End date:</s:Label>
-				<mx:DateField id="fdate" 
+				<mx:DateField id="fsdate" 
 							  editable="true" 
 							  width="100" 
 							  formatString="YYYY-MM-DD"
@@ -145,9 +137,11 @@
 				
 			</s:VGroup>
 		</s:HGroup>
+	
 		<s:HGroup>
-			<s:Button id="okAbsButton"  click="okAbsenceClickHandler(event);"/>
-			<s:Button label="Cancel" click="this.visible = false;"/>
+	
+			<s:Button id="okAbsButton"  click="okAbsenceClickHandler(event)"/>
+			<s:Button label="Cancel" click="{this.visible = false;}"/>
 		</s:HGroup>
 	
 </s:Group>

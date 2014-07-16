@@ -8,6 +8,7 @@ package com.crispico.chart
 	import mx.graphics.SolidColor;
 	import mx.managers.ToolTipManager;
 	
+	import spark.components.Button;
 	import spark.components.Group;
 	import spark.primitives.Rect;
 	
@@ -32,10 +33,11 @@ package com.crispico.chart
 		
 		public function IntervalData() {
 			super();
-			this.addEventListener(MouseEvent.MOUSE_DOWN,handleClickEvent);
-			this.addEventListener(MouseEvent.MOUSE_OVER,handleHoverEvent);
-			this.addEventListener(MouseEvent.MOUSE_OUT,handleDeHoverEvent);
 			
+			this.addEventListener(MouseEvent.MOUSE_DOWN,handleClickEvent);
+//			this.addEventListener(MouseEvent.MOUSE_OVER,handleHoverEvent);
+//			this.addEventListener(MouseEvent.MOUSE_OUT,handleDeHoverEvent);
+//			new Button().toolTip
 			//			Alert.show("in constructor");
 			selected = false;
 		}
@@ -53,6 +55,7 @@ package com.crispico.chart
 				this.width = myInterval.width;
 				this.addElement(myInterval);
 			}
+			this.toolTip = info;
 		}
 		
 		public function handleClickEvent(event:MouseEvent):void {
@@ -64,16 +67,17 @@ package com.crispico.chart
 			parentDocument.selectedInterval = this; //selectedInterval e un ob de tip IntervalData din container
 		}
 		
-		public function handleHoverEvent(event:MouseEvent):void {
-			tips = ToolTip(ToolTipManager.createToolTip(info ,10,20));
-			this.addElement(tips);
-		}
-		public function handleDeHoverEvent(event:MouseEvent):void {
-			if (tips!=null) {
-				this.removeElement(tips);	
-			}
-			
-		}
+//		public function handleHoverEvent(event:MouseEvent):void {
+////			tips = ToolTip(ToolTipManager.createToolTip(info ,10,20));
+//			
+//			this.addElement(tips);
+//		}
+//		public function handleDeHoverEvent(event:MouseEvent):void {
+//			if (tips!=null) {
+//				this.removeElement(tips);	
+//			}
+//			
+//		}
 		
 		public function makeWidth():uint {
 			return Math.round(parentDocument.pixeliPerUnitate*value);

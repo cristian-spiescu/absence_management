@@ -59,6 +59,16 @@
 //				makeIntervals();
 			}
 			
+			public function deleteInterval(i:IntervalData):Boolean {
+				var indexul:int = intervale.getItemIndex(selectedInterval);
+				trace(indexul);
+				if (intervale.removeItemAt(indexul)!=null) {
+					this.removeElement(selectedInterval);
+					return true;
+				}
+				return false;
+			}
+			
 			public function set dataProvider(arr:ArrayCollection):void {
 				if (intervale!=null) {
 					for each (var i:IntervalData in intervale) {
