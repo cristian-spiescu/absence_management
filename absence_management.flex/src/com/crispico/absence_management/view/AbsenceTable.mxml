@@ -3,7 +3,7 @@
 		  xmlns:s="library://ns.adobe.com/flex/spark" 
 		  xmlns:mx="library://ns.adobe.com/flex/mx" 
 		  creationComplete="creationCompleteHandler(event)"
-		  title="{'Absences'}" close="PopUpManager.removePopUp(this)"
+		  title="{'Absences'}" close="PopUpManager.removePopUp(this)" xmlns:local="*"
 		
 		  >
 	<fx:Script>
@@ -88,6 +88,7 @@
 			<s:Button label="Filter on" enabled="{dropDownList.selectedItem != null}" click="filterOnClickHandler(event)"/>
 			<s:Button label="Filter off" click="filterOffClickHandler(event)"/>
 		</s:HGroup>
+		
 		<s:HGroup>
 			<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
 				<mx:columns>

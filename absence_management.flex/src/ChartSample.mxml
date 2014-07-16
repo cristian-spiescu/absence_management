@@ -1,7 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+			   xmlns:mx="library://ns.adobe.com/flex/mx" percentWidth="100" percentHeight="100"
+			   xmlns:MyCustom="*" xmlns:chart="com.crispico.chart.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.chart.IntervalData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.utils.ObjectUtil;
+			
+				
+			public var intervalData:IntervalData = new IntervalData();
+			public var colors:ArrayCollection = new ArrayCollection;
+			public var index:Number = 0;
+			[Bindable]
+			public var value:Number;
+			[Bindable]
+			public var totalIntervalSizeValueString:String;
+			[Bindable]
+			public var totalValueString:String;
+			[Bindable]
+			public var list:ArrayCollection;
+			[Bindable]
+			public var selectedIntervalValueString:String;
+			[Bindable]
+			public var enable:Boolean = false;
+			[Bindable]
+			public var usedString:String;
+			[Bindable]
+			public var totalString:String;
+			
+			
+			public function populateClickHandler(event:MouseEvent):void{
+				if(colors.length < 4){
+					colors.addItem(0xBB0000);
+					colors.addItem(0x00BB00);
+					colors.addItem(0x0000BB);
+					colors.addItem(0xBBBB00);
+				}
+				
+				list = new ArrayCollection();
+				
+				for(var i:Number = 0; i < 5; i++){
+					intervalData = new IntervalData();
+					intervalData.color = uint(colors.getItemAt(index));
+					index = (index + 1) % 4;
+					intervalData.value = (i+index)^2 % 5;
+					
+					chart.scaleValue(width,intervalData);
+					list.addItem(intervalData);
+				}
+				chart.checkSpaceLeft();
+				usedString = String(chart.totalLengthOfIntervals - chart.spaceLeft);
+				totalString = String(chart.totalLengthOfIntervals);
+			}
+			
+			public function addClickHandler(event:MouseEvent):void{
+				intervalData = new IntervalData();
+				intervalData.color = uint(colors.getItemAt(index));
+				index = (index + 1) % 4;
+				chart.checkSpaceLeft();
+				if(chart.spaceLeft >= 5){
+					Alert.show("intra1");
+					intervalData.value = 5;
+				}
+				else if(chart.spaceLeft > 0){
+					Alert.show("space left: " + chart.spaceLeft);
+					intervalData.value = chart.spaceLeft;
+				}
+				else{
+					Alert.show("There is no more free space on the chart");
+					return;
+				}
+				chart.scaleValue(width,intervalData);
+				list.addItem(intervalData);
+				chart.checkSpaceLeft();
+				usedString = String(chart.totalLengthOfIntervals - chart.spaceLeft);
+			}
+			
+			public function intervalChangeHandler():void{
+				if(selectedIntervalValueString != ""){
+					value = Number(selectedIntervalValueString);
+					chart.checkSpaceLeft();
+					selectedIntervalValueString = String(value);
+					if(chart.spaceLeft >= value - Math.round(chart.selected.data.value * chart.totalLengthOfIntervals / width)){
+						chart.selected.data.value = value;
+						chart.checkSpaceLeft();
+						usedString = String(chart.totalLengthOfIntervals - chart.spaceLeft);
+					}
+					else{
+						Alert.show("You have resized it to be too big");
+						return;
+					}
+					chart.scaleValue(width,IntervalData(chart.selected.data));
+				}
+			}
+			
+			public function deleteClickHandler(event:MouseEvent):void{
+				for each(var item:IntervalData in list){
+					if(ObjectUtil.compare(chart.selected.data,item) == 0){
+						list.removeItemAt(list.getItemIndex(item));
+						enable = false;
+						chart.checkSpaceLeft();
+						usedString = String(chart.totalLengthOfIntervals - chart.spaceLeft);
+						break;
+					}
+				}
+				
+			}
+			
+			public function totalSizeChangeHandler():void{
+				chart.checkSpaceLeft();
+				if(totalIntervalSizeValueString != ""){
+					if(chart.totalLengthOfIntervals - chart.spaceLeft <= Number(totalIntervalSizeValueString)){
+						chart.scaleChart(Number(totalIntervalSizeValueString));
+						totalString = String(chart.totalLengthOfIntervals);
+					}
+					else{
+						Alert.show("You have resized the chart to be too small");
+						return;
+					}
+				}
+				else{
+					chart.scaleChart(21);
+				}
+			}
+			
+		]]>
+		
+		
+		
+	</fx:Script>
+	
 	<s:layout>
 		<s:VerticalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2"/>
 	</s:layout>
@@ -12,16 +146,22 @@
 		<s:layout>
 			<s:HorizontalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2" verticalAlign="middle"/>
 		</s:layout>
-		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals"/>
+		<s:Button label="Populate with data" click="populateClickHandler(event)" toolTip="Changes the data provider with a new one with 7 Intervals"/>
 		<s:Label text="Value of selected interval" toolTip="On change => the value in the model is updated"/>
-		<s:TextInput/>
-		<s:Button label="Add" toolTip="Adds a new interval with value = 2"/>
-		<s:Button label="Delete" toolTip="Deletes the selected interval"/>
+		<s:TextInput text="@{selectedIntervalValueString}" change="intervalChangeHandler()" enabled="{enable}"/>
+		<s:Button label="Add" toolTip="Adds a new interval with value = 2" click="addClickHandler(event)"/>
+		<s:Button label="Delete" toolTip="Deletes the selected interval" click="deleteClickHandler(event)" enabled="{enable}"/>
 		<s:Label text="Interval" toolTip="On change => the chart is updated"/>
-		<s:TextInput/>
+		<s:TextInput text="@{totalIntervalSizeValueString}"/>
+		<s:Button label="Resize" click="totalSizeChangeHandler()"/>
+		<s:Label text="Used"/>
+		<s:TextInput text="@{usedString}" enabled="false"/>
+		<s:Label text="of"/>
+		<s:TextInput text="@{totalString}" enabled="false"/>
 		
 	</s:Panel>
 	<s:Panel title="Chart" width="100%">
-		
+		<chart:Chart id="chart" dataProvider="{list}" />
+			
 	</s:Panel>
 </s:Application>

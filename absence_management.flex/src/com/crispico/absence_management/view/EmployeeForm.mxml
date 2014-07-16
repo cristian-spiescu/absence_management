@@ -3,19 +3,24 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)"
-		 creationComplete="creationCompleteHandler(event)">
+		 creationComplete="creationCompleteHandler(event)" xmlns:local="*" xmlns:chart="com.crispico.chart.*">
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.AbsenceType;
 			import com.crispico.absence_management.model.Employee;
+			import com.crispico.chart.IntervalData;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
+			
+			
 			
 			[Bindable]
 			public var employee:Employee;	
@@ -23,8 +28,27 @@
 			public var list:ArrayCollection = new ArrayCollection();
 			private var absence:Absence;
 			private var abst:AbsenceType;
+			public var colors:ArrayCollection = new ArrayCollection;
+			public var index:Number = 0;
+			[Bindable]
+			public var dataForChart:ArrayCollection = new ArrayCollection;
+			[Bindable]
+			public var enable:Boolean = true;
+			[Bindable]
+			public var visibleResizeButton:Boolean = false;
+			[Bindable]
+			public var chartLengthString:String;
+			[Bindable]
+			public var totalDays:Number;
 			
 			private function creationCompleteHandler(event:FlexEvent):void {
+				if(colors.length < 4){
+					colors.addItem(0xBB0000);
+					colors.addItem(0x00BB00);
+					colors.addItem(0x0000BB);
+					colors.addItem(0xBBBB00);
+				}
+				chartLengthString = String(chart.totalLengthOfIntervals);
 				absenceService.getAbsencesByEmployee(employee);
 			}
 			
@@ -33,22 +57,48 @@
 				grid.dataProvider = list;
 			}
 			
+			private function chartClickHandler(event:MouseEvent):void{		
+				enable = false;
+				dataForChart.removeAll();
+				getAbsencesDuration();
+				if(chart.totalLengthOfIntervals < totalDays){
+					Alert.show("The employee has too many days of absence");
+					dataForChart.removeAll();
+				}
+			}
+			
+			private function getAbsencesDuration():void{
+				var days:Number;
+				var month1:Number;
+				var month2:Number;
+				var day1:Number;
+				var day2:Number;
+				var item:IntervalData;
+				totalDays=0;
+				for each(var absence:Absence in list){
+					days = (absence.end_date.getTime() - absence.start_date.getTime()) / (1000 * 3600 * 24);
+					days++;
+					totalDays+=days;
+					item = new IntervalData;
+					item.value = days;
+					item.color = uint(colors.getItemAt((index ++) % 4));
+					chart.scaleValue(width,item);
+					
+					dataForChart.addItem(item);
+				}
+			}
+			
 			private function addAbsencesClickHandler(event:MouseEvent):void{
 				var absence:Absence = new Absence();
 				var absenceType:AbsenceType = new AbsenceType();
-//				absence.start_date = new Date("05/11/2014");
-//				absence.end_date = new Date("05/11/2015");
-//				abst.type = "Odihna";
-//				absence.type = abst;
 				var form:AbsenceForm = new AbsenceForm();
-				form.employee = employee;//Employee(grid.selectedItem);
+				form.employee = employee;
 				form.absence = absence;
 				form.absenceType = absenceType;
 				form.employeeForm = this;
 				PopUpManager.addPopUp(form, this, true);
 				PopUpManager.centerPopUp(form);
-				//employeeService.addEmployee(employee);
-				//list.addItem(employee);	
+				enable = true;
 			}
 			
 			private function deleteAbsenceClickHandler(event:MouseEvent):void{
@@ -56,6 +106,7 @@
 				list.removeItemAt(list.getItemIndex(absence));
 				absenceService.deleteAbsence(absence);
 				grid.selectedIndex = 0;
+				enable = true;
 			}
 			
 			private function absenceServiceFaultHandler(event:FaultEvent):void {
@@ -63,9 +114,45 @@
 			}
 			
 			private function saveClickHandler(event:MouseEvent):void{
-				
+					Alert.show("Absences modified", 
+						employee.firstName + " " + employee.lastName, Alert.OK, null, 
+						refreshFinish);
 			}
 			
+			
+			protected function refreshFinish(event:CloseEvent=null):void{
+				if(event == null){
+					event = new CloseEvent("refreshFinish");
+					event.detail = Alert.OK;
+				}
+				if(event.detail == Alert.OK){
+					navigateToURL(new URLRequest(FlexGlobals.topLevelApplication.url), "_self");
+				}
+			}
+			
+			private function resizeChartClickHandler(event:MouseEvent):void{
+				//chart.scaleChart(Number(chartLengthString));
+				
+				chart.checkSpaceLeft();
+				if(chartLengthString != ""){
+					if(chart.totalLengthOfIntervals - chart.spaceLeft <= Number(chartLengthString)){
+						chart.scaleChart(Number(chartLengthString));
+						enable = true;
+						//totalString = String(chart.totalLengthOfIntervals);
+					}
+					else{
+						Alert.show("You have resized the chart to be too small");
+						return;
+					}
+				}
+				else{
+					chart.scaleChart(21);
+				}
+			}
+			
+			private function chartLengthChangeHandler():void{
+				
+			}
 			
 		]]>
 		
@@ -109,13 +196,24 @@
 	</s:HGroup>
 		
 	<s:HGroup>
-		<s:HGroup paddingLeft="20" paddingRight="20" paddingBottom="20" width="40%">
+		<s:HGroup paddingLeft="10" paddingRight="10" paddingBottom="20" width="40%">
 			<s:Button label="Add absence" click="addAbsencesClickHandler(event)"/>
 		</s:HGroup>
-		<s:HGroup paddingLeft="20" paddingRight="20" paddingBottom="20" width="40%">
+		<s:HGroup paddingLeft="0" paddingRight="10" paddingBottom="20" width="40%">
 			<s:Button label="Delete absence" click="deleteAbsenceClickHandler(event)" 
 					  enabled="{grid.selectedItem != null}"/>
 		</s:HGroup>
+		<s:HGroup paddingLeft="20">
+			<s:Button label="Draw chart" click="chartClickHandler(event)" enabled="@{enable}"/>
+		</s:HGroup>
+	</s:HGroup>
+	<!--<local:ChartSample width="100%" height="100%"/>-->
+	<s:HGroup paddingBottom="30">
+		<chart:Chart id="chart" dataProvider="@{dataForChart}"/>
+	</s:HGroup>
+	<s:HGroup>
+		<s:Button label="Resize chart" click="resizeChartClickHandler(event)"/>
+		<s:TextInput text="@{chartLengthString}" change="chartLengthChangeHandler()"/>
 	</s:HGroup>
 	<s:HGroup paddingLeft="20" paddingBottom="20" paddingRight="20">
 		<mx:DataGrid id="grid" width="100%" height="100%" allowMultipleSelection="true">
