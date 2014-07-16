@@ -1,10 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   xmlns:chart="com.crispico.chart.*">
 	<s:layout>
 		<s:VerticalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2"/>
 	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.chart.IntervalData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			public var dProvider : ArrayCollection;
+			
+			private var _colors : ArrayCollection;
+			
+			protected function populateChartClickHandler(event:MouseEvent):void {
+				dProvider = new ArrayCollection();
+				_colors = new ArrayCollection();
+				
+				_colors.addItem(0xBBCCBB);
+				_colors.addItem(0xCCBBCC);
+				_colors.addItem(0xCCCCBB);
+				_colors.addItem(0x11FF11);
+				_colors.addItem(0xFF1111);
+				_colors.addItem(0x1111FF);
+				_colors.addItem(0xDDDDDD);
+				
+				for (var i:int = 0; i < _colors.length; i++) {
+					var intervalData : IntervalData = new IntervalData();
+					intervalData.color = uint(_colors.getItemAt(i));
+					intervalData.value = i;
+					
+					dProvider.addItem(intervalData);
+				}
+			}
+			
+			protected function textInputChangeHandler(event:FlexEvent):void {
+				myChart.selectedValue = Number(textInput.text);				
+			}
+			
+			protected function addButtonClickHandler(event:MouseEvent):void {
+				var intervalData : IntervalData = new IntervalData(); 
+				
+				var index : int = Math.floor(Math.random() * _colors.length);
+				
+				intervalData.color = uint(_colors.getItemAt(index)); 
+				intervalData.value = 3; 
+				dProvider.addItem(intervalData); 
+			} 
+			
+			protected function deleteButtonClickHandler(event:MouseEvent):void {
+				if (myChart.selected != null) { 
+					myChart.removeElement(myChart.selected); 
+				} 
+			}
+			
+			protected function maxIntervalChangeEnterHandler(event:FlexEvent):void {
+				myChart.maxInterval = Number(maxIntervalTextInput.text);
+			}
+
+		]]>
+	</fx:Script>
+	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
@@ -12,16 +74,30 @@
 		<s:layout>
 			<s:HorizontalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2" verticalAlign="middle"/>
 		</s:layout>
-		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals"/>
+		
+		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals"
+				  click="populateChartClickHandler(event)"/>
+		
 		<s:Label text="Value of selected interval" toolTip="On change => the value in the model is updated"/>
-		<s:TextInput/>
-		<s:Button label="Add" toolTip="Adds a new interval with value = 2"/>
-		<s:Button label="Delete" toolTip="Deletes the selected interval"/>
+		
+		<s:TextInput id="textInput"
+					 enter="textInputChangeHandler(event)"/>
+		
+		<s:Button label="Add" toolTip="Adds a new interval with value = 2"
+				  click="addButtonClickHandler(event)"/>
+		
+		<s:Button label="Delete" toolTip="Deletes the selected interval"
+				  click="deleteButtonClickHandler(event)"/>
+		
 		<s:Label text="Interval" toolTip="On change => the chart is updated"/>
-		<s:TextInput/>
+		
+		<s:TextInput id="maxIntervalTextInput"
+					 enter="maxIntervalChangeEnterHandler(event)"/>
 		
 	</s:Panel>
 	<s:Panel title="Chart" width="100%">
-		
+		<chart:Chart id="myChart"
+					 dataProvider="{dProvider}" 
+					 maxInterval="40"/>
 	</s:Panel>
 </s:Application>

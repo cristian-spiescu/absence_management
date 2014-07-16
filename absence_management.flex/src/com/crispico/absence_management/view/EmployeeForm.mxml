@@ -4,11 +4,12 @@
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" 
 		 close="PopUpManager.removePopUp(this)"
-		 creationComplete="employeeFormCreationCompleteHandler(event)">
+		 creationComplete="employeeFormCreationCompleteHandler(event)" xmlns:chart="com.crispico.chart.*">
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.Employee;
+			import com.crispico.chart.IntervalData;
 			
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
@@ -24,6 +25,11 @@
 								
 			[Bindable]
 			public var absenceList: ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			public var intervalDataList : ArrayCollection = new ArrayCollection();
+			
+			private var _colors : Array = new Array(0xBBCCBB, 0xCCBBCC, 0xCCCCBB, 0x11FF11, 0xFF1111, 0x1111FF, 0xDDDDDD);
 					
 			/* Runs at creationComplete */
 			private function employeeFormCreationCompleteHandler(event:FlexEvent):void {
@@ -64,6 +70,25 @@
 				
 				PopUpManager.addPopUp(deleteAbsenceForm, this, true);
 				PopUpManager.centerPopUp(deleteAbsenceForm);
+			}
+			
+			protected function viewChartClickHandler(event:MouseEvent):void {
+				intervalDataList.removeAll();
+				
+				for each(var absence:Absence in absenceList) {					
+					/* Populate intervalData */
+					var intervalData : IntervalData = new IntervalData();
+					/* get random index for color from _colors */
+					var index : int = Math.floor(Math.random() * _colors.length);
+					
+					intervalData.color = _colors[index];
+					intervalData.value = Absence.getDaysBetweenDates(absence.startDate, absence.endDate);
+					intervalDataList.addItem(intervalData);
+				}
+			}
+			
+			protected function maxIntervalChangeEnterHandler(event:FlexEvent):void {
+				absenceChart.maxInterval = Number(modifyInterval.text);
 			}
 			
 		]]>
@@ -119,6 +144,29 @@
 	
 		</s:HGroup>
 		
+		<s:VGroup width="100%">
+	
+			<s:FormItem>
+				<s:Button label="View Chart" 
+						  click="viewChartClickHandler(event)"/>
+			</s:FormItem>
+			
+			<s:HGroup>
+				<s:FormItem label="Resize Interval">
+					<s:TextInput id="modifyInterval"
+								 enter="maxIntervalChangeEnterHandler(event)"/>
+				</s:FormItem>
+			</s:HGroup>
+			
+			<s:FormItem label="Chart"
+						width="100%">
+				<chart:Chart id="absenceChart" 
+							 maxInterval="21"
+							 dataProvider="{intervalDataList}"/>
+			</s:FormItem>
+			
+		</s:VGroup>
+					
 		<s:HGroup horizontalAlign="center" verticalAlign="middle">
 		
 			<s:FormItem>
@@ -132,7 +180,7 @@
 						  click="deleteAbsenceClickHandler(event)"/>
 			</s:FormItem>
 			
-		</s:HGroup>	
+		</s:HGroup>
 			
 		<s:FormItem>
 			<s:Panel title="Absences">
