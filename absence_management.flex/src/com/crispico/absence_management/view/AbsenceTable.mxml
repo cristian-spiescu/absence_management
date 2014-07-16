@@ -3,7 +3,7 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300"
 		 paddingLeft="10" paddingTop="10" paddingRight="10 "
-		 creationComplete="creationCompleteHandler(event)">
+		 creationComplete="creationCompleteHandler(event)" xmlns:chart="com.crispico.chart.*" xmlns:local="*">
 	<fx:Declarations>
 		<s:ChannelSet id="channelSet">
 			<s:AMFChannel url="messagebroker/remoting-amf"/>
@@ -15,11 +15,18 @@
 
 	<fx:Script>
 		<![CDATA[
+			import com.crispico.absence_management.model.Absence;
+			import com.crispico.chart.IntervalData;
+			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.rpc.events.ResultEvent;
+			
 			[Bindable]
 			public var list:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			public var listForChart:ArrayCollection;
 			private function creationCompleteHandler(event:FlexEvent):void{
 				absenceService.getAll();
 			}
@@ -27,6 +34,35 @@
 			private function getAllAbsencesResultHandler(event:ResultEvent):void {
 				list = ArrayCollection(event.result);
 				absencegrid.dataProvider = list;
+			}
+			
+			private function generateListForChart(event:MouseEvent):void {
+				myChart.lengthOfChart = 21;
+			
+				listForChart = new ArrayCollection();
+				for each (var element:Absence in list){
+					var interval:IntervalData = new IntervalData();
+					//Alert.show("" + getDaysBetweenDates(element.startDate, element.EndDate));
+					interval.value = getDaysBetweenDates(element.endDate, element.startDate);
+					interval.value *= this.width;
+					interval.value /= myChart.lengthOfChart;
+					interval.color = Math.round(Math.random()*0xFFFFFF);
+					listForChart.addItem(interval);
+				}
+				
+			}
+			
+			public static function getDaysBetweenDates(date1:Date,date2:Date):int
+			{
+				var one_day:Number = 1000 * 60 * 60 * 24
+				var date1_ms:Number = date1.getTime();
+				var date2_ms:Number = date2.getTime();
+				var difference_ms:Number = Math.abs(date1_ms - date2_ms)	
+				return Math.round(difference_ms/one_day) + 1;
+			}
+			
+			public function resizeClickHandler(event:MouseEvent):void {
+				myChart.redimensionChart(Number(resizeValue.text));
 			}
 
 		]]>
@@ -36,14 +72,13 @@
 
 
 
-	<mx:DataGrid paddingLeft="5" id = "absencegrid" width = "100%"
-				 rowCount="32">
+	<mx:DataGrid paddingLeft="5" id = "absencegrid" >
 		<mx:columns>
 			<mx:DataGridColumn headerText="ID" dataField="absenceId"/>
 			<mx:DataGridColumn headerText="First name" dataField="employee.firstName"/>
 			<mx:DataGridColumn headerText="Last name" dataField="employee.lastName"/>
 			<mx:DataGridColumn headerText="Start date" dataField="startDate"/>
-			<mx:DataGridColumn headerText="End date" dataField="EndDate"/>
+			<mx:DataGridColumn headerText="End date" dataField="endDate"/>
 			<mx:DataGridColumn headerText="Type" dataField="absenceType.absenceType"/>
 		</mx:columns>
 	</mx:DataGrid>
@@ -52,5 +87,15 @@
 		<mx:Button label = "Previous page"/>
 		<mx:Button label = "Next page" />
 	</s:HGroup>
+	
+	<chart:Chart dataProvider="{listForChart}" id = "myChart"/>
+	<s:HGroup>
+		<mx:Button label = "Generate chart" click = "generateListForChart(event)"/>
+		<mx:TextInput id = "resizeValue"/>
+		<mx:Button label = "Resize" click = "resizeClickHandler(event)"/>
+		
+	</s:HGroup>
+	
+
 
 </s:VGroup>

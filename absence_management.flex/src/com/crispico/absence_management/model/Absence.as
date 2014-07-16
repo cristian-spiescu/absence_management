@@ -8,7 +8,7 @@ package com.crispico.absence_management.model
 		
 		public var startDate:Date;
 		
-		public var EndDate:Date;
+		public var endDate:Date;
 		
 		public var employee:Employee;
 		

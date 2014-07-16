@@ -8,7 +8,7 @@ public class Absence {
 
 	private Date startDate;
 
-	private Date EndDate;
+	private Date endDate;
 
 	private Employee employee;
 
@@ -19,7 +19,7 @@ public class Absence {
 	}
 
 	public void setEndDate(Date endDate) {
-		EndDate = endDate;
+		this.endDate = endDate;
 	}
 
 	public void setAbsenceId(long absenceId) {
@@ -35,7 +35,7 @@ public class Absence {
 	}
 
 	public Date getEndDate() {
-		return EndDate;
+		return endDate;
 	}
 
 	//public void setEndDate(Date endDate) {

@@ -10,7 +10,7 @@
             <generator class="native"/>
         </id>
         <property name="startDate" column = "startDate" type = "date"/>
-        <property name="EndDate" column = "endDate" type = "date"/>
+        <property name="endDate" column = "endDate" type = "date"/>
        	
        	<many-to-one name="absenceType" class="AbsenceType" fetch="select" lazy = "false" >
             <column name="absenceTypeId" not-null = "true"/>

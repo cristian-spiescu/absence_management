@@ -53,7 +53,7 @@
 				absence.employee = employeeform.employee;
 				absence.absenceType = ddl.selectedItem;
 				absence.startDate = startdate.selectedDate;
-				absence.EndDate = enddate.selectedDate;
+				absence.endDate = enddate.selectedDate;
 				absenceService.addAbsence(absence);
 				employeeform.employee.absences.addItem(absence);
 				employeeform.list.addItem(absence);

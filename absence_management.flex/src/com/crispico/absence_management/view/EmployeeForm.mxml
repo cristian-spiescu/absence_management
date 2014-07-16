@@ -136,7 +136,7 @@
 				<mx:columns>
 					<mx:DataGridColumn dataField="absenceId" headerText="ID"/>					
 					<mx:DataGridColumn dataField="startDate" headerText="Start date"/>
-					<mx:DataGridColumn dataField="EndDate" headerText="End date"/>
+					<mx:DataGridColumn dataField="endDate" headerText="End date"/>
 					<mx:DataGridColumn dataField="absenceType.absenceType" headerText="Type"/>
 				</mx:columns>
 			</mx:DataGrid>
