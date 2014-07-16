@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- containers\spark\SparkPanelSimple.mxml -->
-<s:TitleWindow  xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 xmlns:s="library://ns.adobe.com/flex/spark"
-		 title="Add Employee"> 
+<s:TitleWindow  xmlns:fx = "http://ns.adobe.com/mxml/2009" 
+	 		xmlns:mx = "library://ns.adobe.com/flex/mx" 
+	 		xmlns:s = "library://ns.adobe.com/flex/spark"
+		 	title = "Add Employee"
+			close = "closePopUp(event)"> 
 	<fx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
+			import mx.controls.DataGrid;
+			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			import mx.controls.DataGrid;
 			
 			public var grid:DataGrid;
 			
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
 				grid.dataProvider = event.result;
 			}	
-			private function closePopUp(evt:MouseEvent):void {
+			private function closePopUp(evt:CloseEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			private function closePopUpMouse(evt:MouseEvent):void {
 				PopUpManager.removePopUp(this);
 			}
 			private function employeeServiceFaultHandler(event:FaultEvent):void {
@@ -26,60 +31,62 @@
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:ChannelSet id="channelSet">
-			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		<s:ChannelSet id = "channelSet">
+			<s:AMFChannel url = "messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="employeeService" 
-						 destination="employeeService" 
-						 channelSet="{channelSet}" 
-						 fault="employeeServiceFaultHandler(event)">
-			<mx:method name="addEmployee"/>
-			<mx:method name="getAllEmployees" 
-					   result="getAllEmployeesResultHandler(event)"/>
+		<mx:RemoteObject id = "employeeService" 
+						 destination = "employeeService" 
+						 channelSet = "{channelSet}" 
+						 fault = "employeeServiceFaultHandler(event)">
+			<mx:method name = "addEmployee"/>
+			<mx:method name = "getAllEmployees" 
+					   result = "getAllEmployeesResultHandler(event)"/>
 		</mx:RemoteObject>
 	</fx:Declarations>
 	
-	<s:VGroup horizontalAlign="center" 
-			  verticalAlign="top" 
-			  paddingTop="10">	
+	<s:VGroup horizontalAlign = "center" 
+			  verticalAlign = "top" 
+			  paddingTop = "10">	
 		<s:HGroup>
 			<s:VGroup>
-				<s:FormItem label="First Name">
-					<s:TextInput id="fname" 
-								 width="100%"/>
+				<s:FormItem label = "First Name">
+					<s:TextInput id = "fname" 
+								 width = "100%"/>
 				</s:FormItem>
 				
-				<s:FormItem label="Last Name">
-					<s:TextInput id="lname" 
-								 width="100%"/>
+				<s:FormItem label = "Last Name">
+					<s:TextInput id = "lname" 
+								 width = "100%"/>
 				</s:FormItem>
 			</s:VGroup>
-			<s:BitmapImage id="img" 
-						   fillMode="scale" 
-						   horizontalCenter="0" 
-						   verticalCenter="0"
-						   source="@Embed('images/add-person.jpg')"
-						   smooth="true" 
-						   width="85" 
-						   height="85"/>
+			<s:BitmapImage id = "img" 
+						   fillMode = "scale" 
+						   horizontalCenter = "0" 
+						   verticalCenter = "0"
+						   source = "@Embed('images/add-person.jpg')"
+						   smooth = "true" 
+						   width = "85" 
+						   height = "85"/>
 		</s:HGroup>
 		<s:FormItem>
-			<mx:HRule width="100%" 
-					  height="1"/>
+			<mx:HRule width = "100%" 
+					  height = "1"/>
 			<s:HGroup >
-				<mx:Button id="btn" 
-						   opaqueBackground="0xC6D3CF" 
-						   fontWeight="bold"  
-						   color="0x3211C9"  
-						   label="Save" 
-						   enabled="{fname.text!='' &amp;&amp; lname.text!=''}" 
-						   click="employeeService.addEmployee(fname.text,lname.text), closePopUp(event), employeeService.getAllEmployees() "/>
-				<mx:Button id="Cancel" 
-						   opaqueBackground="0xC6D3CF" 
-						   fontWeight="bold"  
-						   color="0x3211C9" 
-						   label="Cancel" 
-						   click="closePopUp(event)"/>
+				<mx:Button id = "btn" 
+						   opaqueBackground = "0xC6D3CF" 
+						   fontWeight = "bold"  
+						   color = "0x3211C9"  
+						   label = "Save" 
+						   enabled = "{fname.text!='' &amp;&amp; lname.text!=''}" 
+						   click = "employeeService.addEmployee(fname.text,lname.text), 
+						   closePopUpMouse(event), 
+						   employeeService.getAllEmployees() "/>
+				<mx:Button id = "Cancel" 
+						   opaqueBackground = "0xC6D3CF" 
+						   fontWeight = "bold"  
+						   color = "0x3211C9" 
+						   label = "Cancel" 
+						   click = "closePopUpMouse(event)"/>
 			</s:HGroup>
 		</s:FormItem>
 	</s:VGroup>

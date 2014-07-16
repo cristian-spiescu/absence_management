@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 width="400" 
-		 height="300"
-		 title="Add Absence">
+<s:TitleWindow xmlns:fx = "http://ns.adobe.com/mxml/2009" 
+		 xmlns:s = "library://ns.adobe.com/flex/spark" 
+		 xmlns:mx = "library://ns.adobe.com/flex/mx" 
+		 width = "400" 
+		 height = "300"
+		 title = "Add Absence"
+		 close = "closePopUp(event);">
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.Employee;
 			import mx.controls.Alert;
 			import mx.controls.DataGrid;
+			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
 			public var idEdit:Number;
+			public var totalDays:Number;
 			public var gridAbs:DataGrid;
 			public var grid:DataGrid;
+			public var array:ArrayCollection =  new ArrayCollection();
 			
 			public function compare (date1 : Date, date2 : Date) : Number {
 				var date1Timestamp : Number = date1.getTime ();
@@ -31,13 +35,17 @@
 				}
 				return result;
 			}
+			public function numberOfDays (date1 : Date, date2 : Date) : Number {
+				var date1Timestamp : Number = date1.getTime ();
+				var date2Timestamp : Number = date2.getTime ();
+				var result : Number = -1;
+				result = Math.round((date2Timestamp - date1Timestamp) / 86400000);
+				return result;
+			}
 			public function parseDate( str : String ) : Date {
 				var matches : Array = str.match(/(\d\d)-(\d\d)-(\d\d\d\d)/);
-				
 				var d : Date = new Date();
-				
 				d.setUTCFullYear(int(matches[3]), int(matches[2]) - 1, int(matches[1]));
-				
 				return d;
 			}
 			public function checkEmployeeNewAbsence(date1:Date, date2:Date):Number{
@@ -72,14 +80,41 @@
 							}
 						}
 					}
+					else
+						break;
 				//Alert.show("Exista un concediu in acest interval!");
 				return result;
 			}
-			
+			private function checkConcediuOdihna():Number{
+				if(type.selectedItem.toString() == "Concediu Odihna"){
+					var checker:Number = checkNotOver21();
+					if (checker == 0)
+						return 0;
+					else
+						return 1;
+				}
+				else
+					return 0;
+			}
+			private function checkNotOver21():Number{
+				var checker:Number = 1;
+				var maxNumber:Number = 21 - totalDays;
+				var newPeriod:Number = numberOfDays(start.selectedDate,end.selectedDate);
+				if((maxNumber - newPeriod) >= 0 && type.selectedItem.toString() == "Concediu Odihna"){
+					maxNumber -= newPeriod;
+					checker = 0;
+				}
+				else
+					Alert.show("Nu puteti aloca mai mult de 21 de zile de CO!");
+				return checker;
+			}
 			private function getEmployeeAbsencesResultHandler(event:ResultEvent):void {
 				gridAbs.dataProvider = event.result;
 			}	
-			private function closePopUp(evt:MouseEvent):void {
+			private function closePopUp(event:CloseEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			private function closePopUpMouse(evt:MouseEvent):void {
 				PopUpManager.removePopUp(this);
 			}
 			private function employeeServiceFaultHandler(event:FaultEvent):void {
@@ -91,49 +126,46 @@
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:ChannelSet id="channelSet">
-			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		<s:ChannelSet id = "channelSet">
+			<s:AMFChannel url = "messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="absenceService" 
-						 destination="absenceService" 
-						 channelSet="{channelSet}" 
-						 fault="absenceServiceFaultHandler(event)">
-			<mx:method name="addAbsence"/>
+		<mx:RemoteObject id = "absenceService" 
+						 destination = "absenceService" 
+						 channelSet = "{channelSet}" 
+						 fault = "absenceServiceFaultHandler(event)">
+			<mx:method name = "addAbsence"/>
 		</mx:RemoteObject>
-		<mx:RemoteObject id="employeeService" 
-						 destination="employeeService" 
-						 channelSet="{channelSet}" 
-						 fault="employeeServiceFaultHandler(event)">
-			<mx:method name="getEmployeeAbsences" 
-					   result="getEmployeeAbsencesResultHandler(event)"/>
+		<mx:RemoteObject id = "employeeService" 
+						 destination = "employeeService" 
+						 channelSet = "{channelSet}" 
+						 fault = "employeeServiceFaultHandler(event)">
+			<mx:method name = "getEmployeeAbsences" 
+					   result = "getEmployeeAbsencesResultHandler(event)"/>
 		</mx:RemoteObject>
-
 	</fx:Declarations>
 
-	<s:VGroup horizontalAlign="center" 
-			  verticalAlign="top" 
-			  paddingTop="10">
-		<s:Label paddingLeft="15"
-				 text="Button Save inactiv atunci cand intervalul este deja ocupat{'\n'}de alt concediu sau End Date este mai mic decat Start Date" >    
+	<s:VGroup horizontalAlign = "center" 
+			  verticalAlign = "top" 
+			  paddingTop = "10">
+		<s:Label paddingLeft = "15"
+				 text = "Button Save inactiv atunci cand intervalul este deja ocupat{'\n'}de alt concediu sau End Date este mai mic decat Start Date" >    
 		</s:Label>
-		<s:FormItem label="Start Date" >
-			<mx:DateField id="start"
-						  width="100%">
+		<s:FormItem label = "Start Date" >
+			<mx:DateField id = "start"
+						  width = "100%">
 			</mx:DateField>     
 		</s:FormItem>
-		
-		<s:FormItem label="End Date">
-			<mx:DateField id="end"
-						  width="100%"> 
+		<s:FormItem label = "End Date">
+			<mx:DateField id = "end"
+						  width = "100%"> 
 			</mx:DateField> 
 		</s:FormItem>
-		
-		<s:FormItem label="Type" 
-					width="100%">
-			<s:DropDownList id="type" 
-							width="200"
-							selectedIndex="-1"
-							prompt="Select a type"> 
+		<s:FormItem label = "Type" 
+					width = "100%">
+			<s:DropDownList id = "type" 
+							width = "200"
+							selectedIndex = "-1"
+							prompt = "Select a type"> 
 				<mx:ArrayCollection>
 					<fx:String>Concediu Odihna</fx:String>
 					<fx:String>Concediu Medical</fx:String>
@@ -150,21 +182,29 @@
 		</s:FormItem>
 		
 		<s:FormItem>
-			<mx:HRule width="100%"
-					  height="1"/>
+			<mx:HRule width = "100%"
+					  height = "1"/>
 			<s:HGroup>
-				<mx:Button id="btn" 
-						   label="Save" 
-						   opaqueBackground="0xC6D3CF" 
-						   fontWeight="bold"  color="0x3211C9" 
-						   enabled="{start.text!='' &amp;&amp; end.text!='' &amp;&amp; type.selectedItem.toString()!=''&amp;&amp; compare(start.selectedDate,end.selectedDate)==0 &amp;&amp; checkEmployeeNewAbsence(start.selectedDate,end.selectedDate)==0}" 
-						   click="absenceService.addAbsence(idEdit,start.text,end.text,type.selectedItem.toString()),employeeService.getEmployeeAbsences(idEdit),closePopUp(event)"/>
-				<mx:Button id="Cancel" 
-						   label="Cancel" 
-						   opaqueBackground="0xC6D3CF" 
-						   fontWeight="bold"  
-						   color="0x3211C9" 
-						   click="closePopUp(event)"/>
+				<mx:Button id = "btn" 
+						   label = "Save" 
+						   opaqueBackground = "0xC6D3CF" 
+						   fontWeight = "bold"  
+						   color = "0x3211C9" 
+						   enabled = "{start.text!='' &amp;&amp; 
+						   			end.text!='' &amp;&amp;
+						   			type.selectedItem.toString()!=''&amp;&amp; 
+						   			compare(start.selectedDate,end.selectedDate)==0 &amp;&amp;
+						   			checkEmployeeNewAbsence(start.selectedDate,end.selectedDate)==0 &amp;&amp; 
+						  			checkConcediuOdihna()==0}" 
+						   click = "absenceService.addAbsence(idEdit,start.text,end.text,type.selectedItem.toString()),
+						   			employeeService.getEmployeeAbsences(idEdit),
+						  			closePopUpMouse(event)"/>
+				<mx:Button id = "Cancel" 
+						   label = "Cancel" 
+						   opaqueBackground = "0xC6D3CF" 
+						   fontWeight = "bold"  
+						   color = "0x3211C9" 
+						   click = "closePopUpMouse(event)"/>
 			</s:HGroup>
 		</s:FormItem>
 	</s:VGroup>

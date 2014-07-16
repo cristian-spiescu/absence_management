@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:s="library://ns.adobe.com/flex/spark" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx"
-		 creationComplete="employeeService.getAllEmployees()">
+<s:VGroup xmlns:fx = "http://ns.adobe.com/mxml/2009" 
+		 xmlns:s = "library://ns.adobe.com/flex/spark" 
+		 xmlns:mx = "library://ns.adobe.com/flex/mx"
+		 creationComplete = "employeeService.getAllEmployees()">
 
 	<fx:Script>
 		<![CDATA[
@@ -30,7 +30,6 @@
 			private function employeeServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
-			
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
 				
 				grid.dataProvider = event.result;
@@ -47,59 +46,60 @@
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:ChannelSet id="channelSet">
-			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		<s:ChannelSet id = "channelSet">
+			<s:AMFChannel url = "messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="employeeService" 
-						 destination="employeeService" 
-						 channelSet="{channelSet}" 
-						 fault="employeeServiceFaultHandler(event)">
-			<mx:method name="deleteEmployee"/>
-			<mx:method name="addEmployee"/>
-			<mx:method name="getAllEmployees" 
-					   result="getAllEmployeesResultHandler(event)"/>
+		<mx:RemoteObject id = "employeeService" 
+						 destination = "employeeService" 
+						 channelSet = "{channelSet}" 
+						 fault = "employeeServiceFaultHandler(event)">
+			<mx:method name = "deleteEmployee"/>
+			<mx:method name = "addEmployee"/>
+			<mx:method name = "getAllEmployees" 
+					   result = "getAllEmployeesResultHandler(event)"/>
 		</mx:RemoteObject>
 	</fx:Declarations>
 	<s:HGroup>
-		<mx:Button label="Add" 
-				   opaqueBackground="0xC6D3CF" 
-				   fontWeight="bold" 
-				   color="0x3211C9" 
-				   click="addClickHandler(event)"/>
-		<mx:Button label="Delete" 
-				   opaqueBackground="0xC6D3CF" 
-				   fontWeight="bold" 
-				   color="0x3211C9" 
-				   id="deleteButton" 
+		<mx:Button label = "Add" 
+				   opaqueBackground = "0xC6D3CF" 
+				   fontWeight = "bold" 
+				   color = "0x3211C9" 
+				   click = "addClickHandler(event)"/>
+		<mx:Button label = "Delete" 
+				   opaqueBackground = "0xC6D3CF" 
+				   fontWeight = "bold" 
+				   color = "0x3211C9" 
+				   id = "deleteButton" 
 				   enabled = "{grid.selectedItem != null}" 
-				   click="employeeService.deleteEmployee(getCellForDelete()), employeeService.getAllEmployees()"/> 
-		<mx:Button label="Edit" 
-				   opaqueBackground="0xC6D3CF" 
-				   fontWeight="bold" 
-				   color="0x3211C9" 
-				   id="editButton" 
+				   click = "employeeService.deleteEmployee(getCellForDelete()),
+				   			employeeService.getAllEmployees()"/> 
+		<mx:Button label = "Edit" 
+				   opaqueBackground = "0xC6D3CF" 
+				   fontWeight = "bold" 
+				   color = "0x3211C9" 
+				   id = "editButton" 
 				   enabled = "{grid.selectedItem != null}" 
-				   click="editClickHandler(event)"/>
-		<mx:Button label="Refresh Employees"
-				   opaqueBackground="0xC6D3CF" 
-				   fontWeight="bold" 
-				   color="0x3211C9" 
-				   click="employeeService.getAllEmployees()"/>
+				   click = "editClickHandler(event)"/>
+		<mx:Button label = "Refresh Employees"
+				   opaqueBackground = "0xC6D3CF" 
+				   fontWeight = "bold" 
+				   color = "0x3211C9" 
+				   click = "employeeService.getAllEmployees()"/>
 	</s:HGroup>
-	<mx:DataGrid id="grid" 
-				 width="100%" 
-				 height="100%" 
-				 allowMultipleSelection="false">
+	<mx:DataGrid id = "grid" 
+				 width = "100%" 
+				 height = "100%" 
+				 allowMultipleSelection = "false">
 		<mx:columns>
-			<mx:DataGridColumn dataField="id" 
-							   headerText="ID" 
-							   backgroundColor="#E8F9FA"/>
-			<mx:DataGridColumn dataField="firstName" 
-							   headerText="First Name" 
-							   backgroundColor="#E8F9FA" />
-			<mx:DataGridColumn dataField="lastName" 
-							   headerText="Last Name" 
-							   backgroundColor="#E8F9FA"/>
+			<mx:DataGridColumn dataField = "id" 
+							   headerText = "ID" 
+							   backgroundColor = "#E8F9FA"/>
+			<mx:DataGridColumn dataField = "firstName" 
+							   headerText = "First Name" 
+							   backgroundColor = "#E8F9FA" />
+			<mx:DataGridColumn dataField = "lastName" 
+							   headerText = "Last Name" 
+							   backgroundColor = "#E8F9FA"/>
 		</mx:columns>
 	</mx:DataGrid>
 </s:VGroup>

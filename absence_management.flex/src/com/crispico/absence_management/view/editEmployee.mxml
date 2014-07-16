@@ -1,32 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- containers\spark\SparkPanelSimple.mxml -->
-<s:TitleWindow  xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		 xmlns:mx="library://ns.adobe.com/flex/mx" 
-		 xmlns:s="library://ns.adobe.com/flex/spark"
-		 creationComplete="employeeService.getEmployeeAbsences(idEdit)"
-		 title="Edit Employee"
-		 width="370" 
-		 height="400"> 
+<s:TitleWindow  xmlns:fx = "http://ns.adobe.com/mxml/2009" 
+		 xmlns:mx = "library://ns.adobe.com/flex/mx" 
+		 xmlns:s = "library://ns.adobe.com/flex/spark"
+		 xmlns:chart1 = "com.crispico.chart.*"
+		 creationComplete = "employeeService.getEmployeeAbsences(idEdit)"
+		 title = "Edit Employee"
+		 width = "380" 
+		 height = "520"
+		 close = "closePopUp(event)"> 
 	
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
+			import com.crispico.chart.IntervalDate;
+			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
 			public var idEdit:Number;
 			public var grid:DataGrid;
-
+			public var array:ArrayCollection =  new ArrayCollection();
+			
+			public function parseDate( str : String ) : Date {
+				var matches : Array = str.match(/(\d\d)-(\d\d)-(\d\d\d\d)/);
+				var d : Date = new Date();
+				d.setUTCFullYear(int(matches[3]), int(matches[2]) - 1, int(matches[1]));
+				return d;
+			}
+			private function filldataChartFromGridAbsence():void{
+				var i:uint = 0;
+				for each(var obj:Absence in gridAbs.dataProvider){
+					if(obj.absenceType.description == "Concediu Odihna"){
+						var inDate:IntervalDate = new IntervalDate();
+						inDate.color = randomColor();
+						inDate.period = numberOfDays(parseDate(obj.startDate),parseDate(obj.endDate));
+						inDate.id = i++;
+						array.addItem(inDate);
+					}
+				}
+				chart.dataProvider = array;
+			}
 			private function getEmployeeAbsencesResultHandler(event:ResultEvent):void {
 				gridAbs.dataProvider = event.result;
 			}
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
 				grid.dataProvider = event.result;
 			}	
-			private function closePopUp(evt:MouseEvent):void {
+			private function closePopUp(evt:CloseEvent):void {
+				PopUpManager.removePopUp(this);
+			}
+			private function closePopUpMouse(evt:MouseEvent):void {
 				PopUpManager.removePopUp(this);
 			}
 			private function employeeServiceFaultHandler(event:FaultEvent):void {
@@ -40,6 +68,8 @@
 				form.idEdit = idEdit;
 				form.gridAbs = gridAbs;
 				form.grid = grid;
+				form.array = array;
+				form.totalDays = sum();
 				PopUpManager.addPopUp(form, FlexGlobals.topLevelApplication as DisplayObject, true);
 				PopUpManager.centerPopUp(form);	
 			}
@@ -55,6 +85,7 @@
 				form.gridAbs = gridAbs;
 				form.idEdit = idEdit;
 				form.grid = grid;
+				form.totalDays = sum();
 				PopUpManager.addPopUp(form, FlexGlobals.topLevelApplication as DisplayObject, true);
 				PopUpManager.centerPopUp(form);	
 			}
@@ -63,116 +94,154 @@
 				a = Absence(gridAbs.selectedItem);
 				return a;
 			}
+			private function randomColor():String {
+				var letters:Array = '0123456789ABCDEF'.split('');
+				var color:String = '0x';
+				for (var i:Number = 0; i < 6; i++ ) {
+					color += letters[Math.floor(Math.random() * 16)];
+				}
+				return color;
+			}
+			private function numberOfDays (date1 : Date, date2 : Date) : Number {
+				var date1Timestamp : Number = date1.getTime ();
+				var date2Timestamp : Number = date2.getTime ();
+				var result : Number = -1;
+				result = Math.round((date2Timestamp - date1Timestamp) / 86400000);
+				return result;
+			}
+			
+			private function sum():Number{
+				var totalDays:Number = 0;
+				for each(var obj:Absence in gridAbs.dataProvider){
+					if(obj.absenceType.description == "Concediu Odihna")
+						totalDays+=numberOfDays(parseDate(obj.startDate),parseDate(obj.endDate));
+				}
+				return totalDays;
+			}
 		]]>
 	</fx:Script>
 	<fx:Declarations>
-		<s:ChannelSet id="channelSet">
-			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		<s:ChannelSet id = "channelSet">
+			<s:AMFChannel url = "messagebroker/remoting-amf"/>
 		</s:ChannelSet>
-		<mx:RemoteObject id="employeeService" 
-						 destination="employeeService" 
-						 channelSet="{channelSet}" 
-						 fault="employeeServiceFaultHandler(event)">
-			<mx:method name="editEmployee"/>
-			<mx:method name="getEmployeeAbsences" 
-					   result="getEmployeeAbsencesResultHandler(event)"/>
-			<mx:method name="getAllEmployees" 
-					   result="getAllEmployeesResultHandler(event)"/>
+		<mx:RemoteObject id = "employeeService" 
+						 destination = "employeeService" 
+						 channelSet = "{channelSet}" 
+						 fault = "employeeServiceFaultHandler(event)">
+			<mx:method name = "editEmployee"/>
+			<mx:method name = "getEmployeeAbsences" 
+					   result = "getEmployeeAbsencesResultHandler(event)"/>
+			<mx:method name = "getAllEmployees" 
+					   result = "getAllEmployeesResultHandler(event)"/>
 		</mx:RemoteObject>
-		<mx:RemoteObject id="absenceService" 
-						 destination="absenceService" 
-						 channelSet="{channelSet}" 
-						 fault="absenceServiceFaultHandler(event)">
-			<mx:method name="deleteAbsence"/>
+		<mx:RemoteObject id = "absenceService" 
+						 destination = "absenceService" 
+						 channelSet = "{channelSet}" 
+						 fault = "absenceServiceFaultHandler(event)">
+			<mx:method name = "deleteAbsence"/>
 		</mx:RemoteObject>
 		
 	</fx:Declarations>
 	
 
-	<s:VGroup horizontalAlign="center" 
-			  verticalAlign="top" 
-			  paddingTop="10">	
-		<s:HGroup horizontalAlign="left">
-			<s:VGroup paddingLeft="20">
-				<s:FormItem label="New First Name">
-					<s:TextInput id="fname" 
-								 width="90%"/>
+	<s:VGroup horizontalAlign = "center" 
+			  verticalAlign = "top" 
+			  paddingTop = "10">	
+		<s:HGroup horizontalAlign = "left">
+			<s:VGroup paddingLeft = "20">
+				<s:FormItem label = "New First Name">
+					<s:TextInput id = "fname" 
+								 width = "90%"/>
 				</s:FormItem>
-				
-				<s:FormItem label="New Last Name">
-					<s:TextInput id="lname" 
-								 width="90%"/>
+				<s:FormItem label = "New Last Name">
+					<s:TextInput id = "lname" 
+								 width = "90%"/>
 				</s:FormItem>	
 			</s:VGroup>
-			<s:BitmapImage id="img" 
-						   fillMode="scale" 
-						   horizontalCenter="0" 
-						   verticalCenter="0"
-						   source="@Embed('images/add-person.jpg')"
-						   smooth="true" 
-						   width="85" 
-						   height="85"/>
+			<s:BitmapImage id = "img" 
+						   fillMode = "scale" 
+						   horizontalCenter = "0" 
+						   verticalCenter = "0"
+						   source = "@Embed('images/add-person.jpg')"
+						   smooth = "true" 
+						   width = "85" 
+						   height = "85"/>
 		</s:HGroup>
-		<s:HGroup paddingLeft="25">
-			<mx:Button label="Add" 
-					   opaqueBackground="0xC6D3CF" 
-					   fontWeight="bold" 
-					   color="0x3211C9" 
-					   click="addClickHandler(event)"/>
-			<mx:Button label="Delete" 
-					   id="deleteButton" 
-					   opaqueBackground="0xC6D3CF" 
-					   fontWeight="bold" 
-					   color="0x3211C9"
+		<s:HGroup paddingRight = "6">
+			<mx:Button label = "Add" 
+					   opaqueBackground = "0xC6D3CF" 
+					   fontWeight = "bold" 
+					   color = "0x3211C9" 
+					   enabled = "{sum()==0}"
+					   click = "addClickHandler(event)"/>
+			<mx:Button label = "Delete" 
+					   id = "deleteButton" 
+					   opaqueBackground = "0xC6D3CF" 
+					   fontWeight = "bold" 
+					   color = "0x3211C9"
 					   enabled = "{gridAbs.selectedItem != null}" 
-					   click="absenceService.deleteAbsence(getAbsenceForDeleteOrEdit()), employeeService.getEmployeeAbsences(idEdit)"/> 
-			<mx:Button label="Edit" 
-					   id="editButton" 
-					   opaqueBackground="0xC6D3CF" 
-					   fontWeight="bold" 
-					   color="0x3211C9" 
+					   click = "absenceService.deleteAbsence(getAbsenceForDeleteOrEdit()), 
+					   		 	employeeService.getEmployeeAbsences(idEdit)"/> 
+			<mx:Button label = "Edit" 
+					   id = "editButton" 
+					   opaqueBackground = "0xC6D3CF" 
+					   fontWeight = "bold" 
+					   color = "0x3211C9" 
 					   enabled = "{gridAbs.selectedItem != null}" 
-					   click="editClickHandler(event)"/>
-			<mx:Button label="Refresh Absences" 
-					   opaqueBackground="0xC6D3CF" 
-					   fontWeight="bold" 
-					   color="0x3211C9" 
-					   click="employeeService.getEmployeeAbsences(idEdit)"/>
+					   click = "editClickHandler(event)"/>
+			<mx:Button label = "Refresh Chart" 
+					   opaqueBackground = "0xC6D3CF" 
+					   fontWeight = "bold" 
+					   color = "0x3211C9" 
+					   click = "array.removeAll(),
+					   			filldataChartFromGridAbsence()"/>
 		</s:HGroup>
-		<s:HGroup verticalAlign="top"
-				  paddingLeft="25">
-			<mx:DataGrid id="gridAbs" 
-						 width="100%" 
-						 height="100%"
-						 allowMultipleSelection="false">
+		<s:VGroup verticalAlign = "top"
+				  paddingRight = "6">
+			<mx:DataGrid id = "gridAbs" 
+						 width = "100%" 
+						 height = "100%"
+						 allowMultipleSelection = "false">
 				<mx:columns>
-					<mx:DataGridColumn id="start" 
-									   dataField="startDate" 
-									   headerText="Start" 
-									   backgroundColor="#E8F9FA" />
-					<mx:DataGridColumn id="end" 
-									   dataField="endDate" 
-									   headerText="End" 
-									   backgroundColor="#E8F9FA" />
-					<mx:DataGridColumn id="type" 
-									   dataField="absenceType.description" 
-									   headerText="Type" 
-									   backgroundColor="#E8F9FA"/>
+					<mx:DataGridColumn id = "start" 
+									   dataField = "startDate" 
+									   headerText = "Start" 
+									   backgroundColor = "#E8F9FA" />
+					<mx:DataGridColumn id = "end" 
+									   dataField = "endDate" 
+									   headerText = "End" 
+									   backgroundColor = "#E8F9FA" />
+					<mx:DataGridColumn id = "type" 
+									   dataField = "absenceType.description" 
+									   headerText = "Type" 
+									   backgroundColor = "#E8F9FA"/>
 				</mx:columns>
 			</mx:DataGrid>
-		</s:HGroup> 
-		<s:HGroup horizontalAlign="center">
+		</s:VGroup> 
+		<s:HGroup width = "100%"
+				  paddingLeft = "5">
+			<s:Panel title = "Chart" 
+					 width = "100%">
+				<chart1:Chart id = "chart"
+							  width = "100%"
+							  maxInterval = "365">		
+				</chart1:Chart>
+			</s:Panel>
+		</s:HGroup>
+		<s:HGroup horizontalAlign = "center">
 			<s:FormItem>
-				<mx:HRule width="100%"
-						  height="1"/>
+				<mx:HRule width = "100%"
+						  height = "1"/>
 				<s:HGroup>
-					<mx:Button id="Save" 
-							   label="Save" 
-							   enabled="{fname.text!='' &amp;&amp; lname.text!=''}" 
-							   click="employeeService.editEmployee(idEdit,fname.text,lname.text), closePopUp(event),employeeService.getAllEmployees() "/>
-					<mx:Button id="Cancel" 
-							   label="Cancel" 
-							   click="closePopUp(event)"/>
+					<mx:Button id = "Save" 
+							   label = "Save" 
+							   enabled = "{fname.text!='' &amp;&amp; lname.text!=''}" 
+							   click = "employeeService.editEmployee(idEdit,fname.text,lname.text), 
+							   			closePopUpMouse(event),
+							   			employeeService.getAllEmployees() "/>
+					<mx:Button id = "Cancel" 
+							   label = "Cancel" 
+							   click = "closePopUpMouse(event)"/>
 				</s:HGroup>
 			</s:FormItem> 
 		</s:HGroup>

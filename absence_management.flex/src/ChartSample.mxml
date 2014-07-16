@@ -1,27 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
-			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+<s:Application xmlns:fx = "http://ns.adobe.com/mxml/2009" 
+			   xmlns:s = "library://ns.adobe.com/flex/spark" 
+			   xmlns:mx = "library://ns.adobe.com/flex/mx" 
+			   xmlns:chart1 = "com.crispico.chart.*"
+			   width = "90%" 
+			   height = "30%" 
+			   horizontalCenter = "0" 
+			   verticalCenter = "0">
 	<s:layout>
-		<s:VerticalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2"/>
+		<s:VerticalLayout paddingBottom = "2" 
+						  paddingTop = "2" 
+						  paddingRight = "2" 
+						  paddingLeft = "2"/>
 	</s:layout>
-	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
-	</fx:Declarations>
-	<s:Panel title="Commands" width="100%" height="60">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.chart.IntervalDate;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			
+			[Bindable]
+			public var data:ArrayCollection = new ArrayCollection();
+			public var maxNumber:Number = 21;
+			public var idInterval:uint = 0;
+			
+			private function randomNumber(max:Number, min:Number = 0):uint{
+				return Math.random() * (max - min) + min;
+			}
+			private function randomColor():String {
+				var letters:Array = '0123456789ABCDEF'.split('');
+				var color:String = '0x';
+				for (var i:Number = 0; i < 6; i++ ) {
+					color += letters[Math.floor(Math.random() * 16)];
+				}
+				return color;
+			}
+			//populeaza random cele 21 de zile
+			private function fillArray():void{
+				for(var i:Number = 0; ; i++){
+					var generatedNumber:Number = randomNumber(21,1);
+					var newItem:IntervalDate = new IntervalDate;
+					if(maxNumber >= 0 && (maxNumber - generatedNumber) >= 0){
+						newItem.period = generatedNumber;
+						newItem.color = randomColor();
+						newItem.id = idInterval;
+						maxNumber-=newItem.period;
+						idInterval++;
+						data.addItem(newItem);
+					}
+					else
+						break;
+				}
+			}
+			//Click add - adauga o absenta de 2 zile
+			private function addToArrayListener(event:MouseEvent):void{
+				var newItem:IntervalDate = new IntervalDate;
+				if(maxNumber >= 0 && (maxNumber - 2) >= 0){
+					newItem.period = 2;
+					newItem.color = randomColor();
+					newItem.id = idInterval;
+					idInterval++;
+					maxNumber-=newItem.period;
+					data.addItem(newItem);
+					chart.dataProvider = data;
+				}
+				else
+					Alert.show("Nu puteti aloca mai mult de 21 de zile!");
+			}
+			private function validateInterval():Number{
+				if(Number(maxInterval.text) >= 10 && Number(maxInterval.text) <= 1145 && maxInterval.text!='')
+					return 1;
+				else
+					return 0;
+			}
+			private function populateClickHandler(event:MouseEvent):void {
+				idInterval = 0;
+				maxNumber = 21;
+				data.removeAll();
+				fillArray();
+				chart.dataProvider = data;
+			}
+			private function deleteItemRender():void{
+				var ok:Boolean = false;
+				if(chart.selectedItem!=null)
+					for each(var obj1:IntervalDate in data)
+						if(obj1.id == chart.selectedItem.idInterval){
+							var i:uint = 0;
+							for each(var obj:IntervalDate in data)
+								if(obj.id == chart.selectedItem.idInterval)
+								{
+									data.removeItemAt(i);
+									maxNumber += chart.selectedItem.Period;
+									chart.dataProvider = data;
+									ok = true;
+								}
+								else
+									i++;
+							}
+				if(ok==false)
+					Alert.show("Nu ati selectat nici un concediu de sters!");	
+			}
+			private function updateItemRender():void{
+				var ok:Boolean = false;
+				if(chart.selectedItem!=null)
+					for each(var obj:IntervalDate in data)
+						if(obj.id == chart.selectedItem.idInterval){
+							var i:uint = 0;
+							if((maxNumber + obj.period - Number(selInterval.text)) >= 0 && selInterval.text!='' && Number(selInterval.text)!=0 ){
+								maxNumber = maxNumber + obj.period - Number(selInterval.text);
+								obj.period = Number(selInterval.text);
+								chart.dataProvider = data;
+								ok = true;
+							}
+							else
+								Alert.show("Nu puteti aloca mai mult de 21 de zile!");
+						}
+						else
+							i++;
+				if(ok==false)
+					Alert.show("Nu ati selectat nici un concediu pentru editare");	
+			}
+			protected function onTextChangeHandler(event:Event):void{
+				if(validateInterval() == 1)
+					chart.dataProvider = data;
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Panel title = "Commands" 
+			 width = "100%" 
+			 height = "60">
 		<s:layout>
-			<s:HorizontalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2" verticalAlign="middle"/>
+			<s:HorizontalLayout paddingBottom = "2" 
+								paddingTop = "2" 
+								paddingRight = "2" 
+								paddingLeft = "2" 
+								verticalAlign = "middle"/>
 		</s:layout>
-		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals"/>
-		<s:Label text="Value of selected interval" toolTip="On change => the value in the model is updated"/>
-		<s:TextInput/>
-		<s:Button label="Add" toolTip="Adds a new interval with value = 2"/>
-		<s:Button label="Delete" toolTip="Deletes the selected interval"/>
-		<s:Label text="Interval" toolTip="On change => the chart is updated"/>
-		<s:TextInput/>
-		
+		<s:Button label = "Populate with data" 
+				  click = "populateClickHandler(event)" 
+				  toolTip = "Changes the data provider with a new one with 7 Intervals"
+				  enabled = "{validateInterval() == 1}"/>
+		<s:Label text = "Value of selected interval" 
+				 toolTip = "On change => the value in the model is updated"/>
+		<s:TextInput id = "selInterval"
+					 text = "1"
+					 click = "updateItemRender()"/>
+		<s:Button label = "Add" 
+				  toolTip = "Adds a new interval with value = 2"
+				  click = "addToArrayListener(event)"/>
+		<s:Button label = "Delete"
+				  toolTip = "Deletes the selected interval"
+				  click = "deleteItemRender()"/>
+		<s:Label text = "Interval" 
+				 toolTip = "Values between 10 and 1145 pixels"/>
+		<s:TextInput id = "maxInterval" 
+					 change = "onTextChangeHandler(event)" 
+					 text = "1145"/>
 	</s:Panel>
-	<s:Panel title="Chart" width="100%">
-		
+	<s:Panel title = "Chart" 
+			 width = "100%">
+		<chart1:Chart id = "chart" 
+					  maxInterval = "{Number(maxInterval.text)}">		
+		</chart1:Chart>
 	</s:Panel>
 </s:Application>

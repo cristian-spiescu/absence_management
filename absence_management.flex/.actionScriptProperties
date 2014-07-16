@@ -14,8 +14,8 @@
   </compiler>
   <theme themeIsDefault="false" themeIsSDK="true" themeLocation="${SDK_THEMES_DIR}/frameworks/themes/Halo"/>
   <applications>
-    <application path="Main.mxml"/>
     <application path="ChartSample.mxml"/>
+    <application path="Main.mxml"/>
   </applications>
   <modules/>
   <workers/>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx = "http://ns.adobe.com/mxml/2009" 
+				xmlns:s = "library://ns.adobe.com/flex/spark" 
+				xmlns:mx = "library://ns.adobe.com/flex/mx"
+				click = "clickHandler(event)">
+	
+	<s:Label text = "{data}"/>
+	<fx:Metadata>
+		[Event("selectionChanged")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var newWidth:Number;	
+			[Bindable]
+			public var color:String;
+			[Bindable]
+			public var colorStroke:String;
+			[Bindable]
+			public var newAlpha:String;
+			[Bindable]
+			public var Period:Number;
+			[Bindable]
+			public var idInterval:Number;
+						
+			protected function clickHandler(event:MouseEvent):void {
+				dispatchEvent(new Event("selectionChanged"));
+			}
+		]]>
+	</fx:Script>
+	
+	
+	<s:Rect width = "{newWidth}"
+			height = "100"
+			alpha = "{newAlpha}">
+		<s:fill>
+			<s:SolidColor color = "{color}" />
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color = "{colorStroke}" 
+								weight="2"/>
+		</s:stroke>
+	</s:Rect>	
+</s:ItemRenderer>
