@@ -1,10 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+			   xmlns:mx="library://ns.adobe.com/flex/mx"  
+			   xmlns:chart="com.crispico.chart.*" >
+	
 	<s:layout>
 		<s:VerticalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2"/>
 	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.chart.IntervalDate;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import spark.events.TextOperationEvent;
+			
+			[Bindable]
+			public var dataProvider:ArrayCollection = new ArrayCollection();
+			
+			
+			/* initialize the Chart with items */
+			protected function populateWithDataClickHandler(event:MouseEvent):void {
+				var intervalDate:IntervalDate;
+				
+				for(var i:int = 1; i <= 4; i ++){
+					intervalDate = new IntervalDate();
+					intervalDate.color = Math.round(Math.random()*0xFFFFFF);
+					intervalDate.value = i;
+					dataProvider.addItem(intervalDate);
+				}
+			}
+			
+			/* set the value of selected Item to TextInput */
+			protected function newIntervalValueChangeHandler(event:TextOperationEvent):void{
+				//chart.selected.data.value = Number(newIntervalValue.text);
+				chart.selectedValue = Number (newIntervalValue.text);
+			}
+			
+			/* add new Item to Chart */
+			protected function addNewItemClickHandler(event:MouseEvent):void {
+				var addItem:IntervalDate = new IntervalDate();
+				addItem.color = 0xFF0000;
+				addItem.value = 2;
+				dataProvider.addItem(addItem);
+			}
+			
+			/* delete selected Item from Chart */
+			protected function deleteItemClickHandler(event:MouseEvent):void {
+				chart.deleteItem(chart.selected);
+			}
+			
+			/* change the value of maxInterval */
+			protected function newMaxIntervalChangeHandler(event:FlexEvent):void {
+				chart.maxInterval = Number(newMaxInterval.text);
+			}
+			
+		]]>
+	</fx:Script>
+	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
@@ -12,16 +67,15 @@
 		<s:layout>
 			<s:HorizontalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2" verticalAlign="middle"/>
 		</s:layout>
-		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals"/>
+		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals" click="populateWithDataClickHandler(event)"/>
 		<s:Label text="Value of selected interval" toolTip="On change => the value in the model is updated"/>
-		<s:TextInput/>
-		<s:Button label="Add" toolTip="Adds a new interval with value = 2"/>
-		<s:Button label="Delete" toolTip="Deletes the selected interval"/>
-		<s:Label text="Interval" toolTip="On change => the chart is updated"/>
-		<s:TextInput/>
-		
+		<s:TextInput id = "newIntervalValue" change="newIntervalValueChangeHandler(event)"/>
+		<s:Button label="Add" toolTip="Adds a new interval with value = 2" click="addNewItemClickHandler(event)"/>
+		<s:Button label="Delete" toolTip="Deletes the selected interval" click="deleteItemClickHandler(event)"/>
+		<s:Label text="Interval" toolTip="On change => the chart is updated" />
+		<s:TextInput id = "newMaxInterval" enter="newMaxIntervalChangeHandler(event)"/>
 	</s:Panel>
 	<s:Panel title="Chart" width="100%">
-		
+		<chart:Chart  id="chart" dataProvider= "{dataProvider}" maxInterval="21"/>
 	</s:Panel>
 </s:Application>

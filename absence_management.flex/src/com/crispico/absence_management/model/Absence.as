@@ -2,7 +2,7 @@ package com.crispico.absence_management.model{
 	
 	[Bindable]
 	[RemoteClass(alias="com.crispico.absence_management.model.Absence")]
-	public class Absence{
+	public class Absence {
 		
 		public var id:Number;
 		
@@ -13,6 +13,11 @@ package com.crispico.absence_management.model{
 		public var date_end:Date;
 		
 		public var typeAbs:AbsenceType;	
+	
+		public function Absence(){
+			super();
+		}
+		
 		
 	}
 }

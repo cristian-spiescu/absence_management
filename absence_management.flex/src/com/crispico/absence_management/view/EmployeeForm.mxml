@@ -3,11 +3,12 @@
 		 xmlns:s="library://ns.adobe.com/flex/spark" 
 		 xmlns:mx="library://ns.adobe.com/flex/mx" 
 		 title="{'Edit ' + employee.firstName + ' ' + employee.lastName}" close="PopUpManager.removePopUp(this)"
-		 creationComplete="employeeFormCreationComplete(event)">
+		 creationComplete="employeeFormCreationComplete(event)" xmlns:chart="com.crispico.chart.*">
 	<fx:Script>
 		<![CDATA[
 			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.Employee;
+			import com.crispico.chart.IntervalDate;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -25,29 +26,29 @@
 			[Bindable]
 			public var absenceList:ArrayCollection = new ArrayCollection();
 			
-			
 			public var absTypeList:ArrayCollection = new ArrayCollection();
 			
-			protected function employeeFormCreationComplete(event:FlexEvent):void
-			{
+			[Bindable]
+			public var intervalDateList:ArrayCollection;
+			
+			protected function employeeFormCreationComplete(event:FlexEvent):void {
 				absenceService.getAllAbsences(employee);
 			}
 			 
+			/* get all Absences from database */
 			private function getAllAbsencesResultHandler(event:ResultEvent):void {
 				var absList:ArrayCollection = ArrayCollection(event.result);
-	
 				for each(var absence:Absence in absList){
 					absenceList.addItem(absence);
 				}
-				
 				gridAbs.dataProvider = absenceList;
 			}
-			
 			
 			private function absenceServiceFaultHandler(event:FaultEvent):void {
 				Alert.show("Service invocation error: " + event.fault.faultString);				
 			}
-						
+			
+			/* add a new Absence */
 			private function addAbsenceClickHandler(event:MouseEvent):void {
 				var formAddAbs:AddAbsenceForm = new AddAbsenceForm();
 				formAddAbs.employeeForm = this;
@@ -55,11 +56,33 @@
 				PopUpManager.centerPopUp(formAddAbs);
 			}
 		
+			/* delete selected Absence */
 			protected function deleteClickHandler(event:MouseEvent):void {
 				var deleteAbsenceForm:DeleteAbsenceForm = new DeleteAbsenceForm();
 				deleteAbsenceForm.employeeForm = this;
 				PopUpManager.addPopUp(deleteAbsenceForm,this,true);
 				PopUpManager.centerPopUp(deleteAbsenceForm);
+			}
+			
+			/* calculate days */
+			public static function getDaysBetweenDates(date1:Date,date2:Date):int {
+				var one_day:Number = 1000 * 60 * 60 * 24
+				var date1_ms:Number = date1.getTime();
+				var date2_ms:Number = date2.getTime();
+				var difference_ms:Number = Math.abs(date1_ms - date2_ms) 
+				return Math.round(difference_ms/one_day) + 1;
+			}
+			
+			/* populate dataProvider for Chart */
+			protected function viewChartclickHandler(event:MouseEvent):void {
+				panelChart.visible = true;
+				intervalDateList = new ArrayCollection();
+				for each(var absence:Absence in absenceList){
+					var intervalDate:IntervalDate = new IntervalDate();
+					intervalDate.value = getDaysBetweenDates(absence.date_end,absence.date_start);
+					intervalDate.color = Math.round(Math.random()*0xFFFFFF);
+					intervalDateList.addItem(intervalDate);
+				}
 			}
 			
 		]]>
@@ -109,6 +132,7 @@
 			</s:VGroup>
 			<s:BitmapImage source="image/info_person.png" width="150" height="150"/>
 		</s:HGroup>
+		
 		<s:FormItem >
 			<s:Panel title="Absences:">
 				<mx:DataGrid id="gridAbs">
@@ -128,9 +152,13 @@
 			<s:HGroup>
 				<mx:Button label="Add" click="addAbsenceClickHandler(event)" />
 				<mx:Button label="Delete" enabled="{gridAbs.selectedItem != null}" click="deleteClickHandler(event)"  />
+				<s:Button label="View chart" click="viewChartclickHandler(event)" />
 			</s:HGroup>
 		</s:FormItem>
 		
+		<s:Panel title="Chart" id="panelChart" width="100%" visible="false">
+			<chart:Chart id="chartAbsence" maxInterval="21" dataProvider="{intervalDateList}" />
+		</s:Panel>
 	</s:Form>
-	<!--<s:TextInput text="@{employee.firstName}"/> -->
+	
 </s:TitleWindow>
