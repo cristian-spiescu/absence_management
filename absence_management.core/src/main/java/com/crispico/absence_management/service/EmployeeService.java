@@ -43,7 +43,6 @@ public class EmployeeService {
 	}
 	
 	public long howMany(String s) {
-		
 		return dao.howManyEmployees(s);
 		
 	}

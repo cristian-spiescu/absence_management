@@ -32,10 +32,13 @@
 			
 			var loc:Number;
 			var absence:Absence;
+			public var absenceTableListChanged:Boolean;
+			
 			
 			private function creationCompleteHandler(event:FlexEvent):void {
 				df.formatString = "DD-MMM-YYYY";
-				absenceService.howMany();;
+				absenceTableListChanged = false;
+				absenceService.howMany();
 			}
 			
 			private function howManyResultHandler(event:ResultEvent):void {
@@ -124,6 +127,13 @@
 				collator.ignoreCase = true;
 				return collator.compare(obj1[gc.labelFunction], obj2[gc.labelFunction]);
 			}
+			
+			override protected function commitProperties():void {
+				if (absenceTableListChanged) {
+					absenceTableListChanged = false;
+					absenceService.howMany();
+				}
+			}	
 		]]>
 	</fx:Script>
 		

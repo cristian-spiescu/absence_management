@@ -50,12 +50,17 @@
 
 			private function creationCompleteHandler(event:FlexEvent):void {
 				absenceListChanged = false;
+				searchIt();
+			}
+			
+			public function searchIt():void {
 				if (searchBox.text.length <1 ) {
 					criteriu = "%";
 				}
 				else {
 					criteriu = searchBox.text; 
 				}
+				trace("in searchit: "+criteriu);
 				employeeService.howMany(criteriu);
 			}
 			
@@ -69,6 +74,7 @@
 					howManyPages = Math.floor(total/10);
 				}
 				currentPage = 1;
+				trace("in howmany");
 				employeeService.searchEmployee(criteriu,0);
 			}
 			
@@ -117,9 +123,12 @@
 			// grid populating
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
 				// Alert.show("" + ArrayCollection(event.result));
+				if (grid.dataProvider!=null) {
+					list.removeAll();
+				}
 				list = ArrayCollection(event.result)
 				grid.dataProvider = list;	
-				
+				invalidateDisplayList();
 			}	
 			
 			//delete button
@@ -252,9 +261,9 @@
 				
 			override protected function commitProperties():void {
 				if (absenceListChanged) {
-					Alert("schimba");
 					absenceListChanged = false;
-					invalidateDisplayList();
+//					employeeService.getAllEmployees();
+					searchIt();
 				}
 			}					
 			
@@ -278,7 +287,7 @@
 		<s:Button label="Delete" enabled="{grid.selectedItem != null}" click="deleteClickHandler(event)"/>
 		
 		<s:TextInput  id="searchBox" />
-		<s:Button label="Search employee" enabled="{searchBox.text.length > 0}" click="searchClickHandler(event)"/>
+		<s:Button label="Search employee"  click="searchClickHandler(event)"/>
 	</s:HGroup>
 	<mx:DataGrid id="grid" width="100%" allowMultipleSelection="true" minHeight="0" rowCount="10">
 		<mx:columns>

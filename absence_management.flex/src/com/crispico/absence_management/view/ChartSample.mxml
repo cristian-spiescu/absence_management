@@ -10,7 +10,8 @@
 		 creationComplete="creationCompleteHandler(event)"
 		 >
 	<fx:Metadata>
-		[Event(name="absencesChanged",type="flash.events.Event")]
+		[Event(name="changes",type="flash.events.Event")]
+		
 	</fx:Metadata>
 	
 	<fx:Script>
@@ -18,7 +19,6 @@
 			
 			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.Employee;
-			import com.crispico.chart.ChartRenderer;
 			import com.crispico.chart.IntervalData;
 			
 			import mx.collections.ArrayCollection;
@@ -48,6 +48,7 @@
 			public var employeeCounter:Number;
 			public var howManyEmps:Number;
 			public var df:DateFormatter;
+			protected var eventul:Event = new Event("changes");
 			
 			private const MS_PER_DAY:uint = 1000 * 60 * 60 * 24;
 			
@@ -55,8 +56,10 @@
 				employeeCounter = -1;
 				df = new DateFormatter();
 				df.formatString = "DD-MM-YYYY";
+				
 				employeeService.getAllEmployees();
 			}
+			
 			
 			
 			// error handler
@@ -156,7 +159,7 @@
 			
 			//delete button
 			private function deleteClickHandler(event:MouseEvent):void {
-				Alert.show("Do you really wish to delete absence?"+rend.selectedInterval.info,"Notification",Alert.OK | Alert.CANCEL,this,deleteAlertListener);
+				Alert.show("Do you really wish to delete absence?\n"+rend.selectedInterval.info,"Notification",Alert.OK | Alert.CANCEL,this,deleteAlertListener);
 //				var abs_id:Number = selectedInterval.idul;
 //				absenceService.deleteAbsence(abs_id);
 			}
@@ -173,8 +176,8 @@
 				if (event.result == true) {
 					if (rend.deleteInterval(rend.selectedInterval)) {
 						Alert.show("Absence succesfully deleted","Success");
-						var ev:Event = new Event("absencesChanged");
-						dispatchEvent(ev);
+						
+						dispatchEvent(eventul);
 					}
 					else {
 						Alert.show("Error deleting absence","Error");
@@ -191,8 +194,7 @@
 			public function doneAbsenceHandler(event:Event):void {
 				absenceService.addAbsenceToEmployee(employee_chart_list.getItemAt(employeeCounter),absForm.start,absForm.finish,absForm.aty);
 				employeeService.getAllEmployees();
-				var ev:Event = new Event("absencesChanged");
-				dispatchEvent(ev);
+				
 //				trace("s-a transmis");
 //				Alert.show("s-a transmis");
 			}
@@ -200,7 +202,9 @@
 			private function addAbsenceToEmployeeResultHandler(event:ResultEvent):void {
 				if (event.result != null) {
 					Alert.show("Absence successfully added.","Notification",Alert.OK ,this);
-					employeeService.getAllEmployees();
+					
+					dispatchEvent(eventul);
+					
 				}
 				else {
 					Alert.show("Error adding absence.");

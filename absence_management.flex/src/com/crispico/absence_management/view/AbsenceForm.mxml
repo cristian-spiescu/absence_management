@@ -19,16 +19,17 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.crispico.absence_management.model.Absence;
 			import com.crispico.absence_management.model.AbsenceType;
-			import com.crispico.absence_management.model.Employee;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
+			import mx.formatters.DateFormatter;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
+			public const ADD_TYPE:String = "add";
+			public const EDIT_TYPE:String = "edit";
 			
 			public var okText:String;
 			public var textChanged:Boolean;
@@ -36,8 +37,16 @@
 			public var start:String;
 			public var finish:String;
 			
+			public var formType:String;
+			public var df:DateFormatter;
+			private var _dateFormat:String;
+			
+			public var _selectedType:AbsenceType;
+			
 			public function creationCompleteHandler(event:FlexEvent):void {
 				textChanged = false;
+				df = new DateFormatter();
+				df.formatString = "YYYY-MM-DD";
 				if (okText == null) {
 					text = "OK";
 					
@@ -50,6 +59,11 @@
 				okAbsButton.label = okText;
 			}
 			
+			public function set dateFormat(s:String):void {
+				_dateFormat = s;
+				df.formatString = _dateFormat;
+			}
+			
 //			override protected function commitProperties():void {
 //				if (textChanged) {
 //					textChanged = false;
@@ -59,12 +73,37 @@
 //			}
 			
 			public function okAbsenceClickHandler(event:MouseEvent):void {
-				aty = AbsenceType(abs_types_list.selectedItem);
-				start = stdate.text;
-				finish = fsdate.text;
-				var ev:Event = new Event("clicked");
-				dispatchEvent(ev);
-//				Alert.show("done","msg");
+				var CurrentDateTime:Date = new Date();
+				
+				var data_curenta:String = df.format(CurrentDateTime);
+				start = df.format(stdate.text);
+				finish = df.format(fsdate.text);
+				if (finish.substr(6,4) < start.substr(6,4)) {
+					Alert.show("End year must be greater than or equal to the one for start date.");
+				}
+				else {
+					if (finish.substr(3,2) < start.substr(3,2)) {
+						Alert.show("End month must be greater than or equal to the one for start date.");
+					}
+					else {
+						if (finish.substr(0,2) < start.substr(0,2)) {
+							Alert.show("End day must be greater than or equal to the one for start date.");
+						}
+						else {
+							aty = AbsenceType(abs_types_list.selectedItem);
+							this.visible = false;
+							var ev:Event = new Event("clicked");
+							dispatchEvent(ev);
+							
+						}
+					}
+				}
+				
+			}
+			
+			public function set selectedType(a:AbsenceType):void {
+				_selectedType = a;
+				abs_types_list.selectedItem = _selectedType;
 			}
 						
 			private function absenceServiceFaultHandler(event:FaultEvent):void {

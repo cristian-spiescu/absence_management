@@ -2,7 +2,8 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
-			   xmlns:custom="com.crispico.chart.*">
+			   xmlns:custom="com.crispico.chart.*"
+			   creationComplete="creationCompleteHandler(event)">
 	<s:layout>
 		<s:VerticalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2"/>
 	</s:layout>
@@ -11,12 +12,18 @@
 		<![CDATA[
 			import com.crispico.chart.IntervalData;
 			
+			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
+			import mx.events.FlexEvent;
 			
 			import spark.events.TextOperationEvent;
 			
 			
 			public var selectedInterval:IntervalData;
+			
+			public function creationCompleteHandler(event:FlexEvent):void {
+				rend.makeIntervals();
+			}
 			
 			public function addIntervalHandler(event:MouseEvent):void {
 				var idt:IntervalData = new IntervalData();
@@ -39,6 +46,7 @@
 				rend.changedLength = true;
 				rend.invalidateProperties();
 			}
+			
 			
 		]]>
 	</fx:Script>
