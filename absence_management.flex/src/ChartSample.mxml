@@ -1,27 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
+			   xmlns:chart="com.crispico.chart.*"
+			   creationComplete="application1_creationCompleteHandler(event)">
+	
 	<s:layout>
 		<s:VerticalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2"/>
 	</s:layout>
-	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
-	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.crispico.chart.IntervalData;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			private var dataProvider:ArrayCollection;
+			
+			private function generateClickHandler(event:MouseEvent):void {
+				dataProvider.removeAll();
+				for(var i:int = 0; i < 7; i ++){
+					var item:IntervalData = new IntervalData();
+					item.value = chart.newNoUnits / 7;
+					item.color = 0xffffff * Math.random(); 
+					dataProvider.addItem(item);
+				}
+			}
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void{
+				dataProvider = new ArrayCollection();				
+				var item1:IntervalData = new IntervalData();
+				
+				item1.value = 1;
+				item1.color = 0xffffff * Math.random();
+				dataProvider.addItem(item1);
+				
+				var item2:IntervalData = new IntervalData();
+				item2.value = 6;
+				item2.color = 0xffffff * Math.random();
+				dataProvider.addItem(item2);
+				
+				var item3:IntervalData = new IntervalData();
+				item3.value = 4;
+				item3.color = 0xffffff * Math.random();
+				dataProvider.addItem(item3);
+			}
+			
+			protected function addClickHandler(event:MouseEvent):void{
+				var item:IntervalData = new IntervalData();
+				
+				item.value = 2;
+				item.color = 0xffffff * Math.random();
+				
+				chart.addNewItem(item);				
+			}
+			
+			protected function deleteClickHandler(event:MouseEvent):void{
+				dataProvider.removeItemAt(dataProvider.getItemIndex(chart.getIntervalDataSelected()));		
+			}
+			
+			protected function valueChangedHandler(event:KeyboardEvent):void{
+				if(event.keyCode == Keyboard.ENTER)
+					chart.updateItem(Number(valueChanged.text),
+									 dataProvider.getItemIndex(chart.getIntervalDataSelected()));					
+			}
+			
+			protected function chart_cellSelectionHandler(event:Event):void{
+				valueChanged.text = IntervalData(chart.selectedItem.data).value + "";
+			}
+			
+		]]>
+	</fx:Script>
+	
 	<s:Panel title="Commands" width="100%" height="60">
 		<s:layout>
-			<s:HorizontalLayout paddingBottom="2" paddingTop="2" paddingRight="2" paddingLeft="2" verticalAlign="middle"/>
+			<s:HorizontalLayout paddingBottom="2" paddingTop="2" 
+								paddingRight="2" paddingLeft="2" 
+								verticalAlign="middle"/>
 		</s:layout>
-		<s:Button label="Populate with data" toolTip="Changes the data provider with a new one with 7 Intervals"/>
-		<s:Label text="Value of selected interval" toolTip="On change => the value in the model is updated"/>
-		<s:TextInput/>
-		<s:Button label="Add" toolTip="Adds a new interval with value = 2"/>
-		<s:Button label="Delete" toolTip="Deletes the selected interval"/>
+		<s:Button label="Populate with data"
+				  toolTip="Changes the data provider with a new one with 7 Intervals"
+				  click="generateClickHandler(event)"/>
+		<s:Label text="Value of selected interval"
+				 toolTip="On change => the value in the model is updated"/>
+		<s:TextInput id="valueChanged" keyDown="valueChangedHandler(event)"/>
+		<s:Button label="Add"
+				  toolTip="Adds a new interval with value = 2"
+				  click="addClickHandler(event)"/>
+		<s:Button label="Delete"
+				  toolTip="Deletes the selected interval"
+				  click="deleteClickHandler(event)"/>
 		<s:Label text="Interval" toolTip="On change => the chart is updated"/>
-		<s:TextInput/>
-		
+		<s:TextInput id="intervals" text="{chart.newNoUnits}"/>
 	</s:Panel>
-	<s:Panel title="Chart" width="100%">
-		
+	
+	<s:Panel id="panel" title="Chart" width="100%">
+		<chart:Chart id="chart"
+					 height="100%" width="{panel.width}"
+					 dataProvider="{dataProvider}"
+					 newNoUnits="{Number(intervals.text)}"
+					 cellSelection="chart_cellSelectionHandler(event)"/>
 	</s:Panel>
 </s:Application>

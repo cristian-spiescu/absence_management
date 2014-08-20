@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <services-config>
 
+	<security>
+		<!-- This object will be responsible for authorization and authentication 
+			on server side. -->
+		<login-command class="test.MyLoginCommand"
+			server="all">
+			<!-- Based on this property, multiple users can be logged into the system, 
+				using the same browser and more tabs. If true when opening a new tab, the 
+				session is not shared with the other tab. More informations can be found 
+				at http://livedocs.adobe.com/blazeds/1/blazeds_devguide/help.html?content=services_security_5.html 
+				We keep it true because otherwise logging out from a tab made also a logout 
+				on a different tab in the same browser. -->
+			<per-client-authentication>true</per-client-authentication>
+		</login-command>
+		<security-constraint id="tomcatSecurityConstraint">
+			<!-- The Custom value is used in order to use the Flex's application authentication 
+				and not the Browser's authentication. More details in http://livedocs.adobe.com/blazeds/1/blazeds_devguide/help.html?content=services_security_2.html. -->
+			<auth-method>Custom</auth-method>
+		</security-constraint>
+	</security>	
+
     <services>
 		<service id="remoting-service" class="flex.messaging.services.RemotingService">
 		    <adapters>
@@ -13,12 +33,15 @@
 				<properties>
 				    <source>com.crispico.absence_management.service.EmployeeService</source>
 				</properties>
+				<security> 
+		            <security-constraint ref="tomcatSecurityConstraint"/> 
+		        </security> 
 			</destination>
 			<destination id="absenceService">
 				<properties>
 				    <source>com.crispico.absence_management.service.AbsenceService</source>
 				</properties>
-			</destination>			
+			</destination>	
 		</service>
 	</services>
 	

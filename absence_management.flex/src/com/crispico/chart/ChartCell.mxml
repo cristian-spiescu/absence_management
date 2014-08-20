@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:DataRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				height="100%" click="datarenderer1_focusInHandler(event)"
+				toolTip="{IntervalData(data).value} units">	
+	
+	<fx:Metadata> 
+		[Event(name="selection")] 
+	</fx:Metadata> 
+	
+	<fx:Script>
+		<![CDATA[			
+			protected function datarenderer1_focusInHandler(event:MouseEvent):void{
+				dispatchEvent(new Event("selection"));
+			}
+		]]>
+	</fx:Script>	
+	
+	<s:Rect id="rect1" height="100%">
+		<s:fill>
+			<s:SolidColor id="sc1" color="{IntervalData(data).color}"/>
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke id="solid" color="0x660099" weight="2"/>
+		</s:stroke>
+	</s:Rect>
+	
+</s:DataRenderer>

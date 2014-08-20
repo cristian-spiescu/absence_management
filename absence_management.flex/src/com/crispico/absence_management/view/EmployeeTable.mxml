@@ -11,13 +11,48 @@
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import mx.managers.PopUpManager;
+			import mx.rpc.AsyncResponder;
+			import mx.rpc.AsyncToken;
+			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;			
 			
 			[Bindable]
 			public var list:ArrayCollection = new ArrayCollection();			
 			
 			private function creationCompleteHandler(event:FlexEvent):void {
-				employeeService.getAllEmployees();
+				//employeeService.getAllEmployees();
+			}
+			
+			private function loginClickHandler(event:MouseEvent):void {
+				var form:LoginForm = new LoginForm();
+				form.table = this;
+				PopUpManager.addPopUp(form, this, true);
+				PopUpManager.centerPopUp(form);
+			}
+			
+			// Logout and handle success or failure. 
+			private function ROLogout():void { 
+				// Add result and fault handlers. 
+				var token:AsyncToken = channelSet.logout(); 
+				token.addResponder(new AsyncResponder(LogoutResultEvent,LogoutFaultEvent)); 
+			} 
+			
+			// Handle successful logout. 
+			private function LogoutResultEvent(event:ResultEvent, token:Object=null):void { 
+				switch (event.result) { 
+					case "success": 
+						ArrayCollection(grid.dataProvider).removeAll();
+						list.removeAll();
+						logoutButton.enabled = false;
+						loginButton.enabled = true;
+						break; 
+					default: 
+				} 
+			} 
+			
+			// Handle logout failure. 
+			private function LogoutFaultEvent(event:FaultEvent, token:Object=null):void { 
+				Alert.show("Logout failure: " + event.fault.faultString); 
 			}
 			
 			private function addClickHandler(event:MouseEvent):void {
@@ -52,7 +87,6 @@
 			
 			private function filterClickHandler(event:MouseEvent):void {
 				var form:AbsenceFilter = new AbsenceFilter();
-//				form.employee = Employee(grid.selectedItem);
 				form.height = this.height;
 				form.width = this.width;
 				PopUpManager.addPopUp(form, this, true);
@@ -62,6 +96,11 @@
 			private function getAllEmployeesResultHandler(event:ResultEvent):void {
 				list = ArrayCollection(event.result);
 				grid.dataProvider = list;
+			}
+			
+			public function deleteAllEmployeesResultHandler():void {
+				ArrayCollection(grid.dataProvider).removeAll();
+				list.removeAll();
 			}
 			
 		]]>
@@ -88,6 +127,21 @@
 	</fx:Declarations>
 	
 	<s:HGroup height="70" paddingLeft="20" verticalAlign="middle" chromeColor="0x003300">
+		<mx:Button label="Login"
+				   id="loginButton"
+				   enabled="true"
+				   fontSize="18"
+				   chromeColor="0x330000" color="0xe0e0e0"
+				   height="28"
+				   click="loginClickHandler(event);"/>
+		<mx:Button label="Logout"
+				   id="logoutButton"
+				   enabled="false"
+				   fontSize="18"
+				   chromeColor="0x330000" color="0xe0e0e0"
+				   height="28"
+				   click="ROLogout();"/>
+		
 		<mx:Button label="Add new employee"
 				  fontSize="18"
 				  chromeColor="0x330000" color="0xe0e0e0"

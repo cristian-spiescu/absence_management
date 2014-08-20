@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   close="PopUpManager.removePopUp(this)"
+			   title="Login">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.AsyncResponder;
+			import mx.rpc.AsyncToken;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			// Define an AsyncToken object. 
+			public var token:AsyncToken;
+			
+			[Bindable]		
+			public var table:EmployeeTable;
+			
+			// Login and handle authentication success or failure.  
+			private function ROLogin():void { 
+				// Make sure that the user is not already logged in. 
+				if (channelSet.authenticated == false) { 
+					token = channelSet.login(username.text, password.text); 
+					// Add result and fault handlers. 
+					token.addResponder(new AsyncResponder(LoginResultEvent, LoginFaultEvent)); 
+				} 
+			} 
+			
+			// Handle successful login. 
+			private function LoginResultEvent(event:ResultEvent, token:Object=null):void  { 
+				switch(event.result) { 
+					case "success": 
+						table.employeeService.getAllEmployees();
+						PopUpManager.removePopUp(this);
+						table.logoutButton.enabled = true;
+						table.loginButton.enabled = false;
+						break; 
+					default: 
+				} 
+			} 
+			
+			// Handle login failure. 
+			private function LoginFaultEvent(event:FaultEvent, token:Object=null):void { 
+				switch(event.fault.faultCode) { 
+					case "Client.Authentication": 
+					default:
+						Alert.show("Login failure: " + event.fault.faultString); 
+				} 
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ChannelSet id="channelSet">
+			<s:AMFChannel url="messagebroker/remoting-amf"/>
+		</s:ChannelSet>
+		<mx:RemoteObject id="employeeService" destination="employeeService" channelSet="{channelSet}"/>
+	</fx:Declarations>	
+	
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	
+	<s:HGroup height="100" paddingTop="20" paddingLeft="20" verticalAlign="middle" gap="30">
+		<s:Form>
+			<s:FormItem label="Username:" required="true">
+				<s:TextInput id="username"/>					
+			</s:FormItem>
+			<s:FormItem label="Password:" required="true" >
+				<s:TextInput id="password" displayAsPassword="true"/>					
+			</s:FormItem>		
+		</s:Form>	
+	</s:HGroup>
+	<s:HGroup width="390"
+			  paddingBottom="20" gap="15"
+			  horizontalAlign="center">
+		<s:Button id="ok" label="Login"
+				  click="ROLogin()"/>
+		<s:Button label="Cancel"
+				  click="PopUpManager.removePopUp(this)"/>
+	</s:HGroup>
+	
+</s:TitleWindow>
