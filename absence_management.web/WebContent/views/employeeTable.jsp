@@ -22,7 +22,11 @@
 		<p>
 		<div class="panel panel-success">
 			<div class="panel-heading">
-				<h3 class="panel-title">Employees</h3>
+				<h3 class="panel-title">Employees</h3>				
+			</div>
+			<div>
+				<% String URL = "http://www.gravatar.com/avatar/" + request.getAttribute("hash") + "?d=identicon";%>
+				<img src="<%= URL %>"/>
 			</div>
 			<div class="panel-body">
 				<table class="table table-bordered table-striped">
